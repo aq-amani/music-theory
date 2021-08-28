@@ -93,7 +93,10 @@ def play_wave(wave, ms):
 
 def play_piece(notes, ms):
     for n in notes:
-        play_wave(sine_wave(n, sampling), ms)
+        play_note(n, ms)
+
+def play_note(note, ms):
+    play_wave(sine_wave(note, sampling), ms)
 
 def init():
     ##pygame 1.9.4
