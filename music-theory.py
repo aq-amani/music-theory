@@ -24,6 +24,19 @@ diminished_chord_signature = [1,'b3','b5'] # Sad with drama
 augmented_chord_signature = [1,3,'5#'] # Strange as if moving to another dimension / (#) for sharp
 sus2_chord_signature = [1,2,5] # Suspended 2
 sus4_chord_signature = [1,4,5] # Suspended 4
+# 7ths chords (4 note chords)
+maj7_chord_signature = [1,3,5,7] # Major 7th
+min7_chord_signature = [1,'b3',5,'b7'] # minor 7th
+dom7_chord_signature = [1,3,5,'b7'] # Dominant 7th
+# Diminished chords / Kind of Jazzy feeling
+half_dim_chord_signature = [1,'b3','b5','b7'] # AKA minor 7th flat 5 (m7b5)
+whole_dim_chord_signature = [1,'b3','b5',6] # AKA diminished 7th.
+#Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats yet. 'bb7' is 6 on a major scale.
+
+# 9ths chords (5 note chords) / 5 can be ommited without much sound difference
+maj9_chord_signature = [1,3,5,7,9] # Major 9th
+min9_chord_signature = [1,'b3',5,'b7',9] # minor 9th
+dom9_chord_signature = [1,3,5,'b7',9] # Dominant 9th
 
 #Octave 4
 basic_notes = {
