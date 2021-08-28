@@ -228,6 +228,7 @@ def main():
     play_all_scales('minor', minor_scale_signature)
     play_all_scales('Diminished', diminished_scale_signature)
     play_all_scales('Augmented', augmented_scale_signature)
+    play_all_scales('Pentatonic', maj_pentatonic_scale_signature)
 
     print('Playing all chords..')
     play_all_chords('Major', major_chord_signature)
