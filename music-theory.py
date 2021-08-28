@@ -17,8 +17,6 @@ maj_pentatonic_scale_signature = [T,T,T*S,T,T*S]
 ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
 ##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
 
-octave = 2
-
 major_chord_signature = [1,3,5]
 basic_triad_signature = [1,3,5]
 #minor_chord_signature = [1,'b3',5] # f for flat (b)
@@ -98,8 +96,12 @@ def play_piece(notes, ms):
         play_wave(sine_wave(n, sampling), ms)
 
 def init():
-    pygame.mixer.pre_init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
-    pygame.init()
+    ##pygame 1.9.4
+    #pygame.mixer.pre_init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
+    #pygame.init()
+
+    ##pygame 1.9.6/win7
+    pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
 
 def main():
     init()
