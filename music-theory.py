@@ -174,6 +174,23 @@ def play_note(note, ms):
     """
     play_wave(sine_wave(note, sampling), ms)
 
+def play_all_scales(name, scale_signature):
+    print(f'Playing all {name} scales')
+    for note_name, note_freq in basic_notes.items():
+        print(f'{note_name} {name} scale..')
+        scale = construct_scale(note_freq, scale_signature, 2)
+        play_piece(scale, 100)
+    pygame.time.delay(200)
+
+def play_all_chords(name, chord_signature):
+    print(f'Playing all {name} triad chords')
+    for note_name, note_freq in basic_notes.items():
+        scale = construct_scale(note_freq, major_scale_signature, 2)
+        chord = construct_chord(note_freq, chord_signature, scale)
+        print(f'{name} {note_name} chord..')
+        play_chord(chord, chord_signature, scale)
+        pygame.time.delay(200)
+
 def init():
     """Code to initialize pygame"""
     ##pygame 1.9.4
@@ -186,11 +203,27 @@ def init():
 def main():
     init()
 
-    scale = construct_scale(basic_notes["D"], diminished_scale_signature, 1)
-    play_piece(scale, 500)
+    #scale = construct_scale(basic_notes["G"], major_scale_signature, 2)
+    #play_piece(scale, 500)
 
-    chord = construct_chord(basic_notes["D"], major_chord_signature, scale)
-    play_chord(chord, major_chord_signature, scale)
+    #chord = construct_chord(basic_notes["G"], sus4_chord_signature, scale)
+    #play_chord(chord, sus4_chord_signature, scale)
+
+  ## TODO: Wrap away in some function maybe
+    ## Test run
+    print('Playing all scales..')
+    play_all_scales('Major', major_scale_signature)
+    play_all_scales('minor', minor_scale_signature)
+    play_all_scales('Diminished', diminished_scale_signature)
+    play_all_scales('Augmented', augmented_scale_signature)
+
+    print('Playing all chords..')
+    play_all_chords('Major', major_chord_signature)
+    play_all_chords('minor', minor_chord_signature)
+    play_all_chords('Diminished', diminished_chord_signature)
+    play_all_chords('Augmented', augmented_chord_signature)
+    play_all_chords('Sus2', sus2_chord_signature)
+    play_all_chords('Sus4', sus4_chord_signature)
 
 
 if __name__ == '__main__':
