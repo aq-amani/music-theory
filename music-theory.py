@@ -8,8 +8,7 @@ sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-SCALE_LENGTH = 7 # standard one octave scale length
-#SCALE_LENGTH = 5
+
 major_scale_signature = [T,T,S,T,T,T,S]
 minor_scale_signature = [T,S,T,T,S,T,T]
 diminished_scale_signature = [T,S,T,S,T,S,T]
@@ -66,11 +65,13 @@ def construct_scale(root, scale_signature, octave):
     octave -- octave with which to construct the scale with. 1 is for frequencies in basic_notes
     """
     note = root * octave
+    scale_length = len(scale_signature)
     scale = []
-    for i in range(SCALE_LENGTH):
-        scale.append(note)
-        note *= scale_signature[i % SCALE_LENGTH]
+    scale.append(note)
+    for i in range(scale_length):
+        note *= scale_signature[i % scale_length]
         note = round(note,2)
+        scale.append(note)
     return scale
 
 def construct_chord(root, chord_signature, base_scale):
