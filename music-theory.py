@@ -18,15 +18,13 @@ maj_pentatonic_scale_signature = [T,T,T*S,T,T*S]
 ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
 ##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
 
-major_chord_signature = [1,3,5]
+major_chord_signature = [1,3,5] # Happy
 basic_triad_signature = [1,3,5]
-minor_chord_signature = [1,'b3',5] # (b) for flat
-diminished_chord_signature = [1,'b3','b5']
-augmented_chord_signature = [1,3,'5#'] # (#) for sharp
-sus2_chord_signature = [1,2,5]
-sus4_chord_signature = [1,4,5]
-
-major_scale = []
+minor_chord_signature = [1,'b3',5] # Sad / (b) for flat
+diminished_chord_signature = [1,'b3','b5'] # Sad with drama
+augmented_chord_signature = [1,3,'5#'] # Strange as if moving to another dimension / (#) for sharp
+sus2_chord_signature = [1,2,5] # Suspended 2
+sus4_chord_signature = [1,4,5] # Suspended 4
 
 #Octave 4
 basic_notes = {
@@ -83,6 +81,7 @@ def construct_chord(root, chord_signature, base_scale):
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
+    ## TODO: convert the if block here to a function
     chord = 0
     for index in chord_signature:
         if type(index) is str:
@@ -106,6 +105,7 @@ def play_chord(chord, chord_signature, base_scale):
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
+    ## TODO: convert the if block here to a function
     play_wave(chord, 700)
     pygame.time.delay(100)
     for index in chord_signature:
