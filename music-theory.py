@@ -1,6 +1,7 @@
 import pygame, pygame.sndarray
 import numpy
 import scipy.signal
+import re
 
 sample_rate = 44100
 sampling = 4096    # or 16384
@@ -19,9 +20,9 @@ maj_pentatonic_scale_signature = [T,T,T*S,T,T*S]
 
 major_chord_signature = [1,3,5]
 basic_triad_signature = [1,3,5]
-#minor_chord_signature = [1,'b3',5] # f for flat (b)
-#diminshed_chord_signature = [1,3f,5f]
-#augmented_chord_signature = [1,3,5s] # s for sharp (#)
+minor_chord_signature = [1,'b3',5] # (b) for flat
+diminished_chord_signature = [1,'b3','b5']
+augmented_chord_signature = [1,3,'5#'] # (#) for sharp
 sus2_chord_signature = [1,2,5]
 sus4_chord_signature = [1,4,5]
 
@@ -84,7 +85,17 @@ def construct_chord(root, chord_signature, base_scale):
     """
     chord = 0
     for index in chord_signature:
-        chord = sum([chord, sine_wave(base_scale[index-1], sampling)])
+        if type(index) is str:
+            i = int(re.findall(r'\d+', index)[0])
+            if 'b' in index:
+               note = flatten(base_scale[i-1])
+               #print (f'{n} is flat {i}')
+            elif '#' in index:
+               note = sharpen(base_scale[i-1])
+               #print (f'{n} is sharp {i}')
+        else:
+            note = base_scale[index-1]
+        chord = sum([chord, sine_wave(note, sampling)])
     return chord
 
 def play_chord(chord, chord_signature, base_scale):
@@ -98,7 +109,17 @@ def play_chord(chord, chord_signature, base_scale):
     play_wave(chord, 700)
     pygame.time.delay(100)
     for index in chord_signature:
-        play_wave(sine_wave(base_scale[index-1], sampling), 500)
+        if type(index) is str:
+            i = int(re.findall(r'\d+', index)[0])
+            if 'b' in index:
+               note = flatten(base_scale[i-1])
+               #print (f'{n} is flat {i}')
+            elif '#' in index:
+               note = sharpen(base_scale[i-1])
+               #print (f'{n} is sharp {i}')
+        else:
+            note = base_scale[index-1]
+        play_wave(sine_wave(note, sampling), 500)
     pygame.time.delay(100)
     play_wave(chord, 700)
 
