@@ -180,8 +180,19 @@ def play_all_scales(name, scale_signature):
     for note_name, note_freq in basic_notes.items():
         print(f'{note_name} {name} scale..')
         scale = construct_scale(note_freq, scale_signature, 2)
-        play_piece(scale, 100)
+        play_scale(scale, 300)
     pygame.time.delay(200)
+
+def play_scale(scale, ms):
+    """Play a scale forward and backward
+
+    Arguments:
+    scale -- array of notes
+    ms -- length in milliseconds for each note
+    """
+    play_piece(scale, ms)
+    reverse_scale = scale[::-1]
+    play_piece(reverse_scale[1:], ms) # drop the first element to nicely play the reverse part
 
 def play_all_chords(name, chord_signature):
     print(f'Playing all {name} triad chords')
