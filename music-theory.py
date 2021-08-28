@@ -46,6 +46,11 @@ basic_notes = {
 def sine_wave(hz, peak, n_samples=sample_rate):
     """Compute N samples of a sine wave with given frequency and peak amplitude.
        Defaults to one second.
+
+    Arguments:
+    hz -- sinewave frequency
+    peak -- amplitude of wave
+    n_samples -- sample rate
     """
     length = sample_rate / float(hz)
     omega = numpy.pi * 2 / length
@@ -54,6 +59,13 @@ def sine_wave(hz, peak, n_samples=sample_rate):
     return numpy.resize(onecycle, (n_samples,)).astype(numpy.int16)
 
 def construct_scale(root, scale_signature, octave):
+    """Construct a musical scale from a root note
+
+    Arguments:
+    root -- root note of the scale
+    scale_signature -- array of frequency ratios between consecutive notes on the scale
+    octave -- octave with which to construct the scale with. 1 is for frequencies in basic_notes
+    """
     note = root * octave
     scale = []
     for i in range(SCALE_LENGTH):
@@ -63,12 +75,26 @@ def construct_scale(root, scale_signature, octave):
     return scale
 
 def construct_chord(root, chord_signature, base_scale):
+    """Construct a wave from a combination of simultaneous notes(chord)
+
+    Arguments:
+    root -- root note of the chord
+    chord_signature -- indexes of notes within the base scale
+    base_scale -- reference scale from where notes are picked up to form chords
+    """
     chord = 0
     for index in chord_signature:
         chord = sum([chord, sine_wave(base_scale[index-1], sampling)])
     return chord
 
 def play_chord(chord, chord_signature, base_scale):
+    """Play a combination of notes simultaneously (chord)
+
+    Arguments:
+    chord -- wave object constructed from summing multiple waves representing single notes
+    chord_signature -- indexes of notes within the base scale
+    base_scale -- reference scale from where notes are picked up to form chords
+    """
     play_wave(chord, 700)
     pygame.time.delay(100)
     for index in chord_signature:
@@ -77,13 +103,29 @@ def play_chord(chord, chord_signature, base_scale):
     play_wave(chord, 700)
 
 def sharpen(note):
+    """Increase the note frequency by a half step. Ex.: C becomes C# (C sharp)
+
+    Arguments:
+    note -- frequency of note in Hz
+    """
     return note * S
 
 def flatten(note):
+    """Drop the note frequency by a half step. Ex.: C becomes Cb (C flat)
+
+    Arguments:
+    note -- frequency of note in Hz
+    """
+
     return note / S
 
 def play_wave(wave, ms):
-    """Play given samples, as a sound, for ms milliseconds."""
+    """Play given samples, as a sound, for ms milliseconds.
+
+    Arguments:
+    wave -- wave to play
+    ms -- length in milliseconds to play
+    """
     # In pygame 1.9.1, we can pass sample_wave directly,
     # but in 1.9.2 they changed the mixer to only accept ints.
     sound = pygame.sndarray.make_sound(wave.astype(int))
@@ -92,13 +134,27 @@ def play_wave(wave, ms):
     sound.stop()
 
 def play_piece(notes, ms):
+    """Play an array of notes ms milliseconds each
+
+    Arguments:
+    notes -- array of frequencies
+    ms -- length in milliseconds for notes to play
+    """
+
     for n in notes:
         play_note(n, ms)
 
 def play_note(note, ms):
+    """Play one note for ms milliseconds. A note is a frequency in Hz
+
+    Arguments:
+    note -- frequency of note in Hz
+    ms -- length in milliseconds for note to play
+    """
     play_wave(sine_wave(note, sampling), ms)
 
 def init():
+    """Code to initialize pygame"""
     ##pygame 1.9.4
     #pygame.mixer.pre_init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
     #pygame.init()
