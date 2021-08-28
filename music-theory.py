@@ -250,7 +250,12 @@ def main():
     play_all_chords('Augmented', augmented_chord_signature)
     play_all_chords('Sus2', sus2_chord_signature)
     play_all_chords('Sus4', sus4_chord_signature)
-
+    play_all_chords('Maj 7th', maj7_chord_signature)
+    play_all_chords('min 7th', min7_chord_signature)
+    play_all_chords('Dominant 7th', dom7_chord_signature)
+    play_all_chords('Half diminished', half_dim_chord_signature)
+    play_all_chords('Whole diminished', whole_dim_chord_signature)
+    # TODO: Create multi-octave scales to play 9ths chords
 
 if __name__ == '__main__':
     main()
