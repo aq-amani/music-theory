@@ -8,7 +8,9 @@ sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-
+## TODO: Consider a better way to express scale signatures(something like 0.5, 1 ,1.5 ?)
+## TODO: Use classes for scales, chords and notes?(ex.: scales.major, chord.type..etc)
+## TODO: Make the script interactive. Create scale? chord?, type? root? octave?..etc
 major_scale_signature = [T,T,S,T,T,T,S]
 minor_scale_signature = [T,S,T,T,S,T,T]
 diminished_scale_signature = [T,S,T,S,T,S,T]
