@@ -14,6 +14,8 @@ minor_scale_signature = [T,S,T,T,S,T,T]
 diminished_scale_signature = [T,S,T,S,T,S,T]
 augmented_scale_signature = [T*S,S,T*S,S,T*S,S,T*S]
 maj_pentatonic_scale_signature = [T,T,T*S,T,T*S]
+min_pentatonic_scale_signature = [T*S,T,T,T*S,T]
+blues_scale_signature = [T*S,T,S,S,T*S,T]
 ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
 ##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
 
@@ -240,7 +242,9 @@ def test_run():
     play_all_scales('minor', minor_scale_signature)
     play_all_scales('Diminished', diminished_scale_signature)
     play_all_scales('Augmented', augmented_scale_signature)
-    play_all_scales('Pentatonic', maj_pentatonic_scale_signature)
+    play_all_scales('Maj Pentatonic', maj_pentatonic_scale_signature)
+    play_all_scales('Min Pentatonic', min_pentatonic_scale_signature)
+    play_all_scales('Blues', blues_scale_signature)
 
     print('Playing all chords..')
     play_all_chords('Major', major_chord_signature)
