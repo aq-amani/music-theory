@@ -234,8 +234,11 @@ def main():
     #chord = construct_chord(basic_notes["G"], sus4_chord_signature, scale)
     #play_chord(chord, sus4_chord_signature, scale)
 
-  ## TODO: Wrap away in some function maybe
-    ## Test run
+    test_run()
+
+def test_run():
+    """Plays all defined scales and chords with all basic_note roots"""
+
     print('Playing all scales..')
     play_all_scales('Major', major_scale_signature)
     play_all_scales('minor', minor_scale_signature)
