@@ -69,20 +69,23 @@ def sine_wave(hz, peak, n_samples=sample_rate):
     onecycle = peak * numpy.sin(xvalues)
     return numpy.resize(onecycle, (n_samples,)).astype(numpy.int16)
 
-def construct_scale(root, scale_signature, octave):
+def construct_scale(root, scale_signature, octave, scale_length=None):
     """Construct a musical scale from a root note
 
     Arguments:
     root -- root note of the scale
     scale_signature -- array of frequency ratios between consecutive notes on the scale
     octave -- octave with which to construct the scale with. 1 is for frequencies in basic_notes
+    scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
     note = root * octave
-    scale_length = len(scale_signature)
+    if not scale_length:
+        # If not specified, default to standard scale length
+        scale_length = len(scale_signature)
     scale = []
     scale.append(note)
     for i in range(scale_length):
-        note *= scale_signature[i % scale_length]
+        note *= scale_signature[i % len(scale_signature)]
         note = round(note,2)
         scale.append(note)
     return scale
@@ -210,7 +213,7 @@ def play_scale(scale, ms):
 def play_all_chords(name, chord_signature):
     print(f'Playing all {name} triad chords')
     for note_name, note_freq in basic_notes.items():
-        scale = construct_scale(note_freq, major_scale_signature, 2)
+        scale = construct_scale(note_freq, major_scale_signature, 2, 9)
         chord = construct_chord(note_freq, chord_signature, scale)
         print(f'{name} {note_name} chord..')
         play_chord(chord, chord_signature, scale)
@@ -258,7 +261,9 @@ def test_run():
     play_all_chords('Dominant 7th', dom7_chord_signature)
     play_all_chords('Half diminished', half_dim_chord_signature)
     play_all_chords('Whole diminished', whole_dim_chord_signature)
-    # TODO: Create multi-octave scales to play 9ths chords
+    play_all_chords('Maj 9th', maj9_chord_signature)
+    play_all_chords('min 9th', min9_chord_signature)
+    play_all_chords('Dominant 9th', dom9_chord_signature)
 
 if __name__ == '__main__':
     main()
