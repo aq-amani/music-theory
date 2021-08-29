@@ -98,21 +98,24 @@ def construct_chord(root, chord_signature, base_scale):
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
-    ## TODO: convert the if block here to a function
     chord = 0
     for index in chord_signature:
-        if type(index) is str:
-            i = int(re.findall(r'\d+', index)[0])
-            if 'b' in index:
-               note = flatten(base_scale[i-1])
-               #print (f'{n} is flat {i}')
-            elif '#' in index:
-               note = sharpen(base_scale[i-1])
-               #print (f'{n} is sharp {i}')
-        else:
-            note = base_scale[index-1]
+        note = note_modifier(index, base_scale)
         chord = sum([chord, sine_wave(note, sampling)])
     return chord
+
+def note_modifier(note_index, base_scale):
+    if type(note_index) is str:
+        i = int(re.findall(r'\d+', note_index)[0])
+        if 'b' in note_index:
+           note = flatten(base_scale[i-1])
+           #print (f'{n} is flat {i}')
+        elif '#' in note_index:
+           note = sharpen(base_scale[i-1])
+           #print (f'{n} is sharp {i}')
+    else:
+        note = base_scale[note_index-1]
+    return note
 
 def play_chord(chord, chord_signature, base_scale):
     """Play a combination of notes simultaneously (chord)
@@ -122,20 +125,10 @@ def play_chord(chord, chord_signature, base_scale):
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
-    ## TODO: convert the if block here to a function
     play_wave(chord, 700)
     pygame.time.delay(100)
     for index in chord_signature:
-        if type(index) is str:
-            i = int(re.findall(r'\d+', index)[0])
-            if 'b' in index:
-               note = flatten(base_scale[i-1])
-               #print (f'{n} is flat {i}')
-            elif '#' in index:
-               note = sharpen(base_scale[i-1])
-               #print (f'{n} is sharp {i}')
-        else:
-            note = base_scale[index-1]
+        note = note_modifier(index, base_scale)
         play_wave(sine_wave(note, sampling), 500)
     pygame.time.delay(100)
     play_wave(chord, 700)
