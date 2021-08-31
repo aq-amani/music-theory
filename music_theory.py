@@ -182,16 +182,16 @@ def play_piece(notes, ms):
     """
 
     for n in notes:
-        play_note(n, ms)
+        play_note_by_frequency(n, ms)
 
-def play_note(note, ms):
-    """Play one note for ms milliseconds. A note is a frequency in Hz
+def play_note_by_frequency(note_f, ms):
+    """Play one note for ms milliseconds by directly passing its frequency in Hz
 
     Arguments:
-    note -- frequency of note in Hz
+    note_f -- frequency of note in Hz
     ms -- length in milliseconds for note to play
     """
-    play_wave(sine_wave(note, sampling), ms)
+    play_wave(sine_wave(note_f, sampling), ms)
 
 def play_all_scales(name, scale_signature):
     print(f'Playing all {name} scales')
@@ -220,6 +220,52 @@ def play_all_chords(name, chord_signature):
         print(f'{name} {note_name} chord..')
         play_chord(chord, chord_signature, scale)
         pygame.time.delay(200)
+
+def play_note_by_name(note_name, ms, octave):
+    """Play one note for ms milliseconds by passing note name
+
+    Arguments:
+    note_name -- note name as in C, C#, D..etc
+    ms -- length in milliseconds for note to play
+    octave --
+    """
+    f = basic_notes[note_name]
+    play_wave(sine_wave(octave*f, sampling), ms)
+
+def construct_and_play_scale(root, octave, scale_name, ms = 200):
+    """Play a scale forward and backward
+
+    Arguments:
+    scale -- array of notes
+    ms -- length in milliseconds for each note
+    """
+    scale = construct_scale(basic_notes[root], scale_signatures[scale_name], octave)
+    play_piece(scale, ms)
+    reverse_scale = scale[::-1]
+    play_piece(reverse_scale[1:], ms) # drop the first element to nicely play the reverse part
+
+def construct_and_play_chord(root, octave, chord_name):
+    """Play a combination of notes simultaneously (chord)
+
+    Arguments:
+    chord -- wave object constructed from summing multiple waves representing single notes
+    chord_signature -- indexes of notes within the base scale
+    base_scale -- reference scale from where notes are picked up to form chords
+    """
+    base_scale = construct_scale(basic_notes[root], scale_signatures['Major'], octave, 9)
+    chord = construct_chord(basic_notes[root], chord_signatures[chord_name], base_scale)
+    play_wave(chord, 700)
+    pygame.time.delay(100)
+    for index in chord_signatures[chord_name]:
+        note = note_modifier(index, base_scale)
+        play_wave(sine_wave(note, sampling), 500)
+    pygame.time.delay(100)
+    play_wave(chord, 700)
+
+def play_major_with_octave(octave):
+    #init()
+    scale = construct_scale(basic_notes["C"], scale_signatures['Major'], octave)
+    play_piece(scale, 200)
 
 def init():
     """Code to initialize pygame"""
@@ -271,3 +317,5 @@ def test_run():
 
 if __name__ == '__main__':
     main()
+else:
+    init()

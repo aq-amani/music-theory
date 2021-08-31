@@ -117,19 +117,16 @@ def mainother(stdscr):
                     screen_list[len(screen_list)-1] = chord_menu
                     mode = screen_list[current_menu_index][current_row]
                 if current_menu_index == 1:
-                    print('play octave')
                     octave = int(screen_list[current_menu_index][current_row])
                     mt.play_major_with_octave(octave)
                 elif current_menu_index == 3:
-                    print('play note with octave choice')
                     root = screen_list[current_menu_index][current_row]
-                    mt.play_note2(root, 200, octave)
+                    mt.play_note_by_name(root, 200, octave)
                 elif current_menu_index == 5:
-                    print('See if chord or octave')
                     if mode == 'Scale':
-                        mt.play_scale2(root, octave, screen_list[current_menu_index][current_row])
+                        mt.construct_and_play_scale(root, octave, screen_list[current_menu_index][current_row])
                     if mode == 'Chord':
-                        mt.play_chord2(root, octave, screen_list[current_menu_index][current_row])
+                        mt.construct_and_play_chord(root, octave, screen_list[current_menu_index][current_row])
                 if current_menu_index < len(screen_list)-1:
                     current_menu_index += 1
                     #preview_player call here
