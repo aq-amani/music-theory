@@ -99,11 +99,10 @@ def construct_scale(root, scale_signature, octave, scale_length=None):
         scale.append(note)
     return scale
 
-def construct_chord(root, chord_signature, base_scale):
+def construct_chord(chord_signature, base_scale):
     """Construct a wave from a combination of simultaneous notes(chord)
 
     Arguments:
-    root -- root note of the chord
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
@@ -114,6 +113,12 @@ def construct_chord(root, chord_signature, base_scale):
     return chord
 
 def note_modifier(note_index, base_scale):
+    """Returns the frequecy of after sharpening or flattening the note based on # or b modifiers
+
+    Arguments:
+    note_index -- Note position index on the major scale
+    base_scale -- reference scale from where notes are picked up to form chords
+    """
     if type(note_index) is str:
         i = int(re.findall(r'\d+', note_index)[0])
         if 'b' in note_index:
@@ -194,6 +199,12 @@ def play_note_by_frequency(note_f, ms):
     play_wave(sine_wave(note_f, sampling), ms)
 
 def play_all_scales(name, scale_signature):
+    """Plays scales of the type specified by scale_signature based on all root notes
+
+    Arguments:
+    name -- name of scale
+    scale_signature -- signature of the scale
+    """
     print(f'Playing all {name} scales')
     for note_name, note_freq in basic_notes.items():
         print(f'{note_name} {name} scale..')
@@ -213,10 +224,16 @@ def play_scale(scale, ms):
     play_piece(reverse_scale[1:], ms) # drop the first element to nicely play the reverse part
 
 def play_all_chords(name, chord_signature):
-    print(f'Playing all {name} triad chords')
+    """Plays chords of the type specified by chord_signature based on all root notes
+
+    Arguments:
+    name -- name of scale
+    chord_signature -- signature of the chord
+    """
+    print(f'Playing all {name} chords')
     for note_name, note_freq in basic_notes.items():
-        scale = construct_scale(note_freq, major_scale_signature, 2, 9)
-        chord = construct_chord(note_freq, chord_signature, scale)
+        scale = construct_scale(note_freq, scale_signatures['Major'], 2, 9)
+        chord = construct_chord(chord_signature, scale)
         print(f'{name} {note_name} chord..')
         play_chord(chord, chord_signature, scale)
         pygame.time.delay(200)
@@ -233,10 +250,12 @@ def play_note_by_name(note_name, ms, octave):
     play_wave(sine_wave(octave*f, sampling), ms)
 
 def construct_and_play_scale(root, octave, scale_name, ms = 200):
-    """Play a scale forward and backward
+    """Constructs a scale and Plays it forward and backward
 
     Arguments:
-    scale -- array of notes
+    root -- name of the root note (C, D ..etc)
+    scale_name -- name of the scale to play
+    octave -- octave at which to play the scale
     ms -- length in milliseconds for each note
     """
     scale = construct_scale(basic_notes[root], scale_signatures[scale_name], octave)
@@ -245,12 +264,12 @@ def construct_and_play_scale(root, octave, scale_name, ms = 200):
     play_piece(reverse_scale[1:], ms) # drop the first element to nicely play the reverse part
 
 def construct_and_play_chord(root, octave, chord_name):
-    """Play a combination of notes simultaneously (chord)
+    """Constructs a chord and Plays it
 
     Arguments:
-    chord -- wave object constructed from summing multiple waves representing single notes
-    chord_signature -- indexes of notes within the base scale
-    base_scale -- reference scale from where notes are picked up to form chords
+    root -- name of the root note (C, D ..etc)
+    chord_name -- name of the chord to play
+    octave -- octave at which to play the chord
     """
     base_scale = construct_scale(basic_notes[root], scale_signatures['Major'], octave, 9)
     chord = construct_chord(basic_notes[root], chord_signatures[chord_name], base_scale)
@@ -263,7 +282,11 @@ def construct_and_play_chord(root, octave, chord_name):
     play_wave(chord, 700)
 
 def play_major_with_octave(octave):
-    #init()
+    """Constructs and plays C root major scale with the specified octave, for octave preview purposes
+
+    Arguments:
+    octave -- octave at which to play the scale
+    """
     scale = construct_scale(basic_notes["C"], scale_signatures['Major'], octave)
     play_piece(scale, 200)
 
@@ -291,29 +314,12 @@ def test_run():
     """Plays all defined scales and chords with all basic_note roots"""
 
     print('Playing all scales..')
-    play_all_scales('Major', major_scale_signature)
-    play_all_scales('minor', minor_scale_signature)
-    play_all_scales('Diminished', diminished_scale_signature)
-    play_all_scales('Augmented', augmented_scale_signature)
-    play_all_scales('Maj Pentatonic', maj_pentatonic_scale_signature)
-    play_all_scales('Min Pentatonic', min_pentatonic_scale_signature)
-    play_all_scales('Blues', blues_scale_signature)
+    for name, signature in scale_signatures.items():
+        play_all_scales(name, signature)
 
     print('Playing all chords..')
-    play_all_chords('Major', major_chord_signature)
-    play_all_chords('minor', minor_chord_signature)
-    play_all_chords('Diminished', diminished_chord_signature)
-    play_all_chords('Augmented', augmented_chord_signature)
-    play_all_chords('Sus2', sus2_chord_signature)
-    play_all_chords('Sus4', sus4_chord_signature)
-    play_all_chords('Maj 7th', maj7_chord_signature)
-    play_all_chords('min 7th', min7_chord_signature)
-    play_all_chords('Dominant 7th', dom7_chord_signature)
-    play_all_chords('Half diminished', half_dim_chord_signature)
-    play_all_chords('Whole diminished', whole_dim_chord_signature)
-    play_all_chords('Maj 9th', maj9_chord_signature)
-    play_all_chords('min 9th', min9_chord_signature)
-    play_all_chords('Dominant 9th', dom9_chord_signature)
+    for name, signature in chord_signatures.items():
+        play_all_chords(name, signature)
 
 if __name__ == '__main__':
     main()
