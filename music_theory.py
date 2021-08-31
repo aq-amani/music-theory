@@ -18,8 +18,8 @@ scale_signatures = {
     "Minor" : [T,S,T,T,S,T,T],
     "Diminished"  : [T,S,T,S,T,S,T],
     "Augmented" : [T*S,S,T*S,S,T*S,S,T*S],
-    "Suspended_2"  : [T,T,T*S,T,T*S],
-    "Suspended_4"  : [T*S,T,T,T*S,T],
+    "Major_pentatonic"  : [T,T,T*S,T,T*S],
+    "Minor_pentatonic"  : [T*S,T,T,T*S,T],
     "Blues" : [T*S,T,S,S,T*S,T],
 }
 
