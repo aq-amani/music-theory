@@ -1,3 +1,5 @@
 numpy==1.21.2
 pygame==1.9.4
 scipy==1.7.1
+windows-curses==2.2.0
+## TODO: Look up linux version of curses
