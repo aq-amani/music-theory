@@ -11,36 +11,41 @@ T = S ** 2 # Full-tone frequency multiplier
 ## TODO: Consider a better way to express scale signatures(something like 0.5, 1 ,1.5 ?)
 ## TODO: Use classes for scales, chords and notes?(ex.: scales.major, chord.type..etc)
 ## TODO: Make the script interactive. Create scale? chord?, type? root? octave?..etc
-major_scale_signature = [T,T,S,T,T,T,S]
-minor_scale_signature = [T,S,T,T,S,T,T]
-diminished_scale_signature = [T,S,T,S,T,S,T]
-augmented_scale_signature = [T*S,S,T*S,S,T*S,S,T*S]
-maj_pentatonic_scale_signature = [T,T,T*S,T,T*S]
-min_pentatonic_scale_signature = [T*S,T,T,T*S,T]
-blues_scale_signature = [T*S,T,S,S,T*S,T]
-## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
-##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
 
-major_chord_signature = [1,3,5] # Happy
-basic_triad_signature = [1,3,5]
-minor_chord_signature = [1,'b3',5] # Sad / (b) for flat
-diminished_chord_signature = [1,'b3','b5'] # Sad with drama
-augmented_chord_signature = [1,3,'5#'] # Strange as if moving to another dimension / (#) for sharp
-sus2_chord_signature = [1,2,5] # Suspended 2
-sus4_chord_signature = [1,4,5] # Suspended 4
-# 7ths chords (4 note chords)
-maj7_chord_signature = [1,3,5,7] # Major 7th
-min7_chord_signature = [1,'b3',5,'b7'] # minor 7th
-dom7_chord_signature = [1,3,5,'b7'] # Dominant 7th
-# Diminished chords / Kind of Jazzy feeling
-half_dim_chord_signature = [1,'b3','b5','b7'] # AKA minor 7th flat 5 (m7b5)
-whole_dim_chord_signature = [1,'b3','b5',6] # AKA diminished 7th.
-#Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats yet. 'bb7' is 6 on a major scale.
+# Scale signatures
+scale_signatures = {
+    "Major"  : [T,T,S,T,T,T,S],
+    "Minor" : [T,S,T,T,S,T,T],
+    "Diminished"  : [T,S,T,S,T,S,T],
+    "Augmented" : [T*S,S,T*S,S,T*S,S,T*S],
+    "Suspended_2"  : [T,T,T*S,T,T*S],
+    "Suspended_4"  : [T*S,T,T,T*S,T],
+    "Blues" : [T*S,T,S,S,T*S,T],
+}
 
-# 9ths chords (5 note chords) / 5 can be ommited without much sound difference
-maj9_chord_signature = [1,3,5,7,9] # Major 9th
-min9_chord_signature = [1,'b3',5,'b7',9] # minor 9th
-dom9_chord_signature = [1,3,5,'b7',9] # Dominant 9th
+# Chord signatures
+chord_signatures = {
+    "Major_triad" : [1,3,5], # Happy
+    "Minor_triad" : [1,'b3',5], # Sad / (b) for flat
+    "Diminished" : [1,'b3','b5'], # Sad with drama
+    "Augmented" : [1,3,'5#'], # Strange as if moving to another dimension / (#) for sharp
+    ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
+    ##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
+    "Suspended_2" : [1,2,5], # Suspended 2
+    "Suspended_4" : [1,4,5], # Suspended 4
+    # 7ths chords (4 note chords)
+    "Major_7th" : [1,3,5,7], # Major 7th
+    "Minor_7th" : [1,'b3',5,'b7'], # minor 7th
+    "Dominant_7th" : [1,3,5,'b7'], # Dominant 7th
+    # Diminished chords / Kind of Jazzy feeling
+    "Half_diminished" : [1,'b3','b5','b7'], # AKA minor 7th flat 5 (m7b5)
+    "Whole_diminished" : [1,'b3','b5',6], # AKA diminished 7th.
+    #Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats yet. 'bb7' is 6 on a major scale.
+    # 9ths chords (5 note chords) / 5 can be ommited without much sound difference
+    "Major_9th" : [1,3,5,7,9], # Major 9th
+    "Minor_9th" : [1,'b3',5,'b7',9], # minor 9th
+    "Dominant_9th" : [1,3,5,'b7',9], # Dominant 9th
+}
 
 #Octave 4
 basic_notes = {
