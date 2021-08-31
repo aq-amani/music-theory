@@ -212,6 +212,19 @@ def play_all_scales(name, scale_signature):
         play_scale(scale, 300)
     pygame.time.delay(200)
 
+def play_all_scales_for_root(name, scale_signature, root):
+    """Plays scales of the type specified by scale_signature based on one root note
+
+    Arguments:
+    name -- name of scale
+    scale_signature -- signature of the scale
+    root -- name of root note
+    """
+    print(f'{root} {name} scale..')
+    scale = construct_scale(basic_notes[root], scale_signature, 2)
+    play_scale(scale, 300)
+    pygame.time.delay(200)
+
 def play_scale(scale, ms):
     """Play a scale forward and backward
 
@@ -237,6 +250,20 @@ def play_all_chords(name, chord_signature):
         print(f'{name} {note_name} chord..')
         play_chord(chord, chord_signature, scale)
         pygame.time.delay(200)
+
+def play_all_chords_for_root(name, chord_signature, root):
+    """Plays chords of the type specified by chord_signature based on one root note
+
+    Arguments:
+    name -- name of chord
+    chord_signature -- signature of the chord
+    root -- root note name
+    """
+    scale = construct_scale(basic_notes[root], scale_signatures['Major'], 2, 9)
+    chord = construct_chord(chord_signature, scale)
+    print(f'{name} {root} chord..')
+    play_chord(chord, chord_signature, scale)
+    pygame.time.delay(200)
 
 def play_note_by_name(note_name, ms, octave):
     """Play one note for ms milliseconds by passing note name
@@ -313,13 +340,15 @@ def main():
 def test_run():
     """Plays all defined scales and chords with all basic_note roots"""
 
-    print('Playing all scales..')
+    print('Playing all C scales..')
     for name, signature in scale_signatures.items():
-        play_all_scales(name, signature)
+#        play_all_scales(name, signature)
+         play_all_scales_for_root(name, signature, 'C')
 
-    print('Playing all chords..')
+    print('Playing all C chords..')
     for name, signature in chord_signatures.items():
-        play_all_chords(name, signature)
+        #play_all_chords(name, signature)
+        play_all_chords_for_root(name, signature, 'C')
 
 if __name__ == '__main__':
     main()
