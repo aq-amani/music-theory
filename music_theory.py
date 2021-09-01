@@ -332,7 +332,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c','--chord', choices=list(chord_signatures.keys()), help='Specify the chord type')
     group.add_argument('-s','--scale', choices=list(scale_signatures.keys()), help='Specify the scale type')
-    parser.add_argument('-o','--octave', choices=[0,1,2,3,4], help='Octave settings', default = 2)
+    parser.add_argument('-o','--octave', choices=[0,1,2,3,4], help='Octave settings', default = 2, type = int)
     parser.add_argument('-r','--root', choices=list(basic_notes.keys()) ,help='Root note name', default = 'C')
 
     args = vars(parser.parse_args())
