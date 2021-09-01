@@ -251,16 +251,20 @@ def play_one_chord_for_all_roots(chord_name):
         play_chord(chord, chord_signatures[chord_name], scale)
         pygame.time.delay(200)
 
-def play_scale(scale, ms):
-    """Play a scale forward and backward
+def play_scale(scale, ms, with_reverse=True):
+    """Plays a scale
 
     Arguments:
     scale -- array of notes
     ms -- length in milliseconds for each note
+    with_reverse -- Plays scale both forward and backwards
     """
+
+    if with_reverse:
+        # Extend scale by the reverse scale
+        reverse_scale = scale[::-1]
+        scale.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
     play_piece(scale, ms)
-    reverse_scale = scale[::-1]
-    play_piece(reverse_scale[1:], ms) # drop the first element to nicely play the reverse part
 
 def play_all_chords_for_all_roots():
     """Plays chords of the type specified by chord_signature based on all root notes
