@@ -360,6 +360,14 @@ def play_major_with_octave(octave):
     scale = construct_scale(basic_notes["C"], scale_signatures['Major'], octave)
     play_piece(scale, 200)
 
+def octave_coverter(octave):
+    """Converts an octave to a frequency multiplier.
+    Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
+
+    Arguments:
+    octave -- octave at which to play the scale
+    """
+    return 2 ** (octave - 4)
 def init():
     """Code to initialize pygame"""
     ##pygame 1.9.4
@@ -385,16 +393,17 @@ def main():
     group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type')
     group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play')
 
-    parser.add_argument('-o','--octave', choices=[0,1,2,3,4], help='Octave settings', default = 2, type = int)
+    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int)
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C')
 
     args = vars(parser.parse_args())
+    octave_multiplier = octave_coverter(args['octave'])
     if args['scale']:
-        construct_and_play_scale(args['root'], args['octave'], args['scale'])
+        construct_and_play_scale(args['root'], octave_multiplier, args['scale'])
     elif args['chord']:
-        construct_and_play_chord(args['root'], args['octave'], args['chord'])
+        construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
-        play_note_by_name(args['note'], 200, args['octave'])
+        play_note_by_name(args['note'], 200, octave_multiplier)
     #test_run()
 
 def test_run():
