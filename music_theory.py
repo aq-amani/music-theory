@@ -2,6 +2,7 @@ import pygame, pygame.sndarray
 import numpy
 import scipy.signal
 import re
+import argparse
 
 sample_rate = 44100
 sampling = 4096    # or 16384
@@ -325,13 +326,19 @@ def init():
 def main():
     init()
 
-    #scale = construct_scale(basic_notes["G"], major_scale_signature, 2)
-    #play_piece(scale, 500)
+    parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-c','--chord', choices=list(chord_signatures.keys()), help='Specify the chord type')
+    group.add_argument('-s','--scale', choices=list(scale_signatures.keys()), help='Specify the scale type')
+    parser.add_argument('-o','--octave', choices=[0,1,2,3,4], help='Octave settings', default = 2)
+    parser.add_argument('-r','--root', choices=list(basic_notes.keys()) ,help='Root note name', default = 'C')
 
-    #chord = construct_chord(basic_notes["G"], sus4_chord_signature, scale)
-    #play_chord(chord, sus4_chord_signature, scale)
-
-    test_run()
+    args = vars(parser.parse_args())
+    if args['scale']:
+        construct_and_play_scale(args['root'], args['octave'], args['scale'])
+    else:
+        construct_and_play_chord(args['root'], args['octave'], args['chord'])
+    #test_run()
 
 def test_run():
     """Plays all defined scales and chords with all basic_note roots"""
