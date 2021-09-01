@@ -7,7 +7,13 @@ If you want to play with the underlying wave frequency settings by manually edit
 
 As a general rule, please make sure the volume is low when experimenting around.
 
-## Usage examples
+## 🛠️ Setup/ Preparation
+```bash
+pipenv install --ignore-pipfile
+pipenv shell
+```
+
+## 🚀 Usage examples
 #### :musical_note: Play a simple note
 Example: C at 4th octave
 ```bash
