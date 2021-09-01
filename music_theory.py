@@ -11,9 +11,11 @@ sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-## TODO: Consider a better way to express scale signatures(something like 0.5, 1 ,1.5 ?)
-## TODO: Use classes for scales, chords and notes?(ex.: scales.major, chord.type..etc)
-## TODO: Make the script interactive. Create scale? chord?, type? root? octave?..etc
+## TODO: Review requirements on another environment
+## TODO: List available settings
+## TODO: Better help message formatting
+## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
+## TODO: Add logging
 
 # Scale signatures
 scale_signatures = {
