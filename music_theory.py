@@ -369,17 +369,28 @@ def main():
     init()
 
     parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
+    root_choices = list(basic_notes.keys())
+    root_choices.extend(['all'])
+    chord_choices = list(chord_signatures.keys())
+    chord_choices.extend(['all'])
+    scale_choices = list(scale_signatures.keys())
+    scale_choices.extend(['all'])
+
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=list(chord_signatures.keys()), help='Specify the chord type')
-    group.add_argument('-s','--scale', choices=list(scale_signatures.keys()), help='Specify the scale type')
+    group.add_argument('-c','--chord', choices=chord_choices, help='Specify the chord type')
+    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type')
+    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play')
+
     parser.add_argument('-o','--octave', choices=[0,1,2,3,4], help='Octave settings', default = 2, type = int)
-    parser.add_argument('-r','--root', choices=list(basic_notes.keys()) ,help='Root note name', default = 'C')
+    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C')
 
     args = vars(parser.parse_args())
     if args['scale']:
         construct_and_play_scale(args['root'], args['octave'], args['scale'])
-    else:
+    elif args['chord']:
         construct_and_play_chord(args['root'], args['octave'], args['chord'])
+    elif args['note']:
+        play_note_by_name(args['note'], 200, args['octave'])
     #test_run()
 
 def test_run():
