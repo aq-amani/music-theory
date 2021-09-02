@@ -48,6 +48,7 @@ chord_signatures = {
     "Major_9th" : [1,3,5,7,9], # Major 9th
     "Minor_9th" : [1,'b3',5,'b7',9], # minor 9th
     "Dominant_9th" : [1,3,5,'b7',9], # Dominant 9th
+    "Power" : [1,5,8],
 }
 
 #Octave 4
