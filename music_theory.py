@@ -353,15 +353,6 @@ def construct_and_play_chord(root, octave, chord_name):
         # Play all chords at all roots -- very long
         play_all_chords_for_all_roots()
 
-def play_major_with_octave(octave):
-    """Constructs and plays C root major scale with the specified octave, for octave preview purposes
-
-    Arguments:
-    octave -- octave at which to play the scale
-    """
-    scale = construct_scale(basic_notes["C"], scale_signatures['Major'], octave)
-    play_piece(scale, 200)
-
 def octave_coverter(octave):
     """Converts an octave to a frequency multiplier.
     Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
@@ -372,11 +363,7 @@ def octave_coverter(octave):
     return 2 ** (octave - 4)
 def init():
     """Code to initialize pygame"""
-    ##pygame 1.9.4
-    #pygame.mixer.pre_init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
-    #pygame.init()
-
-    ##pygame 1.9.6/win7
+    ##pygame 1.9.6
     pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
 
 def main():
