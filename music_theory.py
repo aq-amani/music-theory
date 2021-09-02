@@ -178,7 +178,7 @@ def play_wave(wave, ms):
     """
     # In pygame 1.9.1, we can pass sample_wave directly,
     # but in 1.9.2 they changed the mixer to only accept ints.
-    sound = pygame.sndarray.make_sound(wave.astype(int))
+    sound = pygame.sndarray.make_sound(wave.astype(numpy.int16))
     sound.play(-1)
     pygame.time.delay(ms)
     sound.stop()
