@@ -12,8 +12,6 @@ sampling = 4096    # or 16384
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
 ## TODO: Review requirements on another environment
-## TODO: List available settings
-## TODO: Better help message formatting
 ## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
 ## TODO: Add logging
 
@@ -366,6 +364,17 @@ def init():
     ##pygame 1.9.6
     pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
 
+def list_values():
+    print('## Supported notes (-n options)')
+    for n in basic_notes.keys():
+        print('|_',n)
+    print('\n## Supported scales (-s options)')
+    for s in list(scale_signatures.keys()):
+        print('|_',s)
+    print('\n## Supported chords (-c options)')
+    for c in list(chord_signatures.keys()):
+        print('|_',c)
+
 def main():
     init()
 
@@ -378,12 +387,13 @@ def main():
     scale_choices.extend(['all'])
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help='Specify the chord type')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type')
-    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play')
+    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
+    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
+    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play', metavar = '')
+    group.add_argument('-l','--list', help='List available scales, chords and notes', action ='store_true')
 
-    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int)
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C')
+    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
+    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
 
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
@@ -393,6 +403,8 @@ def main():
         construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
         play_note_by_name(args['note'], 200, octave_multiplier)
+    elif args['list']:
+        list_values()
     #test_run()
 
 def test_run():
