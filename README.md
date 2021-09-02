@@ -9,7 +9,7 @@ As a general rule, please make sure the volume is low when experimenting around.
 
 ## 🛠️ Setup/ Preparation
 ```bash
-pipenv install --ignore-pipfile
+pipenv install --ignore-pipfile --python 3.7
 pipenv shell
 ```
 

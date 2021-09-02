@@ -12,8 +12,6 @@ sampling = 4096    # or 16384
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
 ## TODO: Review requirements on another environment
-## TODO: List available settings
-## TODO: Better help message formatting
 ## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
 ## TODO: Add logging
 
@@ -50,6 +48,7 @@ chord_signatures = {
     "Major_9th" : [1,3,5,7,9], # Major 9th
     "Minor_9th" : [1,'b3',5,'b7',9], # minor 9th
     "Dominant_9th" : [1,3,5,'b7',9], # Dominant 9th
+    "Power" : [1,5,8],
 }
 
 #Octave 4
@@ -178,7 +177,7 @@ def play_wave(wave, ms):
     """
     # In pygame 1.9.1, we can pass sample_wave directly,
     # but in 1.9.2 they changed the mixer to only accept ints.
-    sound = pygame.sndarray.make_sound(wave.astype(int))
+    sound = pygame.sndarray.make_sound(wave.astype(numpy.int16))
     sound.play(-1)
     pygame.time.delay(ms)
     sound.stop()
@@ -353,15 +352,6 @@ def construct_and_play_chord(root, octave, chord_name):
         # Play all chords at all roots -- very long
         play_all_chords_for_all_roots()
 
-def play_major_with_octave(octave):
-    """Constructs and plays C root major scale with the specified octave, for octave preview purposes
-
-    Arguments:
-    octave -- octave at which to play the scale
-    """
-    scale = construct_scale(basic_notes["C"], scale_signatures['Major'], octave)
-    play_piece(scale, 200)
-
 def octave_coverter(octave):
     """Converts an octave to a frequency multiplier.
     Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
@@ -372,12 +362,19 @@ def octave_coverter(octave):
     return 2 ** (octave - 4)
 def init():
     """Code to initialize pygame"""
-    ##pygame 1.9.4
-    #pygame.mixer.pre_init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
-    #pygame.init()
-
-    ##pygame 1.9.6/win7
+    ##pygame 1.9.6
     pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
+
+def list_values():
+    print('## Supported notes (-n options)')
+    for n in basic_notes.keys():
+        print('|_',n)
+    print('\n## Supported scales (-s options)')
+    for s in list(scale_signatures.keys()):
+        print('|_',s)
+    print('\n## Supported chords (-c options)')
+    for c in list(chord_signatures.keys()):
+        print('|_',c)
 
 def main():
     init()
@@ -391,12 +388,13 @@ def main():
     scale_choices.extend(['all'])
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help='Specify the chord type')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type')
-    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play')
+    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
+    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
+    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play', metavar = '')
+    group.add_argument('-l','--list', help='List available scales, chords and notes', action ='store_true')
 
-    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int)
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C')
+    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
+    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
 
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
@@ -406,6 +404,8 @@ def main():
         construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
         play_note_by_name(args['note'], 200, octave_multiplier)
+    elif args['list']:
+        list_values()
     #test_run()
 
 def test_run():
