@@ -207,7 +207,7 @@ def play_all_scales_for_all_roots():
     for name, info in scale_info.items():
         print(f'\n** {name} scales **')
         for note_name, note_freq in basic_notes.items():
-            print(f'{note_name} {name} scale..')
+            print(f'|_{note_name} {name} scale..')
             scale = construct_scale(note_freq, info['signature'], 2)
             play_scale(scale, 300)
         pygame.time.delay(200)
@@ -219,7 +219,7 @@ def play_all_scales_for_one_root(root):
     root -- name of root note
     """
     for name, info in scale_info.items():
-        print(f'{root} {name} scale..')
+        print(f'|_{root} {name} scale..')
         scale = construct_scale(basic_notes[root], info['signature'], 2)
         play_scale(scale, 300)
         pygame.time.delay(200)
@@ -231,7 +231,7 @@ def play_one_scale_for_all_roots(scale_name):
     scale_name -- name of scale type to play
     """
     for root, note_freq in basic_notes.items():
-        print(f'Playing {root} {scale_name} scale..')
+        print(f'|_Playing {root} {scale_name} scale..')
         scale = construct_scale(basic_notes[root], scale_info[scale_name]['signature'], 2)
         play_scale(scale, 300)
         pygame.time.delay(200)
@@ -243,7 +243,7 @@ def play_one_chord_for_all_roots(chord_name):
     chord_name -- name of chord type to play
     """
     for root, note_freq in basic_notes.items():
-        print(f'Playing {root} {chord_name} chord..')
+        print(f'|_Playing {root} {chord_name} chord..')
         scale = construct_scale(note_freq, scale_info['Major']['signature'], 2, 9)
         chord = construct_chord(chord_info[chord_name]['signature'], scale)
         play_chord(chord, chord_info[chord_name]['signature'], scale)
@@ -274,7 +274,7 @@ def play_all_chords_for_all_roots():
         for note_name, note_freq in basic_notes.items():
             scale = construct_scale(note_freq, scale_info['Major']['signature'], 2, 9)
             chord = construct_chord(info['signature'], scale)
-            print(f'{name} {note_name} chord..')
+            print(f'|_{name} {note_name} chord..')
             play_chord(chord, info['signature'], scale)
             pygame.time.delay(200)
 
@@ -287,7 +287,7 @@ def play_all_chords_for_one_root(root):
     for name, info in chord_info.items():
         scale = construct_scale(basic_notes[root], scale_info['Major']['signature'], 2, 9)
         chord = construct_chord(info['signature'], scale)
-        print(f'{name} {root} chord..')
+        print(f'|_{name} {root} chord..')
         play_chord(chord, info['signature'], scale)
         pygame.time.delay(200)
 
