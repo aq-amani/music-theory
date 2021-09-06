@@ -15,6 +15,17 @@ T = S ** 2 # Full-tone frequency multiplier
 ## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
 ## TODO: Add logging
 
+# Mode info
+# Modes: Where you start playing at a scale.
+mode_info = {
+    "Ionian" 		: 1, # Same as Major scale
+    "Dorian" 		: 2,
+    "Phrygian" 		: 3,
+    "Lydian" 		: 4,
+    "Mixolydian" 	: 5,
+    "Aeolian" 		: 6,
+    "Locrian" 		: 7,
+}
 # Scale signatures
 scale_info = {
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
@@ -249,6 +260,15 @@ def play_one_chord_for_all_roots(chord_name):
         play_chord(chord, chord_info[chord_name]['signature'], scale)
         pygame.time.delay(200)
 
+def get_modal_scale(scale, mode):
+    """Return the scale after applying a musical mode to it
+
+    Arguments:
+    scale -- scale(list of notes) to transform
+    mode -- int representing mode value as in mode_info dict
+    """
+    return scale[mode-1:]
+
 def play_scale(scale, ms, with_reverse=True):
     """Plays a scale
 
@@ -302,7 +322,7 @@ def play_note_by_name(note_name, ms, octave):
     f = basic_notes[note_name]
     play_wave(sine_wave(octave*f, sampling), ms)
 
-def construct_and_play_scale(root, octave, scale_name, ms = 200):
+def construct_and_play_scale(root, octave, scale_name, mode_name, ms = 200):
     """Constructs a scale and Plays it forward and backward
 
     Arguments:
@@ -310,12 +330,14 @@ def construct_and_play_scale(root, octave, scale_name, ms = 200):
     scale_name -- name of the scale to play. 'all' to play all scales
     octave -- octave at which to play the scale
     ms -- length in milliseconds for each note
+    mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     """
-    print(f'\nPlaying [{scale_name}] scale(s) with [{root}] as root note(s)')
+    print(f'\nPlaying [{scale_name}] scale(s) with [{root}] as root note(s) in the [{mode_name}] mode')
     if 'all' not in (root, scale_name):
         # Play specific scale at specific root
-        scale = construct_scale(basic_notes[root], scale_info[scale_name]['signature'], octave)
-        play_scale(scale, ms)
+        scale = construct_scale(basic_notes[root], scale_info[scale_name]['signature'], octave, len(scale_info[scale_name]['signature']) + mode_info[mode_name] - 1)
+        modal_scale = get_modal_scale(scale, mode_info[mode_name])
+        play_scale(modal_scale, ms)
     elif root == 'all' and scale_name !='all':
         # Play specific scale at all roots
         play_one_scale_for_all_roots(scale_name)
@@ -372,6 +394,9 @@ def list_values():
     print('\n## Supported chords (-c options)')
     for c in list(chord_info.keys()):
         print('|_',c)
+    print('\n## Supported modes (-m options)')
+    for m in list(mode_info.keys()):
+        print('|_',m)
 
 def main():
     init()
@@ -392,11 +417,12 @@ def main():
 
     parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
+    parser.add_argument('-m','--mode', choices=mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
 
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
     if args['scale']:
-        construct_and_play_scale(args['root'], octave_multiplier, args['scale'])
+        construct_and_play_scale(args['root'], octave_multiplier, args['scale'], args['mode'])
     elif args['chord']:
         construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
