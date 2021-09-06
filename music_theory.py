@@ -15,40 +15,48 @@ T = S ** 2 # Full-tone frequency multiplier
 ## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
 ## TODO: Add logging
 
+# Mode info
+# Modes: Where you start playing at a scale.
+mode_info = {
+    "Ionian" 		: 1, # Same as Major scale
+    "Dorian" 		: 2,
+    "Phrygian" 		: 3,
+    "Lydian" 		: 4,
+    "Mixolydian" 	: 5,
+    "Aeolian" 		: 6,
+    "Locrian" 		: 7,
+}
 # Scale signatures
-scale_signatures = {
-    "Major"  : [T,T,S,T,T,T,S],
-    "Minor" : [T,S,T,T,S,T,T],
-    "Diminished"  : [T,S,T,S,T,S,T],
-    "Augmented" : [T*S,S,T*S,S,T*S,S,T*S],
-    "Major_pentatonic"  : [T,T,T*S,T,T*S],
-    "Minor_pentatonic"  : [T*S,T,T,T*S,T],
-    "Blues" : [T*S,T,S,S,T*S,T],
+scale_info = {
+    "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
+    "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : ""},
+    "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
+    "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S,T*S],	"info" : ""},
+    "Major_pentatonic"  : {"signature" : [T,T,T*S,T,T*S],		"info" : ""},
+    "Minor_pentatonic"  : {"signature" : [T*S,T,T,T*S,T],		"info" : ""},
+    "Blues" 		: {"signature" : [T*S,T,S,S,T*S,T],		"info" : ""},
 }
 
 # Chord signatures
-chord_signatures = {
-    "Major_triad" : [1,3,5], # Happy
-    "Minor_triad" : [1,'b3',5], # Sad / (b) for flat
-    "Diminished" : [1,'b3','b5'], # Sad with drama
-    "Augmented" : [1,3,'5#'], # Strange as if moving to another dimension / (#) for sharp
+chord_info = {
+    ##Signatures are respective to the major scale.
     ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
-    ##And are 1,3,5 / 1,b3,5 / 1,b3,b5 / 1,3,#5 respective to the major scale.
-    "Suspended_2" : [1,2,5], # Suspended 2
-    "Suspended_4" : [1,4,5], # Suspended 4
-    # 7ths chords (4 note chords)
-    "Major_7th" : [1,3,5,7], # Major 7th
-    "Minor_7th" : [1,'b3',5,'b7'], # minor 7th
-    "Dominant_7th" : [1,3,5,'b7'], # Dominant 7th
-    # Diminished chords / Kind of Jazzy feeling
-    "Half_diminished" : [1,'b3','b5','b7'], # AKA minor 7th flat 5 (m7b5)
-    "Whole_diminished" : [1,'b3','b5',6], # AKA diminished 7th.
-    #Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats yet. 'bb7' is 6 on a major scale.
-    # 9ths chords (5 note chords) / 5 can be ommited without much sound difference
-    "Major_9th" : [1,3,5,7,9], # Major 9th
-    "Minor_9th" : [1,'b3',5,'b7',9], # minor 9th
-    "Dominant_9th" : [1,3,5,'b7',9], # Dominant 9th
-    "Power" : [1,5,8],
+    "Major_triad" 	: {"signature" : [1,3,5],		"info" : "Happy feel."},
+    "Minor_triad" 	: {"signature" : [1,'b3',5], 		"info" : "Sad feel."},
+    "Power" 		: {"signature" : [1,5,8], 		"info" : "Powerful feel. Used a lot in rock/metal"},
+    "Diminished" 	: {"signature" : [1,'b3','b5'], 	"info" : "Unpleasant dramatic sad feel."},
+    "Augmented" 	: {"signature" : [1,3,'5#'], 		"info" : "Mysterious uneasy reality-altering-like feel."},
+    "Suspended_2" 	: {"signature" : [1,2,5], 		"info" : ""},
+    "Suspended_4" 	: {"signature" : [1,4,5], 		"info" : ""},
+    "Major_7th" 	: {"signature" : [1,3,5,7], 		"info" : ""},
+    "Minor_7th" 	: {"signature" : [1,'b3',5,'b7'], 	"info" : ""},
+    "Dominant_7th" 	: {"signature" : [1,3,5,'b7'], 		"info" : ""},
+    "Half_diminished" 	: {"signature" : [1,'b3','b5','b7'], 	"info" : "Kind of Jazzy feel. AKA minor 7th flat 5(m7b5)"},
+    "Whole_diminished" 	: {"signature" : [1,'b3','b5',6], 	"info" : "Kind of Jazzy feel. AKA diminished 7th"},
+    #Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats. 'bb7' is 6 on a major scale.
+    "Major_9th" 	: {"signature" : [1,3,5,7,9], 		"info" : "5th note can be ommited without much sound difference"},
+    "Minor_9th" 	: {"signature" : [1,'b3',5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
+    "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
 }
 
 #Octave 4
@@ -207,11 +215,11 @@ def play_all_scales_for_all_roots():
 
     Arguments: none
     """
-    for name, signature in scale_signatures.items():
+    for name, info in scale_info.items():
         print(f'\n** {name} scales **')
         for note_name, note_freq in basic_notes.items():
-            print(f'{note_name} {name} scale..')
-            scale = construct_scale(note_freq, signature, 2)
+            print(f'|_{note_name} {name} scale..')
+            scale = construct_scale(note_freq, info['signature'], 2)
             play_scale(scale, 300)
         pygame.time.delay(200)
 
@@ -221,9 +229,9 @@ def play_all_scales_for_one_root(root):
     Arguments:
     root -- name of root note
     """
-    for name, signature in scale_signatures.items():
-        print(f'{root} {name} scale..')
-        scale = construct_scale(basic_notes[root], signature, 2)
+    for name, info in scale_info.items():
+        print(f'|_{root} {name} scale..')
+        scale = construct_scale(basic_notes[root], info['signature'], 2)
         play_scale(scale, 300)
         pygame.time.delay(200)
 
@@ -234,8 +242,8 @@ def play_one_scale_for_all_roots(scale_name):
     scale_name -- name of scale type to play
     """
     for root, note_freq in basic_notes.items():
-        print(f'Playing {root} {scale_name} scale..')
-        scale = construct_scale(basic_notes[root], scale_signatures[scale_name], 2)
+        print(f'|_Playing {root} {scale_name} scale..')
+        scale = construct_scale(basic_notes[root], scale_info[scale_name]['signature'], 2)
         play_scale(scale, 300)
         pygame.time.delay(200)
 
@@ -246,11 +254,20 @@ def play_one_chord_for_all_roots(chord_name):
     chord_name -- name of chord type to play
     """
     for root, note_freq in basic_notes.items():
-        print(f'Playing {root} {chord_name} chord..')
-        scale = construct_scale(note_freq, scale_signatures['Major'], 2, 9)
-        chord = construct_chord(chord_signatures[chord_name], scale)
-        play_chord(chord, chord_signatures[chord_name], scale)
+        print(f'|_Playing {root} {chord_name} chord..')
+        scale = construct_scale(note_freq, scale_info['Major']['signature'], 2, 9)
+        chord = construct_chord(chord_info[chord_name]['signature'], scale)
+        play_chord(chord, chord_info[chord_name]['signature'], scale)
         pygame.time.delay(200)
+
+def get_modal_scale(scale, mode):
+    """Return the scale after applying a musical mode to it
+
+    Arguments:
+    scale -- scale(list of notes) to transform
+    mode -- int representing mode value as in mode_info dict
+    """
+    return scale[mode-1:]
 
 def play_scale(scale, ms, with_reverse=True):
     """Plays a scale
@@ -272,13 +289,13 @@ def play_all_chords_for_all_roots():
 
     Arguments: none
     """
-    for name, signature in chord_signatures.items():
+    for name, info in chord_info.items():
         print(f'\n** {name} chords **')
         for note_name, note_freq in basic_notes.items():
-            scale = construct_scale(note_freq, scale_signatures['Major'], 2, 9)
-            chord = construct_chord(signature, scale)
-            print(f'{name} {note_name} chord..')
-            play_chord(chord, signature, scale)
+            scale = construct_scale(note_freq, scale_info['Major']['signature'], 2, 9)
+            chord = construct_chord(info['signature'], scale)
+            print(f'|_{name} {note_name} chord..')
+            play_chord(chord, info['signature'], scale)
             pygame.time.delay(200)
 
 def play_all_chords_for_one_root(root):
@@ -287,11 +304,11 @@ def play_all_chords_for_one_root(root):
     Arguments:
     root -- root note name
     """
-    for name, signature in chord_signatures.items():
-        scale = construct_scale(basic_notes[root], scale_signatures['Major'], 2, 9)
-        chord = construct_chord(signature, scale)
-        print(f'{name} {root} chord..')
-        play_chord(chord, signature, scale)
+    for name, info in chord_info.items():
+        scale = construct_scale(basic_notes[root], scale_info['Major']['signature'], 2, 9)
+        chord = construct_chord(info['signature'], scale)
+        print(f'|_{name} {root} chord..')
+        play_chord(chord, info['signature'], scale)
         pygame.time.delay(200)
 
 def play_note_by_name(note_name, ms, octave):
@@ -305,7 +322,7 @@ def play_note_by_name(note_name, ms, octave):
     f = basic_notes[note_name]
     play_wave(sine_wave(octave*f, sampling), ms)
 
-def construct_and_play_scale(root, octave, scale_name, ms = 200):
+def construct_and_play_scale(root, octave, scale_name, mode_name, ms = 200):
     """Constructs a scale and Plays it forward and backward
 
     Arguments:
@@ -313,12 +330,14 @@ def construct_and_play_scale(root, octave, scale_name, ms = 200):
     scale_name -- name of the scale to play. 'all' to play all scales
     octave -- octave at which to play the scale
     ms -- length in milliseconds for each note
+    mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     """
-    print(f'\nPlaying [{scale_name}] scale(s) with [{root}] as root note(s)')
+    print(f'\nPlaying [{scale_name}] scale(s) with [{root}] as root note(s) in the [{mode_name}] mode')
     if 'all' not in (root, scale_name):
         # Play specific scale at specific root
-        scale = construct_scale(basic_notes[root], scale_signatures[scale_name], octave)
-        play_scale(scale, ms)
+        scale = construct_scale(basic_notes[root], scale_info[scale_name]['signature'], octave, len(scale_info[scale_name]['signature']) + mode_info[mode_name] - 1)
+        modal_scale = get_modal_scale(scale, mode_info[mode_name])
+        play_scale(modal_scale, ms)
     elif root == 'all' and scale_name !='all':
         # Play specific scale at all roots
         play_one_scale_for_all_roots(scale_name)
@@ -339,9 +358,9 @@ def construct_and_play_chord(root, octave, chord_name):
     """
     print(f'\nPlaying [{chord_name}] chord(s) with [{root}] as root note(s)')
     if 'all' not in (root, chord_name):
-        base_scale = construct_scale(basic_notes[root], scale_signatures['Major'], octave, 9)
-        chord = construct_chord(chord_signatures[chord_name], base_scale)
-        play_chord(chord, chord_signatures[chord_name], base_scale)
+        base_scale = construct_scale(basic_notes[root], scale_info['Major']['signature'], octave, 9)
+        chord = construct_chord(chord_info[chord_name]['signature'], base_scale)
+        play_chord(chord, chord_info[chord_name]['signature'], base_scale)
     elif root == 'all' and chord_name !='all':
         # Play specific chord at all roots
         play_one_chord_for_all_roots(chord_name)
@@ -370,11 +389,14 @@ def list_values():
     for n in basic_notes.keys():
         print('|_',n)
     print('\n## Supported scales (-s options)')
-    for s in list(scale_signatures.keys()):
+    for s in list(scale_info.keys()):
         print('|_',s)
     print('\n## Supported chords (-c options)')
-    for c in list(chord_signatures.keys()):
+    for c in list(chord_info.keys()):
         print('|_',c)
+    print('\n## Supported modes (-m options)')
+    for m in list(mode_info.keys()):
+        print('|_',m)
 
 def main():
     init()
@@ -382,9 +404,9 @@ def main():
     parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
     root_choices = list(basic_notes.keys())
     root_choices.extend(['all'])
-    chord_choices = list(chord_signatures.keys())
+    chord_choices = list(chord_info.keys())
     chord_choices.extend(['all'])
-    scale_choices = list(scale_signatures.keys())
+    scale_choices = list(scale_info.keys())
     scale_choices.extend(['all'])
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -395,11 +417,12 @@ def main():
 
     parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
+    parser.add_argument('-m','--mode', choices=mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
 
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
     if args['scale']:
-        construct_and_play_scale(args['root'], octave_multiplier, args['scale'])
+        construct_and_play_scale(args['root'], octave_multiplier, args['scale'], args['mode'])
     elif args['chord']:
         construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
