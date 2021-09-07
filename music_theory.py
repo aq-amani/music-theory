@@ -118,37 +118,44 @@ def construct_scale(root, scale_signature, octave, scale_length=None):
 
     return scale, scale_notation
 
-def construct_chord(chord_signature, base_scale):
+def construct_chord(chord_signature, base_scale, base_scale_notation):
     """Construct a wave from a combination of simultaneous notes(chord)
 
     Arguments:
     chord_signature -- indexes of notes within the base scale
-    base_scale -- reference scale from where notes are picked up to form chords
+    base_scale -- reference scale from where notes are picked up to form chords (note frequencies)
+    base_scale_notation -- list of note names
     """
     chord = 0
+    chord_notation = []
     for index in chord_signature:
-        note = note_modifier(index, base_scale)
+        #note, note_name = note_modifier(index, base_scale, base_scale_notation[index-1])
+        index_s = int(re.findall(r'\d+', index)[0]) if type(index) is str else index
+        note, note_name = note_modifier(index, base_scale, base_scale_notation[index_s-1])
         chord = sum([chord, sine_wave(note, sampling)])
-    return chord
+        chord_notation.append(note_name)
+    return chord, chord_notation
 
-def note_modifier(note_index, base_scale):
+def note_modifier(note_index, base_scale, note_name):
     """Returns the frequecy of after sharpening or flattening the note based on # or b modifiers
 
     Arguments:
     note_index -- Note position index on the major scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
+    note_names = list(basic_notes.keys())
+    basic_notes_index = note_names.index(note_name)
     if type(note_index) is str:
         i = int(re.findall(r'\d+', note_index)[0])
         if 'b' in note_index:
            note = flatten(base_scale[i-1])
-           #print (f'{n} is flat {i}')
+           basic_notes_index -= 1
         elif '#' in note_index:
            note = sharpen(base_scale[i-1])
-           #print (f'{n} is sharp {i}')
+           basic_notes_index += 1
     else:
         note = base_scale[note_index-1]
-    return note
+    return note, note_names[basic_notes_index]
 
 def play_chord(chord, chord_signature, base_scale):
     """Play a combination of notes simultaneously (chord)
@@ -161,7 +168,7 @@ def play_chord(chord, chord_signature, base_scale):
     play_wave(chord, 700)
     pygame.time.delay(100)
     for index in chord_signature:
-        note = note_modifier(index, base_scale)
+        note, note_name = note_modifier(index, base_scale, 'C')
         play_wave(sine_wave(note, sampling), 500)
     pygame.time.delay(100)
     play_wave(chord, 700)
@@ -367,7 +374,8 @@ def construct_and_play_chord(root, octave, chord_name):
     print(f'\nPlaying [{chord_name}] chord(s) with [{root}] as root note(s)')
     if 'all' not in (root, chord_name):
         base_scale, scale_notation = construct_scale(root, scale_info['Major']['signature'], octave, 9)
-        chord = construct_chord(chord_info[chord_name]['signature'], base_scale)
+        chord, chord_notation = construct_chord(chord_info[chord_name]['signature'], base_scale, scale_notation)
+        print(chord_notation)
         play_chord(chord, chord_info[chord_name]['signature'], base_scale)
     elif root == 'all' and chord_name !='all':
         # Play specific chord at all roots
