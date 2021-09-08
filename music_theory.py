@@ -92,6 +92,20 @@ Piano keyboard reference:
 S: Semintone
 T: Full Tone
 """
+
+header = """
+Welcome to music_theory.py
+(c) 2021 Amani AbuQdais
+ ___________________________
+|  | | | |  |  | | | | | |  |
+|  |C| |D|  |  |F| |G| |A|  |
+|  |#| |#|  |  |#| |#| |#|  |
+|  |_| |_|  |  |_| |_| |_|  |
+|   |   |   |   |   |   |   |
+| C | D | E | F | G | A | B |
+|___|___|___|___|___|___|___|
+/////////////////////////////
+"""
 def sine_wave(hz, peak, n_samples=sample_rate):
     """Compute N samples of a sine wave with given frequency and peak amplitude.
        Defaults to one second.
@@ -478,6 +492,7 @@ def main():
     parser.add_argument('-m','--mode', choices=mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
     parser.add_argument('-k','--keyboard', help='Show a reference piano keyboard', action ='store_true')
 
+    print(header)
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
 
