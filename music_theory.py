@@ -75,6 +75,23 @@ basic_notes = {
     "B"  : 493.88,
 }
 
+piano_keys = """
+Piano keyboard reference:
+
+|-S-|
+ ___________________________
+|  | | | |  |  | | | | | |  |
+|  |C| |D|  |  |F| |G| |A|  |
+|  |#| |#|  |  |#| |#| |#|  |
+|  |_| |_|  |  |_| |_| |_|  |
+|   |   |   |   |   |   |   |
+| C | D | E | F | G | A | B |
+|___|___|___|___|___|___|___|
+  |-T-|
+
+S: Semintone
+T: Full Tone
+"""
 def sine_wave(hz, peak, n_samples=sample_rate):
     """Compute N samples of a sine wave with given frequency and peak amplitude.
        Defaults to one second.
@@ -459,9 +476,13 @@ def main():
     parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
     parser.add_argument('-m','--mode', choices=mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
+    parser.add_argument('-k','--keyboard', help='Show a reference piano keyboard', action ='store_true')
 
     args = vars(parser.parse_args())
     octave_multiplier = octave_coverter(args['octave'])
+
+    if(args['keyboard']):
+        print(piano_keys)
     if args['scale']:
         construct_and_play_scale(args['root'], octave_multiplier, args['scale'], args['mode'])
     elif args['chord']:
