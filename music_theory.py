@@ -27,7 +27,7 @@ mode_info = {
     "Locrian" 		: 7,
 }
 # Scale signatures
-scale_info = {
+all_scale_info = {
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
     "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : ""},
     "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
@@ -38,7 +38,7 @@ scale_info = {
 }
 
 # Chord signatures
-chord_info = {
+all_chord_info = {
     ##Signatures are respective to the major scale.
     ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
     "Major_triad" 	: {"signature" : [1,3,5],		"info" : "Happy feel."},
@@ -90,33 +90,33 @@ def sine_wave(hz, peak, n_samples=sample_rate):
     onecycle = peak * numpy.sin(xvalues)
     return numpy.resize(onecycle, (n_samples,)).astype(numpy.int16)
 
-def construct_scale(root, scale_signature, octave, scale_length=None):
+def construct_scale(root_name, scale_signature, octave, scale_length=None):
     """Construct a musical scale from a root note
 
     Arguments:
-    root -- root note name of the scale
+    root_name -- root note name of the scale
     scale_signature -- array of frequency ratios between consecutive notes on the scale
     octave -- octave with which to construct the scale with. 1 is for frequencies in basic_notes
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
-    note = basic_notes[root] * octave
+    note = basic_notes[root_name] * octave
     if not scale_length:
         # If not specified, default to standard scale length
         scale_length = len(scale_signature)
-    scale = []
+    scale_frequencies = []
     note_names = list(basic_notes.keys())
-    name_index = note_names.index(root)
+    name_index = note_names.index(root_name)
     scale_notation = []
-    scale.append(note)
-    scale_notation.append(root)
+    scale_frequencies.append(note)
+    scale_notation.append(root_name)
     for i in range(scale_length):
         note *= scale_signature[i % len(scale_signature)]
         note = round(note,2)
-        scale.append(note)
+        scale_frequencies.append(note)
         name_index += 1 if scale_signature[i % len(scale_signature)] == S else 2 if scale_signature[i % len(scale_signature)] == T else 3
         scale_notation.append(note_names[name_index%len(note_names)])
 
-    return scale, scale_notation
+    return scale_frequencies, scale_notation
 
 def construct_chord(chord_signature, base_scale, base_scale_notation):
     """Construct a wave from a combination of simultaneous notes(chord)
@@ -126,15 +126,14 @@ def construct_chord(chord_signature, base_scale, base_scale_notation):
     base_scale -- reference scale from where notes are picked up to form chords (note frequencies)
     base_scale_notation -- list of note names
     """
-    chord = 0
+    chord_wave = 0
     chord_notation = []
     for index in chord_signature:
-        #note, note_name = note_modifier(index, base_scale, base_scale_notation[index-1])
         index_s = int(re.findall(r'\d+', index)[0]) if type(index) is str else index
-        note, note_name = note_modifier(index, base_scale, base_scale_notation[index_s-1])
-        chord = sum([chord, sine_wave(note, sampling)])
+        note_f, note_name = note_modifier(index, base_scale, base_scale_notation[index_s-1])
+        chord_wave = sum([chord_wave, sine_wave(note_f, sampling)])
         chord_notation.append(note_name)
-    return chord, chord_notation
+    return chord_wave, chord_notation
 
 def note_modifier(note_index, base_scale, note_name):
     """Returns the frequecy of after sharpening or flattening the note based on # or b modifiers
@@ -148,47 +147,47 @@ def note_modifier(note_index, base_scale, note_name):
     if type(note_index) is str:
         i = int(re.findall(r'\d+', note_index)[0])
         if 'b' in note_index:
-           note = flatten(base_scale[i-1])
+           note_f = flatten(base_scale[i-1])
            basic_notes_index -= 1
         elif '#' in note_index:
-           note = sharpen(base_scale[i-1])
+           note_f = sharpen(base_scale[i-1])
            basic_notes_index += 1
     else:
-        note = base_scale[note_index-1]
-    return note, note_names[basic_notes_index]
+        note_f = base_scale[note_index-1]
+    return note_f, note_names[basic_notes_index]
 
-def play_chord(chord, chord_signature, base_scale):
+def play_chord(chord_wave, chord_signature, base_scale):
     """Play a combination of notes simultaneously (chord)
 
     Arguments:
-    chord -- wave object constructed from summing multiple waves representing single notes
+    chord_wave -- wave object constructed from summing multiple waves representing single notes
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
-    play_wave(chord, 700)
+    play_wave(chord_wave, 700)
     pygame.time.delay(100)
     for index in chord_signature:
-        note, note_name = note_modifier(index, base_scale, 'C')
-        play_wave(sine_wave(note, sampling), 500)
+        note_f, note_name = note_modifier(index, base_scale, 'C')
+        play_wave(sine_wave(note_f, sampling), 500)
     pygame.time.delay(100)
-    play_wave(chord, 700)
+    play_wave(chord_wave, 700)
 
-def sharpen(note):
+def sharpen(note_f):
     """Increase the note frequency by a half step. Ex.: C becomes C# (C sharp)
 
     Arguments:
-    note -- frequency of note in Hz
+    note_f -- frequency of note in Hz
     """
-    return note * S
+    return note_f * S
 
-def flatten(note):
+def flatten(note_f):
     """Drop the note frequency by a half step. Ex.: C becomes Cb (C flat)
 
     Arguments:
-    note -- frequency of note in Hz
+    note_f -- frequency of note in Hz
     """
 
-    return note / S
+    return note_f / S
 
 def play_wave(wave, ms):
     """Play given samples, as a sound, for ms milliseconds.
@@ -204,15 +203,15 @@ def play_wave(wave, ms):
     pygame.time.delay(ms)
     sound.stop()
 
-def play_piece(notes, ms):
+def play_piece(notes_f, ms):
     """Play an array of notes ms milliseconds each
 
     Arguments:
-    notes -- array of frequencies
+    notes_f -- array of frequencies
     ms -- length in milliseconds for notes to play
     """
 
-    for n in notes:
+    for n in notes_f:
         play_note_by_frequency(n, ms)
 
 def play_note_by_frequency(note_f, ms):
@@ -229,24 +228,22 @@ def play_all_scales_for_all_roots():
 
     Arguments: none
     """
-    for name, info in scale_info.items():
-        print(f'\n** {name} scales **')
+    for scale_name, scale_info in all_scale_info.items():
+        print(f'\n** {scale_name} scales **')
         for note_name, note_freq in basic_notes.items():
-            print(f'|_{note_name} {name} scale..')
-            scale, scale_notation = construct_scale(note_name, info['signature'], 2)
-            play_scale(scale, 300)
+            scale_frequencies, scale_notation = construct_scale(note_name, scale_info['signature'], 2)
+            play_scale(scale_frequencies, 300)
         pygame.time.delay(200)
 
-def play_all_scales_for_one_root(root):
+def play_all_scales_for_one_root(root_name):
     """Plays scales of the type specified by scale_signature based on one root note
 
     Arguments:
-    root -- name of root note
+    root_name -- name of root note
     """
-    for name, info in scale_info.items():
-        print(f'|_{root} {name} scale..')
-        scale, scale_notation = construct_scale(root, info['signature'], 2)
-        play_scale(scale, 300)
+    for scale_name, scale_info in all_scale_info.items():
+        scale_frequencies, scale_notation = construct_scale(root_name, scale_info['signature'], 2)
+        play_scale(scale_frequencies, 300)
         pygame.time.delay(200)
 
 def play_one_scale_for_all_roots(scale_name):
@@ -255,10 +252,9 @@ def play_one_scale_for_all_roots(scale_name):
     Arguments:
     scale_name -- name of scale type to play
     """
-    for root, note_freq in basic_notes.items():
-        print(f'|_Playing {root} {scale_name} scale..')
-        scale, scale_notation = construct_scale(root, scale_info[scale_name]['signature'], 2)
-        play_scale(scale, 300)
+    for root_name, note_freq in basic_notes.items():
+        scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info[scale_name]['signature'], 2)
+        play_scale(scale_frequencies, 300)
         pygame.time.delay(200)
 
 def play_one_chord_for_all_roots(chord_name):
@@ -267,62 +263,61 @@ def play_one_chord_for_all_roots(chord_name):
     Arguments:
     chord_name -- name of chord type to play
     """
-    for root, note_freq in basic_notes.items():
-        print(f'|_Playing {root} {chord_name} chord..')
-        scale, scale_notation = construct_scale(root, scale_info['Major']['signature'], 2, 9)
-        chord = construct_chord(chord_info[chord_name]['signature'], scale)
-        play_chord(chord, chord_info[chord_name]['signature'], scale)
+    for root_name, note_freq in basic_notes.items():
+        scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
+        chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], scale_frequencies, scale_notation)
+        print_chord(chord_name, root_name, all_chord_info[chord_name]['signature'], chord_notation)
+        play_chord(chord_wave, all_chord_info[chord_name]['signature'], scale_frequencies)
         pygame.time.delay(200)
 
-def get_modal_scale(scale, scale_notation, mode):
+def get_modal_scale(scale_frequencies, scale_notation, mode):
     """Return the scale after applying a musical mode to it
 
     Arguments:
-    scale -- scale(list of notes) to transform
+    scale_frequencies -- scale(list of notes) to transform
     mode -- int representing mode value as in mode_info dict
     """
-    return scale[mode-1:], scale_notation[mode-1:]
+    return scale_frequencies[mode-1:], scale_notation[mode-1:]
 
-def play_scale(scale, ms, with_reverse=True):
+def play_scale(scale_frequencies, ms, with_reverse=True):
     """Plays a scale
 
     Arguments:
-    scale -- array of notes
+    scale_frequencies -- array of notes
     ms -- length in milliseconds for each note
     with_reverse -- Plays scale both forward and backwards
     """
 
     if with_reverse:
         # Extend scale by the reverse scale
-        reverse_scale = scale[::-1]
-        scale.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
-    play_piece(scale, ms)
+        reverse_scale = scale_frequencies[::-1]
+        scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
+    play_piece(scale_frequencies, ms)
 
 def play_all_chords_for_all_roots():
     """Plays chords of the type specified by chord_signature based on all root notes
 
     Arguments: none
     """
-    for name, info in chord_info.items():
-        print(f'\n** {name} chords **')
+    for chord_name, chord_info in all_chord_info.items():
+        print(f'\n** {chord_name} chords **')
         for note_name, note_freq in basic_notes.items():
-            scale, scale_notation = construct_scale(note_name, scale_info['Major']['signature'], 2, 9)
-            chord = construct_chord(info['signature'], scale)
-            print(f'|_{name} {note_name} chord..')
-            play_chord(chord, info['signature'], scale)
+            scale_frequencies, scale_notation = construct_scale(note_name, all_scale_info['Major']['signature'], 2, 9)
+            chord_wave, chord_notation = construct_chord(chord_info['signature'], scale_frequencies, scale_notation)
+            play_chord(chord_wave, chord_info['signature'], scale_frequencies)
             pygame.time.delay(200)
 
 def play_all_chords_for_one_root(root):
     """Plays chords of the type specified by chord_signature based on one root note
 
     Arguments:
-    root -- root note name
+    root_name -- root note name
     """
-    for name, info in chord_info.items():
-        scale, scale_notation = construct_scale(root, scale_info['Major']['signature'], 2, 9)
-        chord = construct_chord(info['signature'], scale)
-        print(f'|_{name} {root} chord..')
-        play_chord(chord, info['signature'], scale)
+    scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
+    print_ref_scale(scale_notation)
+    for chord_name, chord_info in all_chord_info.items():
+        chord_wave, chord_notation = construct_chord(chord_info['signature'], scale_frequencies, scale_notation)
+        play_chord(chord_wave, chord_info['signature'], scale_frequencies)
         pygame.time.delay(200)
 
 def play_note_by_name(note_name, ms, octave):
@@ -336,53 +331,51 @@ def play_note_by_name(note_name, ms, octave):
     f = basic_notes[note_name]
     play_wave(sine_wave(octave*f, sampling), ms)
 
-def construct_and_play_scale(root, octave, scale_name, mode_name, ms = 200):
+def construct_and_play_scale(root_name, octave, scale_name, mode_name, ms = 200):
     """Constructs a scale and Plays it forward and backward
 
     Arguments:
-    root -- name of the root note (C, D ..etc or 'all')
+    root_name -- name of the root note (C, D ..etc or 'all')
     scale_name -- name of the scale to play. 'all' to play all scales
     octave -- octave at which to play the scale
     ms -- length in milliseconds for each note
     mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     """
-    print(f'\nPlaying [{scale_name}] scale(s) with [{root}] as root note(s) in the [{mode_name}] mode')
-    if 'all' not in (root, scale_name):
+    print(f'\nPlaying [{scale_name}] scale(s) with [{root_name}] as root note(s) in the [{mode_name}] mode')
+    if 'all' not in (root_name, scale_name):
         # Play specific scale at specific root
-        scale, scale_notation = construct_scale(root, scale_info[scale_name]['signature'], octave, len(scale_info[scale_name]['signature']) + mode_info[mode_name] - 1)
-        modal_scale, modal_notation = get_modal_scale(scale, scale_notation, mode_info[mode_name])
-        print(modal_notation)
-        play_scale(modal_scale, ms)
-    elif root == 'all' and scale_name !='all':
+        scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info[scale_name]['signature'], octave, len(all_scale_info[scale_name]['signature']) + mode_info[mode_name] - 1)
+        modal_scale_f, modal_notation = get_modal_scale(scale_frequencies, scale_notation, mode_info[mode_name])
+        play_scale(modal_scale_f, ms)
+    elif root_name == 'all' and scale_name !='all':
         # Play specific scale at all roots
         play_one_scale_for_all_roots(scale_name)
-    elif root != 'all' and scale_name =='all':
+    elif root_name != 'all' and scale_name =='all':
         # Play all scales for a specific root
-        play_all_scales_for_one_root(root)
+        play_all_scales_for_one_root(root_name)
     else:
         # Play all scales at all roots -- very long
         play_all_scales_for_all_roots()
 
-def construct_and_play_chord(root, octave, chord_name):
+def construct_and_play_chord(root_name, octave, chord_name):
     """Constructs a chord and Plays it
 
     Arguments:
-    root -- name of the root note (C, D ..etc or 'all')
+    root_name -- name of the root note (C, D ..etc or 'all')
     chord_name -- name of the chord to play. 'all' to play all chords
     octave -- octave at which to play the chord
     """
-    print(f'\nPlaying [{chord_name}] chord(s) with [{root}] as root note(s)')
-    if 'all' not in (root, chord_name):
-        base_scale, scale_notation = construct_scale(root, scale_info['Major']['signature'], octave, 9)
-        chord, chord_notation = construct_chord(chord_info[chord_name]['signature'], base_scale, scale_notation)
-        print(chord_notation)
-        play_chord(chord, chord_info[chord_name]['signature'], base_scale)
-    elif root == 'all' and chord_name !='all':
+    print(f'\nPlaying [{chord_name}] chord(s) with [{root_name}] as root note(s)')
+    if 'all' not in (root_name, chord_name):
+        base_scale, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], octave, 9)
+        chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], base_scale, scale_notation)
+        play_chord(chord_wave, all_chord_info[chord_name]['signature'], base_scale)
+    elif root_name == 'all' and chord_name !='all':
         # Play specific chord at all roots
         play_one_chord_for_all_roots(chord_name)
-    elif root != 'all' and chord_name =='all':
+    elif root_name != 'all' and chord_name =='all':
         # Play all chords for a specific root
-        play_all_chords_for_one_root(root)
+        play_all_chords_for_one_root(root_name)
     else:
         # Play all chords at all roots -- very long
         play_all_chords_for_all_roots()
@@ -405,12 +398,12 @@ def list_values():
     for n in basic_notes.keys():
         print('|_',n)
     print('\n## Supported scales (-s options)')
-    for s in list(scale_info.keys()):
+    for s in list(all_scale_info.keys()):
         print('|_',s)
     print('\n## Supported chords (-c options)')
-    for c in list(chord_info.keys()):
+    for c in list(all_chord_info.keys()):
         print('|_',c)
-    print('\n## Supported modes (-m options)')
+    print('\n## Supported musical modes (-m options)')
     for m in list(mode_info.keys()):
         print('|_',m)
 
@@ -420,9 +413,9 @@ def main():
     parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
     root_choices = list(basic_notes.keys())
     root_choices.extend(['all'])
-    chord_choices = list(chord_info.keys())
+    chord_choices = list(all_chord_info.keys())
     chord_choices.extend(['all'])
-    scale_choices = list(scale_info.keys())
+    scale_choices = list(all_scale_info.keys())
     scale_choices.extend(['all'])
 
     group = parser.add_mutually_exclusive_group(required=True)
