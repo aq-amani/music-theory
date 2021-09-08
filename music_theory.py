@@ -265,6 +265,14 @@ def print_ref_scale(scale_notation):
     lines = '+'.join(f'{"---":3}' for n in scale_notation)
     print(f'\nBase Major scale with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
+def construct_and_play_chord(chord_name, note_name, one_root=False):
+    scale_frequencies, scale_notation = construct_scale(note_name, all_scale_info['Major']['signature'], 2, 9)
+    chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], scale_frequencies, scale_notation)
+    if not one_root:
+        print_ref_scale(scale_notation)
+    print_chord(chord_name, note_name, all_chord_info[chord_name]['signature'], chord_notation)
+    play_chord(chord_wave, all_chord_info[chord_name]['signature'], scale_frequencies)
+
 def play_all_scales_for_all_roots():
     """Plays scales of the type specified by scale_signature based on all root notes
 
@@ -302,20 +310,6 @@ def play_one_scale_for_all_roots(scale_name):
         play_scale(scale_frequencies, 300)
         pygame.time.delay(200)
 
-def play_one_chord_for_all_roots(chord_name):
-    """Plays a specific chord type for all root notes
-
-    Arguments:
-    chord_name -- name of chord type to play
-    """
-    for root_name, note_freq in basic_notes.items():
-        scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
-        chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], scale_frequencies, scale_notation)
-        print_ref_scale(scale_notation)
-        print_chord(chord_name, root_name, all_chord_info[chord_name]['signature'], chord_notation)
-        play_chord(chord_wave, all_chord_info[chord_name]['signature'], scale_frequencies)
-        pygame.time.delay(200)
-
 def get_modal_scale(scale_frequencies, scale_notation, mode):
     """Return the scale after applying a musical mode to it
 
@@ -340,41 +334,12 @@ def play_scale(scale_frequencies, ms, with_reverse=True):
         scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
     play_piece(scale_frequencies, ms)
 
-def play_all_chords_for_all_roots():
-    """Plays chords of the type specified by chord_signature based on all root notes
-
-    Arguments: none
-    """
-    for chord_name, chord_info in all_chord_info.items():
-        print(f'\n** {chord_name} chords **')
-        for note_name, note_freq in basic_notes.items():
-            scale_frequencies, scale_notation = construct_scale(note_name, all_scale_info['Major']['signature'], 2, 9)
-            chord_wave, chord_notation = construct_chord(chord_info['signature'], scale_frequencies, scale_notation)
-            print_ref_scale(scale_notation)
-            print_chord(chord_name, note_name, chord_info['signature'], chord_notation)
-            play_chord(chord_wave, chord_info['signature'], scale_frequencies)
-            pygame.time.delay(200)
-
 def print_chord(name, root_name, signature, notation):
     """Prints the chord information in a nicely formatted string"""
     positions = '|'.join(f'{str(i):3}' for i in signature)
     note_names = '|'.join(f'{n:3}' for n in notation)
     lines = '+'.join(f'{"---":3}' for n in notation)
     print(f'|\n|_{name} {root_name} chord..:\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+\n{"Notes":12}|{note_names}|\n{"":12}+{lines}+')
-
-def play_all_chords_for_one_root(root_name):
-    """Plays chords of the type specified by chord_signature based on one root note
-
-    Arguments:
-    root_name -- root note name
-    """
-    scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
-    print_ref_scale(scale_notation)
-    for chord_name, chord_info in all_chord_info.items():
-        chord_wave, chord_notation = construct_chord(chord_info['signature'], scale_frequencies, scale_notation)
-        print_chord(chord_name, root_name, chord_info['signature'], chord_notation)
-        play_chord(chord_wave, chord_info['signature'], scale_frequencies)
-        pygame.time.delay(200)
 
 def play_note_by_name(note_name, ms, octave):
     """Play one note for ms milliseconds by passing note name
@@ -415,7 +380,7 @@ def construct_and_play_scale(root_name, octave, scale_name, mode_name, ms = 200)
         # Play all scales at all roots -- very long
         play_all_scales_for_all_roots()
 
-def construct_and_play_chord(root_name, octave, chord_name):
+def chord_command_processor(root_name, octave, chord_name):
     """Constructs a chord and Plays it
 
     Arguments:
@@ -425,20 +390,26 @@ def construct_and_play_chord(root_name, octave, chord_name):
     """
     print(f'\nPlaying [{chord_name}] chord(s) with [{root_name}] as root note(s)')
     if 'all' not in (root_name, chord_name):
-        base_scale, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], octave, 9)
-        chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], base_scale, scale_notation)
-        print_ref_scale(scale_notation)
-        print_chord(chord_name, root_name, all_chord_info[chord_name]['signature'], chord_notation)
-        play_chord(chord_wave, all_chord_info[chord_name]['signature'], base_scale)
+        construct_and_play_chord(chord_name, root_name)
     elif root_name == 'all' and chord_name !='all':
         # Play specific chord at all roots
-        play_one_chord_for_all_roots(chord_name)
+        for root_name, note_freq in basic_notes.items():
+            construct_and_play_chord(chord_name, root_name)
+            pygame.time.delay(200)
     elif root_name != 'all' and chord_name =='all':
         # Play all chords for a specific root
-        play_all_chords_for_one_root(root_name)
+        _, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
+        print_ref_scale(scale_notation)
+        for chord_name, chord_info in all_chord_info.items():
+            construct_and_play_chord(chord_name, root_name, one_root=True)
+            pygame.time.delay(200)
     else:
         # Play all chords at all roots -- very long
-        play_all_chords_for_all_roots()
+        for chord_name, chord_info in all_chord_info.items():
+            print(f'\n** {chord_name} chords **')
+            for note_name, note_freq in basic_notes.items():
+                construct_and_play_chord(chord_name, note_name)
+                pygame.time.delay(200)
 
 def octave_coverter(octave):
     """Converts an octave to a frequency multiplier.
@@ -502,7 +473,7 @@ def main():
     elif args['chord']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for chords**")
-        construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
+        chord_command_processor(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
