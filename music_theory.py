@@ -266,6 +266,14 @@ def print_ref_scale(scale_notation):
     print(f'\nBase Major scale with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
 def construct_and_play_chord(chord_name, note_name, octave, one_root=False):
+    """Constructs a chord and Plays it
+
+    Arguments:
+    chord_name -- name of the chord as defined in all_chord_info dict
+    note_name -- root note name of the chord
+    octave -- octave at which to play the chord
+    one_root -- True if running this function for one single root and therefore only needing to print the reference scale once
+    """
     scale_frequencies, scale_notation = construct_scale(note_name, all_scale_info['Major']['signature'], octave, 9)
     chord_wave, chord_notation = construct_chord(all_chord_info[chord_name]['signature'], scale_frequencies, scale_notation)
     if not one_root:
@@ -274,6 +282,15 @@ def construct_and_play_chord(chord_name, note_name, octave, one_root=False):
     play_chord(chord_wave, all_chord_info[chord_name]['signature'], scale_frequencies)
 
 def construct_and_play_scale(root_name, scale_name, octave, mode_name, ms = 300):
+    """Constructs a scale and Plays it
+
+    Arguments:
+    root_name -- name of the root note (C, D ..etc)
+    scale_name -- name of the scale to play.
+    octave -- octave at which to play the scale
+    mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
+    ms -- length in milliseconds for each note
+    """
     scale_length = len(all_scale_info[scale_name]['signature']) + mode_info[mode_name] - 1
     scale_frequencies, scale_notation = construct_scale(root_name, all_scale_info[scale_name]['signature'], octave, scale_length)
     if scale_name == 'Major' and mode_name != 'Ionian':
@@ -287,7 +304,8 @@ def get_modal_scale(scale_frequencies, scale_notation, mode):
     """Return the scale after applying a musical mode to it
 
     Arguments:
-    scale_frequencies -- scale(list of notes) to transform
+    scale_frequencies -- the scale (in terms of note frequencies) to transform
+    scale_notation -- the scale (in terms of note names) to transform
     mode -- int representing mode value as in mode_info dict
     """
     return scale_frequencies[mode-1:], scale_notation[mode-1:]
@@ -308,7 +326,14 @@ def play_scale(scale_frequencies, ms, with_reverse=True):
     play_piece(scale_frequencies, ms)
 
 def print_chord(name, root_name, signature, notation):
-    """Prints the chord information in a nicely formatted string"""
+    """Prints the chord information in a nicely formatted string
+
+    Arguments:
+    name -- chord name
+    root_name -- name of the root note
+    signature -- chord signature (list of indexes on a major scale)
+    notation -- chord notation in note names (list of note names)
+    """
     positions = '|'.join(f'{str(i):3}' for i in signature)
     note_names = '|'.join(f'{n:3}' for n in notation)
     lines = '+'.join(f'{"---":3}' for n in notation)
@@ -326,15 +351,15 @@ def play_note_by_name(note_name, ms, octave):
     print(f'Playing {note_name} note in octave {octave} | Frequency: {octave*f} Hz')
     play_wave(sine_wave(octave*f, sampling), ms)
 
-def scale_command_processor(root_name, octave, scale_name, mode_name, ms = 200):
-    """Constructs a scale and Plays it forward and backward
+def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
+    """Plays single or multiple scales depending on the input
 
     Arguments:
     root_name -- name of the root note (C, D ..etc or 'all')
     scale_name -- name of the scale to play. 'all' to play all scales
     octave -- octave at which to play the scale
-    ms -- length in milliseconds for each note
     mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
+    ms -- length in milliseconds for each note
     """
     print(f'\nPlaying [{scale_name}] scale(s) with [{root_name}] as root note(s) in the [{mode_name}] mode')
     if 'all' not in (root_name, scale_name):
@@ -358,8 +383,8 @@ def scale_command_processor(root_name, octave, scale_name, mode_name, ms = 200):
                 construct_and_play_scale(note_name, scale_name, octave, mode_name)
                 pygame.time.delay(200)
 
-def chord_command_processor(root_name, octave, chord_name):
-    """Constructs a chord and Plays it
+def chord_command_processor(root_name, chord_name, octave):
+    """Plays a single or multiple chords depending on input
 
     Arguments:
     root_name -- name of the root note (C, D ..etc or 'all')
@@ -402,7 +427,8 @@ def init():
     ##pygame 1.9.6
     pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
 
-def list_values():
+def list_supported_values():
+    """Lists available values for the different options"""
     print('## Supported notes (-n options)')
     for n in basic_notes.keys():
         print('|_',n)
@@ -447,28 +473,17 @@ def main():
     if args['scale']:
         if args['scale'] != scale_choices[0] and args['mode'] != list(mode_info)[0]:
             parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
-        scale_command_processor(args['root'], octave_multiplier, args['scale'], args['mode'])
+        scale_command_processor(args['root'], args['scale'], octave_multiplier, args['mode'])
     elif args['chord']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for chords**")
-        chord_command_processor(args['root'], octave_multiplier, args['chord'])
+        chord_command_processor(args['root'], args['chord'], octave_multiplier)
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
         play_note_by_name(args['note'], 200, octave_multiplier)
     elif args['list']:
-        list_values()
-    #test_run()
-
-def test_run():
-    """Plays all defined scales and chords with all basic_note roots"""
-
-    print('Playing all C scales..')
-    play_all_scales_for_one_root('C')
-    print('Playing all C chords..')
-    play_all_chords_for_one_root('C')
-    #play_all_scales_for_all_roots()
-    #play_all_chords_for_all_roots()
+        list_supported_values()
 
 
 if __name__ == '__main__':
