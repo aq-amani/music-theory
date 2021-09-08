@@ -11,9 +11,6 @@ sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-## TODO: Review requirements on another environment
-## TODO: Sensei mode: Note list, note sound, frequency relation, octave, scales (familiar major), chord, signatures, # and b
-## TODO: Add logging
 
 # Mode info
 # Modes: Where you start playing at a scale.
