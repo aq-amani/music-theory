@@ -496,10 +496,16 @@ def main():
     if(args['keyboard']):
         print(piano_keys)
     if args['scale']:
+        if args['scale'] != scale_choices[0] and args['mode'] != list(mode_info)[0]:
+            parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
         construct_and_play_scale(args['root'], octave_multiplier, args['scale'], args['mode'])
     elif args['chord']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for chords**")
         construct_and_play_chord(args['root'], octave_multiplier, args['chord'])
     elif args['note']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for notes**")
         play_note_by_name(args['note'], 200, octave_multiplier)
     elif args['list']:
         list_values()
