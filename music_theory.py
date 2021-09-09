@@ -124,10 +124,11 @@ def construct_scale(root_name, scale_signature, octave, scale_length=None):
     Arguments:
     root_name -- root note name of the scale
     scale_signature -- array of frequency ratios between consecutive notes on the scale
-    octave -- octave with which to construct the scale with. 1 is for frequencies in basic_notes
+    octave -- octave at which to construct the scale with.
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
-    note = basic_notes[root_name] * octave
+    octave_multiplier = octave_converter(octave)
+    note = basic_notes[root_name] * octave_multiplier
     if not scale_length:
         # If not specified, default to standard scale length
         scale_length = len(scale_signature)
@@ -347,9 +348,10 @@ def play_note_by_name(note_name, ms, octave):
     ms -- length in milliseconds for note to play
     octave -- octave at which to play the note
     """
-    f = basic_notes[note_name]
-    print(f'Playing {note_name} note in octave {octave} | Frequency: {octave*f} Hz')
-    play_wave(sine_wave(octave*f, sampling), ms)
+    octave_multiplier = octave_converter(octave)
+    note_f = basic_notes[note_name] * octave_multiplier
+    print(f'Playing {note_name} note in octave {octave} | Frequency: {note_f} Hz')
+    play_wave(sine_wave(note_f, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
     """Plays single or multiple scales depending on the input
@@ -414,7 +416,7 @@ def chord_command_processor(root_name, chord_name, octave):
                 construct_and_play_chord(note_name, chord_name, octave)
                 pygame.time.delay(200)
 
-def octave_coverter(octave):
+def octave_converter(octave):
     """Converts an octave to a frequency multiplier.
     Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
 
@@ -466,22 +468,21 @@ def main():
 
     print(header)
     args = vars(parser.parse_args())
-    octave_multiplier = octave_coverter(args['octave'])
 
     if(args['keyboard']):
         print(piano_keys)
     if args['scale']:
         if args['scale'] != scale_choices[0] and args['mode'] != list(mode_info)[0]:
             parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
-        scale_command_processor(args['root'], args['scale'], octave_multiplier, args['mode'])
+        scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
     elif args['chord']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for chords**")
-        chord_command_processor(args['root'], args['chord'], octave_multiplier)
+        chord_command_processor(args['root'], args['chord'], args['octave'])
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
-        play_note_by_name(args['note'], 200, octave_multiplier)
+        play_note_by_name(args['note'], 200, args['octave'])
     elif args['list']:
         list_supported_values()
 
