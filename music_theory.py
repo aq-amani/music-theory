@@ -280,11 +280,11 @@ def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Io
     f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n{"Scale Signature":18}|-{signature}-|')
 
 def print_ref_scale(scale_notation):
-    """Prints the reference scale (usually major scale) based on which a chord is constructed"""
+    """Prints the reference scale (an extended major scale) based on which a chord is constructed"""
     positions = '|'.join(f'{str(i):3}' for i in range(1,len(scale_notation)+1))
     note_names = '|'.join(f'{n:3}' for n in scale_notation)
     lines = '+'.join(f'{"---":3}' for n in scale_notation)
-    print(f'\nBase Major scale with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
+    print(f'\nBase Major scale (extended) with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
 def construct_and_play_chord(root_name, chord_name, octave, one_root=False):
     """Constructs a chord and Plays it
