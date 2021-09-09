@@ -275,7 +275,7 @@ def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Io
     note_names = '|'.join(f'{n:^5}' for n in scale_notation)
     signature = '-|-'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
     lines = '+'.join(f'{"-----":5}' for n in scale_notation)
-    print(f'|\n|_{root_name} {scale_name} scale in {mode} mode.. :',
+    print(f'|\n|_{root_name} {scale_name} scale', f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
     f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
     f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n',
     # Print scale signature only when we are in Ionian (default) as signature becomes irrlevant with other modes
