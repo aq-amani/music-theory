@@ -38,11 +38,11 @@ all_scale_info = {
 all_chord_info = {
     ##Signatures are respective to the major scale.
     ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
-    "Major_triad" 	: {"signature" : [1,3,5],		"info" : "Happy feel."},
-    "Minor_triad" 	: {"signature" : [1,'b3',5], 		"info" : "Sad feel."},
-    "Power" 		: {"signature" : [1,5,8], 		"info" : "Powerful feel. Used a lot in rock/metal"},
-    "Diminished" 	: {"signature" : [1,'b3','b5'], 	"info" : "Unpleasant dramatic sad feel."},
-    "Augmented" 	: {"signature" : [1,3,'5#'], 		"info" : "Mysterious uneasy reality-altering-like feel."},
+    "Major_triad" 	: {"signature" : [1,3,5],		"info" : "Happy (-^o^-)"},
+    "Minor_triad" 	: {"signature" : [1,'b3',5], 		"info" : "Sad (;_;)"},
+    "Power" 		: {"signature" : [1,5,8], 		"info" : "Powerful \m/ Used a lot in rock/metal"},
+    "Diminished" 	: {"signature" : [1,'b3','b5'], 	"info" : "Unpleasant dramatic sad (/O;)"},
+    "Augmented" 	: {"signature" : [1,3,'5#'], 		"info" : "Mysterious uneasy reality-altering-like ('O')!?"},
     "Suspended_2" 	: {"signature" : [1,2,5], 		"info" : ""},
     "Suspended_4" 	: {"signature" : [1,4,5], 		"info" : ""},
     "Major_7th" 	: {"signature" : [1,3,5,7], 		"info" : ""},
