@@ -193,12 +193,15 @@ def play_chord(chord_wave, chord_signature, base_scale):
     chord_signature -- indexes of notes within the base scale
     base_scale -- reference scale from where notes are picked up to form chords
     """
+    print('Chord is now being played..')
     play_wave(chord_wave, 700)
     pygame.time.delay(100)
+    print('Single notes of the chord are now being played separately..')
     for index in chord_signature:
         note_f, note_name = note_modifier(index, base_scale, 'C')
         play_wave(sine_wave(note_f, sampling), 500)
     pygame.time.delay(100)
+    print('Chord is now being played again..')
     play_wave(chord_wave, 700)
 
 def sharpen(note_f):
@@ -341,12 +344,15 @@ def play_scale(scale_frequencies, ms, with_reverse=True):
     ms -- length in milliseconds for each note
     with_reverse -- Plays scale both forward and backwards
     """
-
+    print('Scale is now being played forward..')
+    play_piece(scale_frequencies, ms)
     if with_reverse:
         # Extend scale by the reverse scale
         reverse_scale = scale_frequencies[::-1]
         scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
-    play_piece(scale_frequencies, ms)
+        pygame.time.delay(200)
+        print('Scale is now being played forward and then backwards..')
+        play_piece(scale_frequencies, ms)
 
 def play_note_by_name(note_name, ms, octave):
     """Play one note for ms milliseconds by passing note name
@@ -490,7 +496,7 @@ def main():
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
-        play_note_by_name(args['note'], 200, args['octave'])
+        play_note_by_name(args['note'], 700, args['octave'])
     elif args['list']:
         list_supported_values()
 
