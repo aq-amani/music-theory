@@ -7,7 +7,7 @@ def sensei_print(s):
         sys.stdout.write(c)
         sys.stdout.flush()
         #time.sleep(0.050)
-        time.sleep(0.010)
+        time.sleep(0.001)
     input("[Press any key to continue or to play sample...]")
 
 sensei_print(
@@ -94,7 +94,7 @@ sensei_print(
 And here is how these notes exist on one [octave] of a piano keyboard
 """
 )
-print(mt.keyboard)
+print(mt.piano_keys)
 
 sensei_print(
 """
@@ -117,7 +117,7 @@ The Do Re Mi sequence we all know is actually one type of scales. It is called t
 Listen to and examine the notes on the familiar Major scale.
 """
 )
-mt.construct_and_play_scale('C', mt.octave_coverter(4), 'Major', 'Ionian')
+mt.construct_and_play_scale('C', 'Major', mt.octave_coverter(4), 'Ionian')
 
 sensei_print(
 """
@@ -137,7 +137,7 @@ Here is an A Major scale as another example. The note frequency ratios follow a 
 """
 )
 # Play A major scale
-mt.construct_and_play_scale('A', mt.octave_coverter(4), 'Major', 'Ionian')
+mt.construct_and_play_scale('A', 'Major', mt.octave_coverter(4), 'Ionian')
 
 sensei_print(
 """
@@ -161,7 +161,7 @@ Such chords that follow this 1,3,5 position rule, is called a [Major chord].
 If we choose the C note as the root note, then we will get a [C Major chord].
 """
 )
-mt.construct_and_play_chord('C', mt.octave_coverter(4), 'Major_triad')
+mt.construct_and_play_chord('Major_triad', 'C', mt.octave_coverter(4))
 
 sensei_print("""
 Major chords give a 'Happy' impression.
@@ -171,7 +171,7 @@ If we flatten the 3rd position note, we get a new chord called a [Minor chord].
 If we choose the C note as the root note, then we will get a [C Minor chord].
 """
 )
-mt.construct_and_play_chord('C', mt.octave_coverter(4), 'Minor_triad')
+mt.construct_and_play_chord('Minor_triad', 'C', mt.octave_coverter(4))
 
 sensei_print(
 """

@@ -495,11 +495,6 @@ def list_supported_values():
     for m in list(mode_info.keys()):
         print('|_',m)
 
-def sensei_mode():
-    ##TODO: Implement
-    print('sensei mode')
-
-
 def main():
     init()
 
@@ -517,7 +512,6 @@ def main():
     group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
     group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play', metavar = '')
     group.add_argument('-l','--list', help='List available scales, chords and notes', action ='store_true')
-    group.add_argument('-t','--tutor', help='Tutor mode. Demonstrates and explains main music theory concepts', action ='store_true')
 
     parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
@@ -544,6 +538,7 @@ def main():
         play_note_by_name(args['note'], 700, args['octave'])
     elif args['list']:
         list_supported_values()
+
 
 if __name__ == '__main__':
     main()
