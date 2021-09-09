@@ -183,7 +183,7 @@ def note_modifier(note_index, base_scale, note_name):
            basic_notes_index += 1
     else:
         note_f = base_scale[note_index-1]
-    return note_f, note_names[basic_notes_index]
+    return note_f, note_names[basic_notes_index%len(note_names)]
 
 def play_chord(chord_wave, chord_signature, base_scale):
     """Play a combination of notes simultaneously (chord)
