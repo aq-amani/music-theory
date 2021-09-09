@@ -277,7 +277,9 @@ def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Io
     lines = '+'.join(f'{"-----":5}' for n in scale_notation)
     print(f'|\n|_{root_name} {scale_name} scale in {mode} mode.. :',
     f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
-    f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n{"Scale Signature":18}|-{signature}-|')
+    f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n',
+    # Print scale signature only when we are in Ionian (default) as signature becomes irrlevant with other modes
+    f'{"Scale Signature":18}|-{signature}-|' if mode == 'Ionian' else '')
 
 def print_ref_scale(scale_notation):
     """Prints the reference scale (an extended major scale) based on which a chord is constructed"""
