@@ -252,12 +252,32 @@ def play_note_by_frequency(note_f, ms):
     """
     play_wave(sine_wave(note_f, sampling), ms)
 
+def print_chord(name, root_name, signature, notation):
+    """Prints the chord information in a nicely formatted string
+
+    Arguments:
+    name -- chord name
+    root_name -- name of the root note
+    signature -- chord signature (list of indexes on a major scale)
+    notation -- chord notation in note names (list of note names)
+    """
+    positions = '|'.join(f'{str(i):3}' for i in signature)
+    note_names = '|'.join(f'{n:3}' for n in notation)
+    lines = '+'.join(f'{"---":3}' for n in notation)
+    print(f'|\n|_{name} {root_name} chord..:',
+    f'\n{"  Chord info: ":12}{all_chord_info[name]["info"]}',
+    f'\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+'
+    f'\n{"Note names":12}|{note_names}|\n{"":12}+{lines}+')
+
 def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Ionian'):
     """Prints the scale information in a nicely formatted string"""
-    positions = '|'.join(f'{str(i):3}' for i in range(1,len(scale_notation)+1))
-    note_names = '|'.join(f'{n:3}' for n in scale_notation)
-    lines = '+'.join(f'{"---":3}' for n in scale_notation)
-    print(f'|\n|_{root_name} {scale_name} scale in {mode} mode.. :\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+\n{"Notes":12}|{note_names}|\n{"":12}+{lines}+')
+    positions = '|'.join(f'{str(i):^5}' for i in range(1,len(scale_notation)+1))
+    note_names = '|'.join(f'{n:^5}' for n in scale_notation)
+    signature = '-|-'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
+    lines = '+'.join(f'{"-----":5}' for n in scale_notation)
+    print(f'|\n|_{root_name} {scale_name} scale in {mode} mode.. :',
+    f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
+    f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n{"Scale Signature":18}|-{signature}-|')
 
 def print_ref_scale(scale_notation):
     """Prints the reference scale (usually major scale) based on which a chord is constructed"""
@@ -326,20 +346,6 @@ def play_scale(scale_frequencies, ms, with_reverse=True):
         scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
     play_piece(scale_frequencies, ms)
 
-def print_chord(name, root_name, signature, notation):
-    """Prints the chord information in a nicely formatted string
-
-    Arguments:
-    name -- chord name
-    root_name -- name of the root note
-    signature -- chord signature (list of indexes on a major scale)
-    notation -- chord notation in note names (list of note names)
-    """
-    positions = '|'.join(f'{str(i):3}' for i in signature)
-    note_names = '|'.join(f'{n:3}' for n in notation)
-    lines = '+'.join(f'{"---":3}' for n in notation)
-    print(f'|\n|_{name} {root_name} chord..:\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+\n{"Notes":12}|{note_names}|\n{"":12}+{lines}+')
-
 def play_note_by_name(note_name, ms, octave):
     """Play one note for ms milliseconds by passing note name
 
@@ -350,7 +356,7 @@ def play_note_by_name(note_name, ms, octave):
     """
     octave_multiplier = octave_converter(octave)
     note_f = basic_notes[note_name] * octave_multiplier
-    print(f'Playing {note_name} note in octave {octave} | Frequency: {note_f} Hz')
+    print(f'\n|_Playing {note_name} note in octave {octave} | Frequency: {note_f} Hz')
     play_wave(sine_wave(note_f, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
