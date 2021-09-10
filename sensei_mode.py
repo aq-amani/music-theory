@@ -2,12 +2,13 @@ import time
 import sys
 import music_theory as mt
 
-def sensei_print(s, play_flag=False):
+def sensei_print(s, play_flag=False, wait_flag=True):
     for c in s:
         sys.stdout.write(c)
         sys.stdout.flush()
-        time.sleep(0.050)
-    input("\n[Press any key to play the sample...]" if play_flag else "\n[Press any key to continue...]")
+        time.sleep(0.04)
+    if wait_flag:
+        input("\n[Press any key to play the sample...]" if play_flag else "\n[Press any key to continue...]")
 
 sensei_print(
 """
@@ -180,13 +181,15 @@ time.sleep(1)
 
 sensei_print(
 """
-There are many other types of scales, each with its own pattern or frequency ratio sequency.
+There are many other types of scales, each with its own pattern or frequency ratio sequence.
 The Minor scale, the Pentatonic scale and the Blues scale are some examples of other scale types.
 
 You can use the main script music_theory.py to experiment more with how the different scales sound with different root notes.
+For now, listen to how the different scales sound with a C root note.
 """
-)
-
+, play_flag=True)
+mt.scale_command_processor('C', 'all', 4, 'Ionian')
+sensei_print('')
 sensei_print(
 """
 Now let us move on to [chords].
@@ -233,8 +236,15 @@ sensei_print(
 As you have noticed, Minor chords give a 'Sad' impression.
 
 You can use the main script to experiment with how the different chords sound with different root notes.
+For now, listen to how the different chord types sound with a C root note.
+"""
+, play_flag=True)
+mt.chord_command_processor('C', 'all', 4)
 
+sensei_print(
+"""
 This is the end of explanation for this version of this script. I hope it was useful for you!
 Thank you for following the explanation :)
 """
-)
+,wait_flag=False)
+print('\n')
