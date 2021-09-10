@@ -10,9 +10,10 @@ def sensei_print(s, play_flag=False, wait_flag=True):
     if wait_flag:
         input("\n[Press any key to play the sample...]" if play_flag else "\n[Press any key to continue...]")
 
+print(mt.header)
 sensei_print(
 """
-Hello. I'll explain to you some music theory concepts in the simplest way.
+Hello there! I'll explain to you some music theory concepts in the simplest way.
 You can freely experiment with all the concepts explained here and more
 by using the main music_theory.py script.
 
