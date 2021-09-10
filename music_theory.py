@@ -58,18 +58,18 @@ all_chord_info = {
 
 #Octave 4
 basic_notes = {
-    "C"  : 261.63,
-    "C#" : 277.18,
-    "D"  : 293.66,
-    "D#" : 311.13,
-    "E"  : 329.63,
-    "F"  : 349.23,
-    "F#" : 369.99,
-    "G"  : 392.00,
-    "G#" : 415.30,
-    "A"  : 440.00,
-    "A#" : 466.16,
-    "B"  : 493.88,
+    "C"  : {"alt_name" : "",   "frequency" : 261.63},
+    "C#" : {"alt_name" : "Db", "frequency" : 277.18},
+    "D"  : {"alt_name" : "",   "frequency" : 293.66},
+    "D#" : {"alt_name" : "Eb", "frequency" : 311.13},
+    "E"  : {"alt_name" : "",   "frequency" : 329.63},
+    "F"  : {"alt_name" : "",   "frequency" : 349.23},
+    "F#" : {"alt_name" : "Gb", "frequency" : 369.99},
+    "G"  : {"alt_name" : "",   "frequency" : 392.00},
+    "G#" : {"alt_name" : "Ab", "frequency" : 415.30},
+    "A"  : {"alt_name" : "",   "frequency" : 440.00},
+    "A#" : {"alt_name" : "Bb", "frequency" : 466.16},
+    "B"  : {"alt_name" : "",   "frequency" : 493.88},
 }
 
 piano_keys = """
@@ -128,7 +128,8 @@ def construct_scale(root_name, scale_signature, octave, scale_length=None):
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
     octave_multiplier = octave_converter(octave)
-    note = basic_notes[root_name] * octave_multiplier
+    root_name = note_alt_name_converter(root_name)
+    note = basic_notes[root_name]['frequency'] * octave_multiplier
     if not scale_length:
         # If not specified, default to standard scale length
         scale_length = len(scale_signature)
@@ -264,32 +265,44 @@ def print_chord(name, root_name, signature, notation):
     signature -- chord signature (list of indexes on a major scale)
     notation -- chord notation in note names (list of note names)
     """
-    positions = '|'.join(f'{str(i):3}' for i in signature)
-    note_names = '|'.join(f'{n:3}' for n in notation)
-    lines = '+'.join(f'{"---":3}' for n in notation)
-    print(f'|\n|_{name} {root_name} chord..:',
+    positions = '|'.join(f'{str(i):^7}' for i in signature)
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in notation)
+    lines = '+'.join(f'{"-------":7}' for n in notation)
+    print(f'|\n|_{name} {note_alt_name_appender(root_name)} chord..:',
     f'\n{"  Chord info: ":12}{all_chord_info[name]["info"]}',
     f'\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+'
     f'\n{"Note names":12}|{note_names}|\n{"":12}+{lines}+')
 
 def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Ionian'):
     """Prints the scale information in a nicely formatted string"""
-    positions = '|'.join(f'{str(i):^5}' for i in range(1,len(scale_notation)+1))
-    note_names = '|'.join(f'{n:^5}' for n in scale_notation)
-    signature = '-|-'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
-    lines = '+'.join(f'{"-----":5}' for n in scale_notation)
-    print(f'|\n|_{root_name} {scale_name} scale', f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
+    positions = '|'.join(f'{str(i):^7}' for i in range(1,len(scale_notation)+1))
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in scale_notation)
+    signature = '--|--'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
+    lines = '+'.join(f'{"-------":7}' for n in scale_notation)
+    print(
+    f'|\n|_{note_alt_name_appender(root_name)} {scale_name} scale',
+    f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
     f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
     f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n',
     # Print scale signature only when we are in Ionian (default) as signature becomes irrlevant with other modes
-    f'{"Scale Signature":18}|-{signature}-|' if mode == 'Ionian' else '')
+    f'{"Scale Signature":18}|--{signature}--|' if mode == 'Ionian' else '')
 
 def print_ref_scale(scale_notation):
     """Prints the reference scale (an extended major scale) based on which a chord is constructed"""
-    positions = '|'.join(f'{str(i):3}' for i in range(1,len(scale_notation)+1))
-    note_names = '|'.join(f'{n:3}' for n in scale_notation)
-    lines = '+'.join(f'{"---":3}' for n in scale_notation)
+    positions = '|'.join(f'{str(i):^7}' for i in range(1,len(scale_notation)+1))
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in scale_notation)
+    lines = '+'.join(f'{"-------":7}' for n in scale_notation)
     print(f'\nBase Major scale (extended) with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
+
+def print_note_info(octave):
+    octave_multiplier = octave_converter(octave)
+    note_names = '|'.join(f'{n+"|"+basic_notes[n]["alt_name"] if basic_notes[n]["alt_name"] else n:^9}' for n in basic_notes.keys())
+    frequencies = '|'.join(f'{octave_multiplier*note_info["frequency"]:^9}' for note_info in basic_notes.values())
+    lines = '+'.join(f'{"---------":9}' for i in basic_notes.keys())
+    print(
+    f'\nOctave : {octave}',
+    f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
+    f'\n{"Frequencies(Hz)":15}|{frequencies}|\n{"":15}+{lines}+\n')
 
 def construct_and_play_chord(root_name, chord_name, octave, one_root=False):
     """Constructs a chord and Plays it
@@ -363,8 +376,9 @@ def play_note_by_name(note_name, ms, octave):
     octave -- octave at which to play the note
     """
     octave_multiplier = octave_converter(octave)
-    note_f = basic_notes[note_name] * octave_multiplier
-    print(f'\n|_Playing {note_name} note in octave {octave} | Frequency: {note_f} Hz')
+    note_name = note_alt_name_converter(note_name)
+    note_f = basic_notes[note_name]['frequency'] * octave_multiplier
+    print(f'\n|_Playing {note_alt_name_appender(note_name)} note in octave {octave} | Frequency: {note_f} Hz\n')
     play_wave(sine_wave(note_f, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
@@ -383,19 +397,19 @@ def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
         construct_and_play_scale(root_name, scale_name, octave, mode_name)
     elif root_name == 'all' and scale_name !='all':
         # Play specific scale at all roots
-        for root_name, note_freq in basic_notes.items():
+        for root_name in basic_notes.keys():
             construct_and_play_scale(root_name, scale_name, octave, mode_name)
             pygame.time.delay(200)
     elif root_name != 'all' and scale_name =='all':
         # Play all scales for a specific root
-        for scale_name, scale_info in all_scale_info.items():
+        for scale_name in all_scale_info.keys():
             construct_and_play_scale(root_name, scale_name, octave, mode_name)
             pygame.time.delay(200)
     else:
         # Play all scales at all roots -- very long
-        for scale_name, scale_info in all_scale_info.items():
+        for scale_name in all_scale_info.keys():
             print(f'\n** {scale_name} scales **')
-            for note_name, note_freq in basic_notes.items():
+            for note_name in basic_notes.keys():
                 construct_and_play_scale(note_name, scale_name, octave, mode_name)
                 pygame.time.delay(200)
 
@@ -412,23 +426,46 @@ def chord_command_processor(root_name, chord_name, octave):
         construct_and_play_chord(root_name, chord_name, octave)
     elif root_name == 'all' and chord_name !='all':
         # Play specific chord at all roots
-        for root_name, note_freq in basic_notes.items():
+        for root_name in basic_notes.keys():
             construct_and_play_chord(root_name, chord_name, octave)
             pygame.time.delay(200)
     elif root_name != 'all' and chord_name =='all':
         # Play all chords for a specific root
         _, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
         print_ref_scale(scale_notation)
-        for chord_name, chord_info in all_chord_info.items():
+        for chord_name in all_chord_info.keys():
             construct_and_play_chord(root_name, chord_name, octave, one_root=True)
             pygame.time.delay(200)
     else:
         # Play all chords at all roots -- very long
-        for chord_name, chord_info in all_chord_info.items():
+        for chord_name in all_chord_info.keys():
             print(f'\n** {chord_name} chords **')
-            for note_name, note_freq in basic_notes.items():
+            for note_name in basic_notes.keys():
                 construct_and_play_chord(note_name, chord_name, octave)
                 pygame.time.delay(200)
+
+def note_alt_name_appender(note_name):
+    """Returns a string of note_name and its alternative name if one exists
+    Only to be used when printing notes.
+    returned string format: <note_name>|<alternative_name>
+    """
+    # Make sure that note_name is converted to the # notation instead of b notation if needed
+    # to use it as a key to access the basic_notes dict
+    note_name = note_alt_name_converter(note_name)
+    if basic_notes[note_name]['alt_name']:
+        note_name = f'{note_name}|{basic_notes[note_name]["alt_name"]}'
+    return note_name
+
+def note_alt_name_converter(note_name):
+    """Returns the note_name key in basic_notes, if a note is passed using the alt_name notation
+    Ex.: Eb returns D#
+    """
+    if 'b' in note_name:
+        for basic_name, note_info in basic_notes.items():
+            if note_info['alt_name'] == note_name:
+                note_name = basic_name
+                break
+    return note_name
 
 def octave_converter(octave):
     """Converts an octave to a frequency multiplier.
@@ -447,7 +484,7 @@ def list_supported_values():
     """Lists available values for the different options"""
     print('## Supported notes (-n options)')
     for n in basic_notes.keys():
-        print('|_',n)
+        print('|_',n, f'({basic_notes[n]["alt_name"]})' if basic_notes[n]["alt_name"] else '')
     print('\n## Supported scales (-s options)')
     for s in list(all_scale_info.keys()):
         print('|_',s)
@@ -463,6 +500,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
     root_choices = list(basic_notes.keys())
+    root_choices.extend(note_info['alt_name'] for note_info in basic_notes.values() if note_info['alt_name'])
     root_choices.extend(['all'])
     chord_choices = list(all_chord_info.keys())
     chord_choices.extend(['all'])
@@ -496,6 +534,7 @@ def main():
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
+        print_note_info(args['octave'])
         play_note_by_name(args['note'], 700, args['octave'])
     elif args['list']:
         list_supported_values()
