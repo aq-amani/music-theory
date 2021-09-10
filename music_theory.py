@@ -128,6 +128,7 @@ def construct_scale(root_name, scale_signature, octave, scale_length=None):
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
     octave_multiplier = octave_converter(octave)
+    root_name = note_alt_name_converter(root_name)
     note = basic_notes[root_name]['frequency'] * octave_multiplier
     if not scale_length:
         # If not specified, default to standard scale length
@@ -375,6 +376,7 @@ def play_note_by_name(note_name, ms, octave):
     octave -- octave at which to play the note
     """
     octave_multiplier = octave_converter(octave)
+    note_name = note_alt_name_converter(note_name)
     note_f = basic_notes[note_name]['frequency'] * octave_multiplier
     print(f'\n|_Playing {note_alt_name_appender(note_name)} note in octave {octave} | Frequency: {note_f} Hz\n')
     play_wave(sine_wave(note_f, sampling), ms)
@@ -447,8 +449,22 @@ def note_alt_name_appender(note_name):
     Only to be used when printing notes.
     returned string format: <note_name>|<alternative_name>
     """
+    # Make sure that note_name is converted to the # notation instead of b notation if needed
+    # to use it as a key to access the basic_notes dict
+    note_name = note_alt_name_converter(note_name)
     if basic_notes[note_name]['alt_name']:
         note_name = f'{note_name}|{basic_notes[note_name]["alt_name"]}'
+    return note_name
+
+def note_alt_name_converter(note_name):
+    """Returns the note_name key in basic_notes, if a note is passed using the alt_name notation
+    Ex.: Eb returns D#
+    """
+    if 'b' in note_name:
+        for basic_name, note_info in basic_notes.items():
+            if note_info['alt_name'] == note_name:
+                note_name = basic_name
+                break
     return note_name
 
 def octave_converter(octave):
@@ -484,6 +500,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='music-theory.py: A script to interactively play scales and chords')
     root_choices = list(basic_notes.keys())
+    root_choices.extend(note_info['alt_name'] for note_info in basic_notes.values() if note_info['alt_name'])
     root_choices.extend(['all'])
     chord_choices = list(all_chord_info.keys())
     chord_choices.extend(['all'])
