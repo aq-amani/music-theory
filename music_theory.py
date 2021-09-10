@@ -385,19 +385,19 @@ def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
         construct_and_play_scale(root_name, scale_name, octave, mode_name)
     elif root_name == 'all' and scale_name !='all':
         # Play specific scale at all roots
-        for root_name, note_freq in basic_notes.items():
+        for root_name in basic_notes.keys():
             construct_and_play_scale(root_name, scale_name, octave, mode_name)
             pygame.time.delay(200)
     elif root_name != 'all' and scale_name =='all':
         # Play all scales for a specific root
-        for scale_name, scale_info in all_scale_info.items():
+        for scale_name in all_scale_info.keys():
             construct_and_play_scale(root_name, scale_name, octave, mode_name)
             pygame.time.delay(200)
     else:
         # Play all scales at all roots -- very long
-        for scale_name, scale_info in all_scale_info.items():
+        for scale_name in all_scale_info.keys():
             print(f'\n** {scale_name} scales **')
-            for note_name, note_freq in basic_notes.items():
+            for note_name in basic_notes.keys():
                 construct_and_play_scale(note_name, scale_name, octave, mode_name)
                 pygame.time.delay(200)
 
@@ -414,21 +414,21 @@ def chord_command_processor(root_name, chord_name, octave):
         construct_and_play_chord(root_name, chord_name, octave)
     elif root_name == 'all' and chord_name !='all':
         # Play specific chord at all roots
-        for root_name, note_freq in basic_notes.items():
+        for root_name in basic_notes.keys():
             construct_and_play_chord(root_name, chord_name, octave)
             pygame.time.delay(200)
     elif root_name != 'all' and chord_name =='all':
         # Play all chords for a specific root
         _, scale_notation = construct_scale(root_name, all_scale_info['Major']['signature'], 2, 9)
         print_ref_scale(scale_notation)
-        for chord_name, chord_info in all_chord_info.items():
+        for chord_name in all_chord_info.keys():
             construct_and_play_chord(root_name, chord_name, octave, one_root=True)
             pygame.time.delay(200)
     else:
         # Play all chords at all roots -- very long
-        for chord_name, chord_info in all_chord_info.items():
+        for chord_name in all_chord_info.keys():
             print(f'\n** {chord_name} chords **')
-            for note_name, note_freq in basic_notes.items():
+            for note_name in basic_notes.keys():
                 construct_and_play_chord(note_name, chord_name, octave)
                 pygame.time.delay(200)
 
