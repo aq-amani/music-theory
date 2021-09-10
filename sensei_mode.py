@@ -106,15 +106,10 @@ Two half steps/ semi-tones make a [Whole step] or a [Full Tone].
 Each note on these intervals is given a human-friendly name, an alphabet between A~F,
 instead of just frequency values to refer to these notes.
 
-Here are the basic 12 notes that have names, along with their frequencies.
+Here are the basic 12 notes that have names, along with their frequencies on the 4th octave.
 """
 )
-note_names = '|'.join(f'{str(i):^7}' for i in mt.basic_notes.keys())
-frequencies = '|'.join(f'{f:^7}' for f in mt.basic_notes.values())
-lines = '+'.join(f'{"-------":7}' for i in mt.basic_notes.keys())
-print(
-f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
-f'\n{"Frequencies":15}|{frequencies}|\n{"":15}+{lines}+\n')
+mt.print_note_info(octave = 4)
 sensei_print('')
 
 sensei_print(
@@ -141,9 +136,6 @@ sensei_print(
 """
 Looking at the 12 note list, you will notice that some notes can have two names.
 For example, G# can also be called Ab, because it is half a step lower than A.
-
-In this script, the 'b' notation with note names is not used for simplicity.
-Therefore you will not find a note printed out as Ab ,for example, but rather you will see it printed as G#.
 """
 )
 
