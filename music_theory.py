@@ -91,8 +91,9 @@ T: Full Tone
 """
 
 header = """
-Welcome to music_theory.py
+Music Theory python lab
 (c) 2021 Amani AbuQdais
+https://github.com/aq-amani/music-theory
  ___________________________
 |  | | | |  |  | | | | | |  |
 |  |C| |D|  |  |F| |G| |A|  |
