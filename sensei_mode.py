@@ -15,7 +15,7 @@ def main():
     """
     Hello there! I'll explain to you some music theory concepts in the simplest way.
     You can freely experiment with all the concepts explained here and more
-    by using the main music_theory.py script.
+    by using the main music_theory_lab.py script.
 
     This explanation will cover the following concepts:
     - Notes
@@ -185,7 +185,7 @@ def main():
     There are many other types of scales, each with its own pattern or frequency ratio sequence.
     The Minor scale, the Pentatonic scale and the Blues scale are some examples of other scale types.
 
-    You can use the main script music_theory.py to experiment more with how the different scales sound with different root notes.
+    You can use the main script music_theory_lab.py to experiment more with how the different scales sound with different root notes.
     For now, listen to how the different scales sound with a C root note.
     """
     , play_flag=True)
