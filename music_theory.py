@@ -293,6 +293,16 @@ def print_ref_scale(scale_notation):
     lines = '+'.join(f'{"-------":7}' for n in scale_notation)
     print(f'\nBase Major scale (extended) with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
+def print_note_info(octave):
+    octave_multiplier = octave_converter(octave)
+    note_names = '|'.join(f'{n+"|"+basic_notes[n]["alt_name"] if basic_notes[n]["alt_name"] else n:^9}' for n in basic_notes.keys())
+    frequencies = '|'.join(f'{octave_multiplier*note_info["frequency"]:^9}' for note_info in basic_notes.values())
+    lines = '+'.join(f'{"---------":9}' for i in basic_notes.keys())
+    print(
+    f'\nOctave : {octave}',
+    f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
+    f'\n{"Frequencies(Hz)":15}|{frequencies}|\n{"":15}+{lines}+\n')
+
 def construct_and_play_chord(root_name, chord_name, octave, one_root=False):
     """Constructs a chord and Plays it
 
@@ -507,6 +517,7 @@ def main():
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
+        print_note_info(args['octave'])
         play_note_by_name(args['note'], 700, args['octave'])
     elif args['list']:
         list_supported_values()
