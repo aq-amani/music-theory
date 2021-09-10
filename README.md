@@ -30,3 +30,8 @@ Example: C Major chord at 4th octave
 python -u music_theory.py --root C --chord Major_triad --octave 4
 ```
 ️:information_source: Check the help output for a full list of options, flags and setting values.
+
+## 🤍 Acknowledgements
+Self teaching myself music theory (still learning though) would not have been possible without the excellent content on https://yourguitaracademy.com/courses
+
+I'd like to thank the "your guitaracademy" team for making this high quality content available for free.
