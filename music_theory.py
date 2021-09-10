@@ -58,18 +58,18 @@ all_chord_info = {
 
 #Octave 4
 basic_notes = {
-    "C"  : 261.63,
-    "C#" : 277.18,
-    "D"  : 293.66,
-    "D#" : 311.13,
-    "E"  : 329.63,
-    "F"  : 349.23,
-    "F#" : 369.99,
-    "G"  : 392.00,
-    "G#" : 415.30,
-    "A"  : 440.00,
-    "A#" : 466.16,
-    "B"  : 493.88,
+    "C"  : {"alt_name" : "",   "frequency" : 261.63},
+    "C#" : {"alt_name" : "Db", "frequency" : 277.18},
+    "D"  : {"alt_name" : "",   "frequency" : 293.66},
+    "D#" : {"alt_name" : "Eb", "frequency" : 311.13},
+    "E"  : {"alt_name" : "",   "frequency" : 329.63},
+    "F"  : {"alt_name" : "",   "frequency" : 349.23},
+    "F#" : {"alt_name" : "Gb", "frequency" : 369.99},
+    "G"  : {"alt_name" : "",   "frequency" : 392.00},
+    "G#" : {"alt_name" : "Ab", "frequency" : 415.30},
+    "A"  : {"alt_name" : "",   "frequency" : 440.00},
+    "A#" : {"alt_name" : "Bb", "frequency" : 466.16},
+    "B"  : {"alt_name" : "",   "frequency" : 493.88},
 }
 
 piano_keys = """
@@ -128,7 +128,7 @@ def construct_scale(root_name, scale_signature, octave, scale_length=None):
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
     octave_multiplier = octave_converter(octave)
-    note = basic_notes[root_name] * octave_multiplier
+    note = basic_notes[root_name]['frequency'] * octave_multiplier
     if not scale_length:
         # If not specified, default to standard scale length
         scale_length = len(scale_signature)
@@ -264,31 +264,33 @@ def print_chord(name, root_name, signature, notation):
     signature -- chord signature (list of indexes on a major scale)
     notation -- chord notation in note names (list of note names)
     """
-    positions = '|'.join(f'{str(i):3}' for i in signature)
-    note_names = '|'.join(f'{n:3}' for n in notation)
-    lines = '+'.join(f'{"---":3}' for n in notation)
-    print(f'|\n|_{name} {root_name} chord..:',
+    positions = '|'.join(f'{str(i):^7}' for i in signature)
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in notation)
+    lines = '+'.join(f'{"-------":7}' for n in notation)
+    print(f'|\n|_{name} {note_alt_name_appender(root_name)} chord..:',
     f'\n{"  Chord info: ":12}{all_chord_info[name]["info"]}',
     f'\n{"":12}+{lines}+\n{"positions":12}|{positions}|\n{"":12}+{lines}+'
     f'\n{"Note names":12}|{note_names}|\n{"":12}+{lines}+')
 
 def print_scale(root_name, scale_name, scale_notation, scale_signature, mode='Ionian'):
     """Prints the scale information in a nicely formatted string"""
-    positions = '|'.join(f'{str(i):^5}' for i in range(1,len(scale_notation)+1))
-    note_names = '|'.join(f'{n:^5}' for n in scale_notation)
-    signature = '-|-'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
-    lines = '+'.join(f'{"-----":5}' for n in scale_notation)
-    print(f'|\n|_{root_name} {scale_name} scale', f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
+    positions = '|'.join(f'{str(i):^7}' for i in range(1,len(scale_notation)+1))
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in scale_notation)
+    signature = '--|--'.join(f'{"S" if s == S else "T" if s==T else "T.S":^3}' for s in scale_signature)
+    lines = '+'.join(f'{"-------":7}' for n in scale_notation)
+    print(
+    f'|\n|_{note_alt_name_appender(root_name)} {scale_name} scale',
+    f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
     f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
     f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+\n',
     # Print scale signature only when we are in Ionian (default) as signature becomes irrlevant with other modes
-    f'{"Scale Signature":18}|-{signature}-|' if mode == 'Ionian' else '')
+    f'{"Scale Signature":18}|--{signature}--|' if mode == 'Ionian' else '')
 
 def print_ref_scale(scale_notation):
     """Prints the reference scale (an extended major scale) based on which a chord is constructed"""
-    positions = '|'.join(f'{str(i):3}' for i in range(1,len(scale_notation)+1))
-    note_names = '|'.join(f'{n:3}' for n in scale_notation)
-    lines = '+'.join(f'{"---":3}' for n in scale_notation)
+    positions = '|'.join(f'{str(i):^7}' for i in range(1,len(scale_notation)+1))
+    note_names = '|'.join(f'{note_alt_name_appender(n):^7}' for n in scale_notation)
+    lines = '+'.join(f'{"-------":7}' for n in scale_notation)
     print(f'\nBase Major scale (extended) with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
 def construct_and_play_chord(root_name, chord_name, octave, one_root=False):
@@ -363,8 +365,8 @@ def play_note_by_name(note_name, ms, octave):
     octave -- octave at which to play the note
     """
     octave_multiplier = octave_converter(octave)
-    note_f = basic_notes[note_name] * octave_multiplier
-    print(f'\n|_Playing {note_name} note in octave {octave} | Frequency: {note_f} Hz')
+    note_f = basic_notes[note_name]['frequency'] * octave_multiplier
+    print(f'\n|_Playing {note_alt_name_appender(note_name)} note in octave {octave} | Frequency: {note_f} Hz\n')
     play_wave(sine_wave(note_f, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
@@ -430,6 +432,15 @@ def chord_command_processor(root_name, chord_name, octave):
                 construct_and_play_chord(note_name, chord_name, octave)
                 pygame.time.delay(200)
 
+def note_alt_name_appender(note_name):
+    """Returns a string of note_name and its alternative name if one exists
+    Only to be used when printing notes.
+    returned string format: <note_name>|<alternative_name>
+    """
+    if basic_notes[note_name]['alt_name']:
+        note_name = f'{note_name}|{basic_notes[note_name]["alt_name"]}'
+    return note_name
+
 def octave_converter(octave):
     """Converts an octave to a frequency multiplier.
     Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
@@ -447,7 +458,7 @@ def list_supported_values():
     """Lists available values for the different options"""
     print('## Supported notes (-n options)')
     for n in basic_notes.keys():
-        print('|_',n)
+        print('|_',n, f'({basic_notes[n]["alt_name"]})' if basic_notes[n]["alt_name"] else '')
     print('\n## Supported scales (-s options)')
     for s in list(all_scale_info.keys()):
         print('|_',s)
