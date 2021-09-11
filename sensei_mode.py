@@ -129,8 +129,8 @@ def main():
     Similarily, 'b' is also used in naming notes.
     This 'b' means that the note is decreased by a half step and is called a flat.
 
-    Therefore C# is called [C sharp], and means a C with a frequency increase by half a step (C frequency * 2^12).
-    On the other hand Cb is called [C flat], and means a C with a frequency decrease by half a step (C frequency / 2^12).
+    Therefore C# is called [C sharp], and means a C with a frequency increase by half a step (C frequency * 2^(1/12)).
+    On the other hand Cb is called [C flat], and means a C with a frequency decrease by half a step (C frequency / 2^(1/12)).
     """
     )
 
