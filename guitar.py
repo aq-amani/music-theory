@@ -1,6 +1,7 @@
 import mt_toolbox as mt
 FRET_COUNT = 24
 GUITAR_STRING_NAMES = ['E', 'B', 'G', 'D', 'A', 'E'] # Ordered from 1st to 6th
+import argparse
 
 def generate_fret_note_names(open_string_name):
     fret_names = [open_string_name]
@@ -25,15 +26,37 @@ def construct_fret_board(notes = 'all'):
     fret_board =f'__{fret_nums}\n{note_names}=={lower_edge}'
     return fret_board
 
-# Empty fretboard
-fret_board = construct_fret_board([])
-print(fret_board)
+def main():
+    parser = argparse.ArgumentParser(description='guitar.py: A script to show chord/note positions on the guitar fret board')
+    root_choices = list(mt.basic_notes.keys())
+    chord_choices = list(mt.all_chord_info.keys())
+    scale_choices = list(mt.all_scale_info.keys())
 
-# Full fretboard
-fret_board = construct_fret_board()
-print(fret_board)
-# G major chord positions only
-base_scale, base_scale_notation = mt.construct_scale('G', mt.all_scale_info['Major']['signature'], octave=4)
-_, chord = mt.construct_chord(mt.all_chord_info['Major_triad']['signature'], base_scale, base_scale_notation)
-chord_fret_board = construct_fret_board(chord)
-print(chord_fret_board)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type to show', metavar = '')
+    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale to show', metavar = '')
+    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to show', metavar = '')
+    group.add_argument('-a','--all', help='Show all notes', action ='store_true')
+
+    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
+
+    args = vars(parser.parse_args())
+
+    if args['scale']:
+        #TODO: Implement
+        pass
+    elif args['chord']:
+        base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info['Major']['signature'], octave=4)
+        _, chord = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale, base_scale_notation)
+        chord_fret_board = construct_fret_board(chord)
+        print(chord_fret_board)
+    elif args['note']:
+        note_fret_board = construct_fret_board(args['note'])
+        print(note_fret_board)
+    elif args['all']:
+        # Full fretboard
+        fret_board = construct_fret_board()
+        print(fret_board)
+
+if __name__ == '__main__':
+    main()
