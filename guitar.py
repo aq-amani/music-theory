@@ -1,27 +1,25 @@
 import mt_toolbox as mt
-FRET_COUNT = 24
-GUITAR_STRING_NAMES = ['E', 'B', 'G', 'D', 'A', 'E'] # Ordered from 1st to 6th
+from note import Note
 import argparse
 
-def generate_fret_note_names(open_string_name):
-    fret_names = [open_string_name]
-    note_names = list(mt.basic_notes.keys())
-    note_index = note_names.index(open_string_name)
-    for i in range(1,FRET_COUNT+1):
-        note_index += 1
-        fret_names.append(note_names[note_index%len(note_names)])
-    return fret_names
+FRET_COUNT = 24
+GUITAR_STRING_NAMES = [Note('E', 4), Note('B', 3), Note('G', 3), Note('D', 3), Note('A', 2), Note('E', 2)] # Ordered from 1st to 6th
+
+def generate_fret_notes(open_string_note):
+    fret_notes = open_string_note.get_consecutive_notes(FRET_COUNT+1)
+    return fret_notes
 
 def construct_fret_board(notes = 'all'):
-    fret_nums = '_'.join(f'__{str(i):^2}__' for i in range(0,FRET_COUNT+1))
+    fret_nums = '_'.join(f'__{str(i):^3}__' for i in range(0,FRET_COUNT+1))
     note_names = ''
     lower_edge = ''
-    for index, open_string in enumerate(GUITAR_STRING_NAMES):
-        note_names += f'{str(index + 1):<2}  {open_string:<2} ||' if open_string in notes or notes == 'all' else f'{str(index + 1):<2}  {"  ":<2} ||'
-        note_names += '|'.join(f'_ {n:^2} _' if n in notes or notes == 'all' else f'__{"__":^2}__' for n in generate_fret_note_names(open_string)[1:])
+    chord_note_names = [note.name for note in notes] if notes != 'all' else 'all'
+    for index, open_string_note in enumerate(GUITAR_STRING_NAMES):
+        note_names += f'{str(index + 1):<2}  {open_string_note.name:<2}{open_string_note.octave:<1} ||' if notes == 'all' or open_string_note.name in chord_note_names else f'{str(index + 1):<2}  {"  ":<3} ||'
+        note_names += '|'.join(f'_ {n.name:^2}{n.octave:^1} _' if notes == 'all' or n.name in chord_note_names else f'__{"___":^3}__' for n in generate_fret_notes(open_string_note)[1:])
         note_names += '\n'
-    for j in range(0,FRET_COUNT+1):
-        lower_edge += '='.join(f'={"O=":^2}=' if j in (3,5,7,9,15,17,19,21) else f'={"OO":^2}=' if j in (12,24) else f'={"==":^2}=')
+
+    lower_edge += '='.join(f'=={"=●=":^3}==' if j in (3,5,7,9,15,17,19,21) else f'=={"●●=":^3}==' if j in (12,24) else f'=={"===":^3}==' for j in range(0,FRET_COUNT+1))
 
     fret_board =f'__{fret_nums}\n{note_names}=={lower_edge}'
     return fret_board
@@ -47,11 +45,13 @@ def main():
         pass
     elif args['chord']:
         base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info['Major']['signature'], octave=4)
-        _, chord = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale, base_scale_notation)
-        chord_fret_board = construct_fret_board(chord)
+        _, chord_notation = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale, base_scale_notation)
+        ##TODO: Rewrite when mt_toolbox supports the Note class
+        chord_notes = [Note(n, 4) for n in chord_notation]
+        chord_fret_board = construct_fret_board(chord_notes)
         print(chord_fret_board)
     elif args['note']:
-        note_fret_board = construct_fret_board(args['note'])
+        note_fret_board = construct_fret_board([Note(args['note'], 4)])
         print(note_fret_board)
     elif args['all']:
         # Full fretboard
