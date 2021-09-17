@@ -41,8 +41,11 @@ def main():
     args = vars(parser.parse_args())
 
     if args['scale']:
-        #TODO: Implement
-        pass
+        ##TODO: Rewrite when mt_toolbox supports the Note class
+        base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info[args['scale']]['signature'], octave=4)
+        scale_notes = [Note(n, 4) for n in base_scale_notation]
+        scale_fret_board = construct_fret_board(scale_notes)
+        print(scale_fret_board)
     elif args['chord']:
         base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info['Major']['signature'], octave=4)
         _, chord_notation = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale, base_scale_notation)
