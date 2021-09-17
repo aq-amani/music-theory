@@ -22,7 +22,7 @@ class Note:
         self.name = name
         self.octave = octave
         octave_multiplier = self.octave_converter()
-        self._frequency = basic_notes[name]['frequency'] * octave_multiplier
+        self._frequency = basic_notes[self.name]['frequency'] * octave_multiplier
 
     def __eq__(self, other):
         if not isinstance(other, Note):
@@ -70,19 +70,28 @@ class Note:
         Arguments:
         octave -- octave at which to play the scale
         """
-        return 2 ** (self.octave - 4)
+        return round(2 ** (self.octave - 4), 2)
 
-    def get_consecutive_notes(self, note_count):
+    def get_consecutive_notes(self, halfstep_count):
         """Get note_count consecutive notes half step apart while updating octave as necessary"""
+
+        note = self
+        note_list = [note]
+        for i in range(1, halfstep_count):
+            note = note.get_next_step_note(1)
+            note_list.append(note)
+        return note_list
+
+    def get_next_step_note(self, halfstep_count):
+        """Gets the next note that is halfstep_count above or below while updating octave as necessary
+        Arguments:
+        halfstep_count -- (int) number of half steps to increase/decrease (negative value for decrements)
+        """
 
         note_names = list(basic_notes.keys())
         note_index = note_names.index(self.name)
-        note_list = [self]
         octave = self.octave
-        for i in range(1, note_count):
-            note_index += 1
-            normalized_note_index = note_index%len(note_names)
-            if normalized_note_index == 0:
-                octave += 1
-            note_list.append(Note(note_names[normalized_note_index], octave))
-        return note_list
+        note_index += halfstep_count
+        normalized_note_index = note_index%len(note_names) if note_index >= 0 else len(note_names) - abs(note_index)%len(note_names)
+        octave += int(note_index/len(note_names)) if normalized_note_index >= 0 else int(abs(note_index)/len(note_names)) - 1
+        return Note(note_names[normalized_note_index], octave)
