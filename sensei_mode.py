@@ -150,7 +150,7 @@ def main():
     Listen to and examine the notes on the familiar Major scale.
     """
     , play_flag=True)
-    mt.construct_and_play_scale('C', 'Major', 4, 'Ionian')
+    mt.construct_and_play_scale(Note('C', 4), 'Major', 'Ionian')
     time.sleep(1)
 
     sensei_print(
@@ -177,7 +177,7 @@ def main():
     """
     , play_flag=True)
     # Play A major scale
-    mt.construct_and_play_scale('A', 'Major', 4, 'Ionian')
+    mt.construct_and_play_scale(Note('A', 4), 'Major', 'Ionian')
     time.sleep(1)
 
     sensei_print(
@@ -215,7 +215,7 @@ def main():
     If we choose the C note as the root note, then we will get a [C Major chord].
     """
     , play_flag=True)
-    mt.construct_and_play_chord('C', 'Major_triad', 4)
+    mt.construct_and_play_chord(Note('C', 4), 'Major_triad')
     time.sleep(1)
 
     sensei_print("""
@@ -229,7 +229,7 @@ def main():
     This is how the resulting [C Minor chord] sounds like.
     """
     , play_flag=True)
-    mt.construct_and_play_chord('C', 'Minor_triad', 4)
+    mt.construct_and_play_chord(Note('C', 4), 'Minor_triad')
     time.sleep(1)
 
     sensei_print(
