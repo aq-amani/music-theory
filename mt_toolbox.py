@@ -108,9 +108,8 @@ def construct_scale(root_note, scale_signature, scale_length=None):
     """Construct a musical scale from a root note
 
     Arguments:
-    root_name -- root note name of the scale
+    root_note -- A root note object from class Note
     scale_signature -- array of frequency ratios between consecutive notes on the scale
-    octave -- octave at which to construct the scale with.
     scale_length -- Defaults to standard scale length. Specify when needing non-standard scale length (ex.: span multiple octaves)
     """
     if not scale_length:
@@ -130,8 +129,7 @@ def construct_chord(chord_signature, base_scale_notes):
 
     Arguments:
     chord_signature -- indexes of notes within the base scale
-    base_scale -- reference scale from where notes are picked up to form chords (note frequencies)
-    base_scale_notation -- list of note names
+    base_scale_notes -- a list of Note objects representing a reference scale from where notes are picked up to form chords
     """
     chord_notes = []
     for index in chord_signature:
@@ -141,11 +139,11 @@ def construct_chord(chord_signature, base_scale_notes):
     return chord_notes
 
 def note_modifier(note_index, note):
-    """Returns the frequecy of after sharpening or flattening the note based on # or b modifiers
+    """Returns a modified Note object after sharpening or flattening the note based on # or b modifiers
 
     Arguments:
     note_index -- Note position index on the major scale
-    base_scale -- reference scale from where notes are picked up to form chords
+    note -- Note object to flatten or to sharpen
     """
     if type(note_index) is str:
         i = int(re.findall(r'\d+', note_index)[0])
@@ -161,9 +159,7 @@ def play_chord(chord_notes):
     """Play a combination of notes simultaneously (chord)
 
     Arguments:
-    chord_wave -- wave object constructed from summing multiple waves representing single notes
-    chord_signature -- indexes of notes within the base scale
-    base_scale -- reference scale from where notes are picked up to form chords
+    chord_notes -- List of Note objects respresenting the chord
     """
     chord_wave = 0
     for note in chord_notes:
@@ -213,7 +209,7 @@ def play_wave(wave, ms):
     sound.stop()
 
 def play_piece(notes_f, ms):
-    """Play an array of notes ms milliseconds each
+    """Play an array of note frequencies ms milliseconds each
 
     Arguments:
     notes_f -- array of frequencies
@@ -237,9 +233,9 @@ def print_chord(name, root_note, signature, chord_notes):
 
     Arguments:
     name -- chord name
-    root_name -- name of the root note
+    root_note -- Note object representing the root note
     signature -- chord signature (list of indexes on a major scale)
-    notation -- chord notation in note names (list of note names)
+    chord_notes -- List of Note objects out of which the chord is constructed
     """
     positions = '|'.join(f'{str(i):^7}' for i in signature)
     note_names = '|'.join(f'{note_alt_name_appender(n.name):^7}' for n in chord_notes)
@@ -284,9 +280,8 @@ def construct_and_play_chord(root_note, chord_name, one_root=False):
     """Constructs a chord and Plays it
 
     Arguments:
+    root_note -- Note object representing the root note
     chord_name -- name of the chord as defined in all_chord_info dict
-    root_name -- root note name of the chord
-    octave -- octave at which to play the chord
     one_root -- True if running this function for one single root and therefore only needing to print the reference scale once
     """
     scale_notes = construct_scale(root_note, all_scale_info['Major']['signature'], 9)
@@ -300,9 +295,8 @@ def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     """Constructs a scale and Plays it
 
     Arguments:
-    root_name -- name of the root note (C, D ..etc)
+    root_note -- Note object representing the root note
     scale_name -- name of the scale to play.
-    octave -- octave at which to play the scale
     mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     ms -- length in milliseconds for each note
     """
@@ -317,8 +311,7 @@ def get_modal_scale(scale_notes, mode):
     """Return the scale after applying a musical mode to it
 
     Arguments:
-    scale_frequencies -- the scale (in terms of note frequencies) to transform
-    scale_notation -- the scale (in terms of note names) to transform
+    scale_notes -- A list of Note objects of which the scale to transform is made
     mode -- int representing mode value as in mode_info dict
     """
     return scale_notes[mode-1:]
@@ -327,7 +320,7 @@ def play_scale(scale_notes, ms, with_reverse=True):
     """Plays a scale
 
     Arguments:
-    scale_frequencies -- array of notes
+    scale_notes -- A list of Note objects of which the scale to play is made
     ms -- length in milliseconds for each note
     with_reverse -- Plays scale both forward and backwards
     """

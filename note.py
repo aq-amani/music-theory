@@ -73,7 +73,7 @@ class Note:
         return round(2 ** (self.octave - 4), 2)
 
     def get_consecutive_notes(self, halfstep_count):
-        """Get note_count consecutive notes half step apart while updating octave as necessary"""
+        """Get halfstep_count consecutive notes half step apart while updating octave as necessary"""
 
         note = self
         note_list = [note]
