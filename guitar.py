@@ -27,6 +27,7 @@ def construct_fret_board(notes = 'all'):
 def main():
     parser = argparse.ArgumentParser(description='guitar.py: A script to show chord/note positions on the guitar fret board')
     root_choices = list(mt.basic_notes.keys())
+    root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
     chord_choices = list(mt.all_chord_info.keys())
     scale_choices = list(mt.all_scale_info.keys())
 
@@ -37,24 +38,22 @@ def main():
     group.add_argument('-a','--all', help='Show all notes', action ='store_true')
 
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
+    #parser.add_argument('-o','--octave', choices=[i for i in range(2, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
+    octave = 4 # Printing frets is not limited to a specific octave. This value is provided anyway because it is necessary in underlying functions
 
     args = vars(parser.parse_args())
 
     if args['scale']:
-        ##TODO: Rewrite when mt_toolbox supports the Note class
-        base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info[args['scale']]['signature'], octave=4)
-        scale_notes = [Note(n, 4) for n in base_scale_notation]
+        scale_notes = mt.construct_scale(Note(args['root'], octave), mt.all_scale_info[args['scale']]['signature'])
         scale_fret_board = construct_fret_board(scale_notes)
         print(scale_fret_board)
     elif args['chord']:
-        base_scale, base_scale_notation = mt.construct_scale(args['root'], mt.all_scale_info['Major']['signature'], octave=4)
-        _, chord_notation = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale, base_scale_notation)
-        ##TODO: Rewrite when mt_toolbox supports the Note class
-        chord_notes = [Note(n, 4) for n in chord_notation]
+        base_scale_notes = mt.construct_scale(Note(args['root'], octave), mt.all_scale_info['Major']['signature'])
+        chord_notes = mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], base_scale_notes)
         chord_fret_board = construct_fret_board(chord_notes)
         print(chord_fret_board)
     elif args['note']:
-        note_fret_board = construct_fret_board([Note(args['note'], 4)])
+        note_fret_board = construct_fret_board([Note(args['note'], octave)])
         print(note_fret_board)
     elif args['all']:
         # Full fretboard
