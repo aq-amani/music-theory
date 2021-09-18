@@ -177,23 +177,6 @@ def play_chord(chord_notes):
     print('Chord is now being played again..')
     play_wave(chord_wave, 700)
 
-def sharpen(note_f):
-    """Increase the note frequency by a half step. Ex.: C becomes C# (C sharp)
-
-    Arguments:
-    note_f -- frequency of note in Hz
-    """
-    return note_f * S
-
-def flatten(note_f):
-    """Drop the note frequency by a half step. Ex.: C becomes Cb (C flat)
-
-    Arguments:
-    note_f -- frequency of note in Hz
-    """
-
-    return note_f / S
-
 def play_wave(wave, ms):
     """Play given samples, as a sound, for ms milliseconds.
 
@@ -267,10 +250,12 @@ def print_ref_scale(scale_notes):
     print(f'\nBase Major scale (extended) with position numbers:\n+{lines}+\n|{positions}|\n+{lines}+\n|{note_names}|\n+{lines}+')
 
 def print_note_info(octave):
-    octave_multiplier = octave_converter(octave)
-    note_names = '|'.join(f'{n+"|"+basic_notes[n]["alt_name"] if basic_notes[n]["alt_name"] else n:^9}' for n in basic_notes.keys())
-    frequencies = '|'.join(f'{octave_multiplier*note_info["frequency"]:^9}' for note_info in basic_notes.values())
-    lines = '+'.join(f'{"---------":9}' for i in basic_notes.keys())
+    """Prints a table of notes and their frequencies at a certain octave"""
+    start_note = Note('C', octave)
+    note_list = start_note.get_consecutive_notes(12)
+    note_names = '|'.join(f'{n.name+"|"+n.alt_name if n.alt_name else n.name:^9}' for n in note_list)
+    frequencies = '|'.join(f'{n.frequency:^9}' for n in note_list)
+    lines = '+'.join(f'{"---------":9}' for i in note_list)
     print(
     f'\nOctave : {octave}',
     f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
@@ -433,14 +418,6 @@ def note_alt_name_converter(note_name):
                 break
     return note_name
 
-def octave_converter(octave):
-    """Converts an octave to a frequency multiplier.
-    Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
-
-    Arguments:
-    octave -- octave at which to play the scale
-    """
-    return 2 ** (octave - 4)
 def init():
     """Code to initialize pygame"""
     ##pygame 1.9.6
