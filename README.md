@@ -1,5 +1,11 @@
-# music_theory_lab.py
-A script to experiment around with music theory concepts.
+# About this repository
+This repository currently has two main scripts:
+
+#### 1. guitar.py
+A script to print a guitar fretboard showing notes, chords and scales on the strings.
+
+#### 2. music_theory_lab.py
+A script to experiment around with music theory concepts while playing actual sounds.
 
 If you have no idea what notes, octaves, chords or scales mean, I highly recommend you run the tutorial mode (sensei mode) as explained in the usage examples below.
 
@@ -15,7 +21,7 @@ pipenv install --ignore-pipfile --python 3.7
 pipenv shell
 ```
 
-## :rocket: Usage examples
+## :rocket: Usage examples: music_theory_lab.py
 #### :mortar_board: Tutorial mode (sensei mode)
 If you want to grasp music theory concepts in less than 5 minutes, then this command is for you.
 ```bash
@@ -40,11 +46,27 @@ Example: C Major chord at 4th octave
 ```bash
 python -u music_theory_lab.py --root C --chord Major_triad --octave 4
 ```
-️:information_source: Check the help output for a full list of options, flags and setting values.
+:information_source: Check the help output (-h option) for a full list of options, flags and setting values.
 ```bash
 python -u music_theory_lab.py --help
 ```
+## :rocket: Usage examples: guitar.py
+Make sure your CLI screen is zoomed out enough to print a 24 fret guitar fretboard.
+
+#### :musical_score: Print all the note names on the fret board
+```bash
+python guitar.py --all
+```
+#### :musical_keyboard: Print all the note positions for the C Major scale on the fret board
+```bash
+python guitar.py --scale Major --root C
+```
+#### :notes: Print all the note positions for the C Major chord on the fret board
+```bash
+python guitar.py --chord Major_triad --root C
+```
+
 ## :white_heart: Acknowledgements
 Self teaching myself music theory (still learning though) would not have been possible without the excellent content on https://yourguitaracademy.com/courses
 
-I'd like to thank the "your guitaracademy" team for making this high quality content available for free.
+I'd like to thank the "your guitaracademy" team for making such high quality content available for free.
