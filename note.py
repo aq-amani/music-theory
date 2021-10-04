@@ -92,6 +92,6 @@ class Note:
         note_index = note_names.index(self.name)
         octave = self.octave
         note_index += halfstep_count
-        normalized_note_index = note_index%len(note_names) if note_index >= 0 else len(note_names) - abs(note_index)%len(note_names)
-        octave += int(note_index/len(note_names)) if normalized_note_index >= 0 else int(abs(note_index)/len(note_names)) - 1
+        normalized_note_index = note_index%len(note_names) if note_index >= 0 else (len(note_names) - abs(note_index)%len(note_names))%len(note_names)
+        octave += int(note_index/len(note_names)) if note_index >= 0 else (int((abs(note_index)-1)/len(note_names)) + 1) * -1
         return Note(note_names[normalized_note_index], octave)
