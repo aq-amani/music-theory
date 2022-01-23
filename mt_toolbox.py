@@ -52,6 +52,29 @@ all_chord_info = {
     "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
 }
 
+# Circle of fifths and keys for chord progressions
+circle_of_fifths = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F']
+minor_flag = False
+major_key_degree_info = {
+    1  : {"offset" : 0, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    2  : {"offset" : 2, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    3  : {"offset" : 4, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_4"]},
+    4  : {"offset" : -1, "type" : "Major_triad","possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
+    5  : {"offset" : 1, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    6  : {"offset" : 3, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    7  : {"offset" : 5, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
+}
+
+minor_key_degree_info = {
+    1  : {"offset" : 0, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    2  : {"offset" : 2, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
+    3  : {"offset" : -3, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    4  : {"offset" : -1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    5  : {"offset" : 1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2"]},
+    6  : {"offset" : -4, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
+    7  : {"offset" : -2, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+}
+
 piano_keys = """
 Piano keyboard reference:
 
@@ -85,6 +108,15 @@ https://github.com/aq-amani/music-theory
 /////////////////////////////
 """
 
+def get_chord_in_key(key_index, degree):
+    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
+    chord_index = key_index + degree_info[degree]['offset']
+
+    if chord_index < 0:
+        chord_index += 12
+    else:
+        chord_index = chord_index % 12
+    return circle_of_fifths[chord_index]
 
 def construct_scale(root_note, scale_signature, scale_length=None):
     """Construct a musical scale from a root note
@@ -294,6 +326,21 @@ def note_processor(note_name, octave, midi):
     note = Note(note_name, octave)
     print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
     pb.play_note(note, 700, midi)
+
+def chord_progression_processor(key, progression, midi):
+    global minor_flag
+    if 'm' in key:
+        minor_flag = True
+    key = re.sub('m', '', key)
+    print(f'Playing the following progression in {key} {"minor" if minor_flag else "Major"} : {progression}')
+    key_index = circle_of_fifths.index(key)
+    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
+    for degree in progression:
+        degree = int(degree)
+        chord = get_chord_in_key(key_index, degree)
+        print(degree, chord)
+        type = degree_info[degree]['type']
+        chord_command_processor(chord, type, 4, midi)
 
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists
