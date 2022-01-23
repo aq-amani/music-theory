@@ -23,6 +23,7 @@ def main():
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
     parser.add_argument('-m','--mode', choices=mt.mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
     parser.add_argument('-k','--keyboard', help='Show a reference piano keyboard', action ='store_true')
+    parser.add_argument('-d','--midi', help='Use the midiutil instead to play notes', action ='store_true')
 
     print(mt.header)
     args = vars(parser.parse_args())
@@ -32,16 +33,16 @@ def main():
     if args['scale']:
         if args['scale'] != scale_choices[0] and args['mode'] != list(mt.mode_info)[0]:
             parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
-        mt.scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
+        mt.scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'], args['midi'])
     elif args['chord']:
         if args['mode'] != list(mt.mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for chords**")
-        mt.chord_command_processor(args['root'], args['chord'], args['octave'])
+        mt.chord_command_processor(args['root'], args['chord'], args['octave'], args['midi'])
     elif args['note']:
         if args['mode'] != list(mt.mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
         mt.print_note_info(args['octave'])
-        mt.play_note_by_name(args['note'], 700, args['octave'])
+        mt.play_note_by_name(args['note'], 700, args['octave'], args['midi'])
     elif args['list']:
         mt.list_supported_values()
     elif args['tutorial']:

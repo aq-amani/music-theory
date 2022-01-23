@@ -1,3 +1,4 @@
 numpy==1.21.2
 pygame==1.9.6
 scipy==1.7.1
+MIDIUtil==1.2.1
