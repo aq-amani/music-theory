@@ -1,26 +1,9 @@
-from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame, pygame.sndarray
-import numpy
-import scipy.signal
 import re
 from note import Note
 from note import basic_notes
+import pygame.time
+import playback as pb
 
-##MIDI stuff
-from midiutil import MIDIFile
-track    = 0
-channel  = 0
-duration = 8   # In beats
-tempo    = 400  # In BPM
-volume   = 100 # 0-127, as per the MIDI standard
-instrument = 0 #27 guitar
-
-midi_filename = "out.mid"
-##
-
-sample_rate = 44100
-sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
@@ -101,20 +84,7 @@ https://github.com/aq-amani/music-theory
 |___|___|___|___|___|___|___|
 /////////////////////////////
 """
-def sine_wave(hz, peak, n_samples=sample_rate):
-    """Compute N samples of a sine wave with given frequency and peak amplitude.
-       Defaults to one second.
 
-    Arguments:
-    hz -- sinewave frequency
-    peak -- amplitude of wave
-    n_samples -- sample rate
-    """
-    length = sample_rate / float(hz)
-    omega = numpy.pi * 2 / length
-    xvalues = numpy.arange(int(length)) * omega
-    onecycle = peak * numpy.sin(xvalues)
-    return numpy.resize(onecycle, (n_samples,)).astype(numpy.int16)
 
 def construct_scale(root_note, scale_signature, scale_length=None):
     """Construct a musical scale from a root note
@@ -166,108 +136,6 @@ def note_modifier(note_index, note):
     else:
         modified_note = note
     return modified_note
-
-def create_midi(note_list, type, ms = 1.5):
-    """writes a midi file
-
-    Arguments:
-    note_list -- list of note objects in chord or scale
-    type -- 'harmonic' or 'melodic': harmonic for chords and single notes / melodic for scales
-    """
-    time = 0
-    MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
-                     # automatically created)
-    MyMIDI.addProgramChange(track, channel, time, instrument)
-    MyMIDI.addTempo(track,time, tempo)
-
-    for note in note_list:
-        MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
-        if type == 'scale':
-            time += ms
-    with open(midi_filename, "wb") as output_file:
-        MyMIDI.writeFile(output_file)
-
-
-def play_chord_midi(chord_notes):
-    """Play a combination of notes simultaneously (chord)
-
-    Arguments:
-    chord_notes -- List of Note objects respresenting the chord
-    """
-    #global track, channel, time, duration, tempo, volume, instrument
-    #MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
-                     # automatically created)
-    #MyMIDI.addProgramChange(track, channel, time, instrument)
-    #MyMIDI.addTempo(track,time, tempo)
-    print('Chord is now being played..')
-    create_midi(chord_notes, 'chord')
-    play_midi_file(midi_filename)
-    pygame.time.delay(100)
-
-    print('Single notes of the chord are now being played separately..')
-    create_midi(chord_notes, 'scale', ms = 3)
-    play_midi_file(midi_filename)
-    pygame.time.delay(100)
-
-    print('Chord is now being played again..')
-    create_midi(chord_notes, 'chord')
-    play_midi_file(midi_filename)
-
-def play_chord(chord_notes):
-    """Play a combination of notes simultaneously (chord)
-
-    Arguments:
-    chord_notes -- List of Note objects respresenting the chord
-    """
-    chord_wave = 0
-    for note in chord_notes:
-        chord_wave = sum([chord_wave, sine_wave(note.frequency, sampling)])
-
-    print('Chord is now being played..')
-    play_wave(chord_wave, 700)
-    pygame.time.delay(100)
-
-    print('Single notes of the chord are now being played separately..')
-    for note in chord_notes:
-        play_wave(sine_wave(note.frequency, sampling), 500)
-    pygame.time.delay(100)
-
-    print('Chord is now being played again..')
-    play_wave(chord_wave, 700)
-
-def play_wave(wave, ms):
-    """Play given samples, as a sound, for ms milliseconds.
-
-    Arguments:
-    wave -- wave to play
-    ms -- length in milliseconds to play
-    """
-    # In pygame 1.9.1, we can pass sample_wave directly,
-    # but in 1.9.2 they changed the mixer to only accept ints.
-    sound = pygame.sndarray.make_sound(wave.astype(numpy.int16))
-    sound.play(-1)
-    pygame.time.delay(ms)
-    sound.stop()
-
-def play_piece(notes_f, ms):
-    """Play an array of note frequencies ms milliseconds each
-
-    Arguments:
-    notes_f -- array of frequencies
-    ms -- length in milliseconds for notes to play
-    """
-
-    for n in notes_f:
-        play_note_by_frequency(n, ms)
-
-def play_note_by_frequency(note_f, ms):
-    """Play one note for ms milliseconds by directly passing its frequency in Hz
-
-    Arguments:
-    note_f -- frequency of note in Hz
-    ms -- length in milliseconds for note to play
-    """
-    play_wave(sine_wave(note_f, sampling), ms)
 
 def print_chord(name, root_note, signature, chord_notes):
     """Prints the chord information in a nicely formatted string
@@ -332,10 +200,7 @@ def construct_and_play_chord(root_note, chord_name, midi, one_root=False):
     if not one_root:
         print_ref_scale(scale_notes)
     print_chord(chord_name, root_note, all_chord_info[chord_name]['signature'], chord_notes)
-    if midi:
-        play_chord_midi(chord_notes)
-    else:
-        play_chord(chord_notes)
+    pb.play_chord(chord_notes, midi, arpeggiate = True)
 
 def construct_and_play_scale(root_note, scale_name, mode_name, midi, ms = 300):
     """Constructs a scale and Plays it
@@ -351,10 +216,7 @@ def construct_and_play_scale(root_note, scale_name, mode_name, midi, ms = 300):
     if scale_name == 'Major' and mode_name != 'Ionian':
         scale_notes = get_modal_scale(scale_notes, mode_info[mode_name])
     print_scale(root_note, scale_name, scale_notes, all_scale_info[scale_name]['signature'], mode_name)
-    if midi:
-        play_scale_midi(scale_notes, ms)
-    else:
-        play_scale(scale_notes, ms)
+    pb.play_scale(scale_notes, ms, midi)
 
 def get_modal_scale(scale_notes, mode):
     """Return the scale after applying a musical mode to it
@@ -364,87 +226,6 @@ def get_modal_scale(scale_notes, mode):
     mode -- int representing mode value as in mode_info dict
     """
     return scale_notes[mode-1:]
-
-def play_scale(scale_notes, ms, with_reverse=True):
-    """Plays a scale
-
-    Arguments:
-    scale_notes -- A list of Note objects of which the scale to play is made
-    ms -- length in milliseconds for each note
-    with_reverse -- Plays scale both forward and backwards
-    """
-    print('Scale is now being played forward..')
-    scale_frequencies = [n.frequency for n in scale_notes]
-    play_piece(scale_frequencies, ms)
-    if with_reverse:
-        # Extend scale by the reverse scale
-        reverse_scale = scale_frequencies[::-1]
-        scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
-        pygame.time.delay(200)
-        print('Scale is now being played forward and then backwards..')
-        play_piece(scale_frequencies, ms)
-
-def play_scale_midi(scale_notes, ms, with_reverse=True):
-    """Plays a scale
-
-    Arguments:
-    scale_notes -- A list of Note objects of which the scale to play is made
-    ms -- length in milliseconds for each note
-    with_reverse -- Plays scale both forward and backwards
-    """
-    print('Scale is now being played forward ..')
-    create_midi(scale_notes, 'scale')
-    play_midi_file(midi_filename)
-
-    if with_reverse:
-        # Extend scale by the reverse scale
-        reverse_scale = scale_notes[::-1]
-        scale_notes.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
-
-        print('Scale is now being played forward and then backwards..')
-        create_midi(scale_notes, 'scale')
-        play_midi_file(midi_filename)
-
-def play_note_midi(note, ms):
-    """Play a midi note for ms milliseconds
-
-    Arguments:
-    note -- note object
-    ms -- length in milliseconds for note to play
-    """
-    create_midi([note], 'note')
-    play_midi_file(midi_filename)
-
-def play_midi_file(midi_filename):
-    '''Stream music_file in a blocking manner'''
-    try:
-        clock = pygame.time.Clock()
-        pygame.mixer.music.load(midi_filename)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            clock.tick(30) # check if playback has finished
-    except KeyboardInterrupt:
-        # if user hits Ctrl/C then exit
-        # (works only in console mode)
-        pygame.mixer.music.fadeout(1000)
-        pygame.mixer.music.stop()
-        raise SystemExit
-
-def play_note_by_name(note_name, ms, octave, midi):
-    """Play one note for ms milliseconds by passing note name
-
-    Arguments:
-    note_name -- note name as in C, C#, D..etc
-    ms -- length in milliseconds for note to play
-    octave -- octave at which to play the note
-    midi -- flag whether to play note as midi or as a wave
-    """
-    note = Note(note_name, octave)
-    print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
-    if midi:
-        play_note_midi(note, ms)
-    else:
-        play_wave(sine_wave(note.frequency, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, midi, ms = 200):
     """Plays single or multiple scales depending on the input
@@ -509,6 +290,11 @@ def chord_command_processor(root_name, chord_name, octave, midi):
                 construct_and_play_chord(Note(note_name, octave), chord_name, midi)
                 pygame.time.delay(200)
 
+def note_processor(note_name, octave, midi):
+    note = Note(note_name, octave)
+    print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
+    pb.play_note(note, 700, midi)
+
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists
     Only to be used when printing notes.
@@ -532,13 +318,6 @@ def note_alt_name_converter(note_name):
                 break
     return note_name
 
-def init():
-    """Code to initialize pygame"""
-    ##pygame 1.9.6
-    pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
-    # optional volume 0 to 1.0
-    #pygame.mixer.music.set_volume(0.8)
-
 def list_supported_values():
     """Lists available values for the different options"""
     print('## Supported notes (-n options)')
@@ -554,8 +333,5 @@ def list_supported_values():
     for m in list(mode_info.keys()):
         print('|_',m)
 
-
 if __name__ == '__main__':
     print(header)
-else:
-    init()

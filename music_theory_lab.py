@@ -42,7 +42,7 @@ def main():
         if args['mode'] != list(mt.mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for notes**")
         mt.print_note_info(args['octave'])
-        mt.play_note_by_name(args['note'], 700, args['octave'], args['midi'])
+        mt.note_processor(args['note'], args['octave'], args['midi'])
     elif args['list']:
         mt.list_supported_values()
     elif args['tutorial']:
