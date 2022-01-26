@@ -32,6 +32,7 @@ Example: C at 4th octave
 ```bash
 python -u music_theory_lab.py --note C --octave 4
 ```
+:information_source: Use the `--midi` option with all the following commands for an instrumental midi sound
 #### :musical_keyboard: Play a specific scale with a specific root note
 Example: C Major scale at 4th octave
 ```bash
@@ -45,6 +46,11 @@ python -u music_theory_lab.py --root C --scale Major --mode Lydian
 Example: C Major chord at 4th octave
 ```bash
 python -u music_theory_lab.py --root C --chord Major_triad --octave 4
+```
+#### :notes::notes: Play a chord progression in a specific key
+Example: Play I IV I V (1 4 1 5) chord progression in the key of C Major (add a small 'm' for minor keys)
+```bash
+python -u music_theory_lab.py --progression 1 4 1 5 --key C
 ```
 :information_source: Check the help output (-h option) for a full list of options, flags and setting values.
 ```bash
