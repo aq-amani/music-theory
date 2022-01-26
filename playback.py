@@ -3,26 +3,28 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame, pygame.sndarray
 import numpy
 import scipy.signal
+from midiutil import MIDIFile
+
 from note import Note
 
-##MIDI stuff
-from midiutil import MIDIFile
+## MIDI settings
 track    = 0
 channel  = 0
 duration = 8   # In beats
 tempo    = 400  # In BPM
 volume   = 100 # 0-127, as per the MIDI standard
-instrument = 0 #27 guitar
-
+instrument = 0 # Instrument numbers: https://fmslogo.sourceforge.io/manual/midi-instrument.html
 midi_filename = "out.mid"
-MIDI = False # Plays as wave if false and using midiutil if True
-##
 
+## Wave settings
 sample_rate = 44100
 sampling = 4096    # or 16384
-##
+
+## Playback options
+MIDI = False # Plays as wave if false and using midiutil if True
 ARPEGGIATE = False # Whether to arpeggiate chords or not
 REVERSE_SCALE = False # Whether to play scales in reverse as well
+
 ## Waves
 #########
 def sine_wave(hz, peak, n_samples=sample_rate):
@@ -87,7 +89,6 @@ def play_chord(chord_notes):
 
     Arguments:
     chord_notes -- List of Note objects respresenting the chord
-    arpegiate -- whether to also play the chord note by note
     """
     chord_wave = 0
     for note in chord_notes:
@@ -104,7 +105,7 @@ def play_chord(chord_notes):
     if ARPEGGIATE:
         print('Single notes of the chord are now being played separately..')
         if MIDI:
-            create_midi(chord_notes, 'scale', ms = 3)
+            create_midi(chord_notes, 'scale', t = 3)
             play_midi_file(midi_filename)
         else:
             for note in chord_notes:
@@ -125,7 +126,6 @@ def play_scale(scale_notes, ms):
     Arguments:
     scale_notes -- A list of Note objects of which the scale to play is made
     ms -- length in milliseconds for each note
-    with_reverse -- Plays scale both forward and backwards
     """
     print('Scale is now being played forward..')
     if MIDI:
@@ -148,12 +148,13 @@ def play_scale(scale_notes, ms):
 
 ## MIDI files
 #############
-def create_midi(note_list, type, ms = 1.5):
+def create_midi(note_list, type, t = 1.5):
     """writes a midi file
 
     Arguments:
     note_list -- list of note objects in chord or scale
     type -- 'harmonic' or 'melodic': harmonic for chords and single notes / melodic for scales
+    t -- time in seconds between single notes when playing a scale
     """
     time = 0
     MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
@@ -164,7 +165,7 @@ def create_midi(note_list, type, ms = 1.5):
     for note in note_list:
         MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
         if type == 'scale':
-            time += ms
+            time += t
     with open(midi_filename, "wb") as output_file:
         MyMIDI.writeFile(output_file)
 

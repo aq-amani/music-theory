@@ -108,6 +108,12 @@ https://github.com/aq-amani/music-theory
 """
 
 def get_chord_in_key(key_index, degree):
+    """Obtains a chord from the set of chords in a key based on its degree
+
+    Arguments:
+    key_index -- index of the key chord within the circle_of_fifths list
+    degree -- degree of chord (1st ~ 7th)
+    """
     degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
     chord_index = key_index + degree_info[degree]['offset']
 
@@ -322,11 +328,22 @@ def chord_command_processor(root_name, chord_name, octave):
                 pygame.time.delay(200)
 
 def note_processor(note_name, octave):
+    """Plays a single note
+
+    Arguments:
+    note_name -- name of the note (C, D, F# ..etc )
+    octave -- octave at which to play the note
+    """
     note = Note(note_name, octave)
     print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
     pb.play_note(note, 700)
 
 def command_processor(args):
+    """Main command processor
+
+    Arguments:
+    args -- flags and input passed to the script
+    """
     print(header)
     if(args['keyboard']):
         print(piano_keys)
@@ -357,6 +374,12 @@ def command_processor(args):
         import sensei_mode
 
 def chord_progression_processor(key, progression):
+    """Plays a progression of chords
+
+    Arguments:
+    key -- Key in which to play the progression (C, Dm ..etc)
+    progression -- list of integers(1~7) representing the degree of each chord within the key
+    """
     global minor_flag
     if 'm' in key:
         minor_flag = True
