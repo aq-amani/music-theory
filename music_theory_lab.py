@@ -28,33 +28,8 @@ def main():
     parser.add_argument('-d','--midi', help='Use the midiutil instead to play notes', action ='store_true')
     parser.add_argument('-k','--key', choices=key_choices ,help='Key name. Example C(C major) or Am(A minor)', default = 'C', metavar = '')
 
-    print(mt.header)
     args = vars(parser.parse_args())
-
-    if(args['keyboard']):
-        print(mt.piano_keys)
-    if args['scale']:
-        if args['scale'] != scale_choices[0] and args['mode'] != list(mt.mode_info)[0]:
-            parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
-        mt.scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'], args['midi'])
-    elif args['chord']:
-        if args['mode'] != list(mt.mode_info)[0]:
-            parser.error("**Modes other than the default Ionian are not supported for chords**")
-        mt.chord_command_processor(args['root'], args['chord'], args['octave'], args['midi'])
-    elif args['note']:
-        if args['mode'] != list(mt.mode_info)[0]:
-            parser.error("**Modes other than the default Ionian are not supported for notes**")
-        mt.print_note_info(args['octave'])
-        mt.note_processor(args['note'], args['octave'], args['midi'])
-    elif args['list']:
-        mt.list_supported_values()
-    elif args['progression']:
-        key = args['key']
-        progression = args['progression']
-        mt.chord_progression_processor(key, progression, args['midi'])
-    elif args['tutorial']:
-        import sensei_mode
-
+    mt.command_processor(args)
 
 if __name__ == '__main__':
     main()

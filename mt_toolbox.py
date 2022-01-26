@@ -7,7 +7,6 @@ import playback as pb
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-
 # Mode info
 # Modes: Where you start playing at a scale.
 mode_info = {
@@ -219,7 +218,7 @@ def print_note_info(octave):
     f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
     f'\n{"Frequencies(Hz)":15}|{frequencies}|\n{"":15}+{lines}+\n')
 
-def construct_and_play_chord(root_note, chord_name, midi, one_root=False):
+def construct_and_play_chord(root_note, chord_name, one_root=False):
     """Constructs a chord and Plays it
 
     Arguments:
@@ -232,9 +231,9 @@ def construct_and_play_chord(root_note, chord_name, midi, one_root=False):
     if not one_root:
         print_ref_scale(scale_notes)
     print_chord(chord_name, root_note, all_chord_info[chord_name]['signature'], chord_notes)
-    pb.play_chord(chord_notes, midi, arpeggiate = True)
+    pb.play_chord(chord_notes, arpeggiate = True)
 
-def construct_and_play_scale(root_note, scale_name, mode_name, midi, ms = 300):
+def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     """Constructs a scale and Plays it
 
     Arguments:
@@ -248,7 +247,7 @@ def construct_and_play_scale(root_note, scale_name, mode_name, midi, ms = 300):
     if scale_name == 'Major' and mode_name != 'Ionian':
         scale_notes = get_modal_scale(scale_notes, mode_info[mode_name])
     print_scale(root_note, scale_name, scale_notes, all_scale_info[scale_name]['signature'], mode_name)
-    pb.play_scale(scale_notes, ms, midi)
+    pb.play_scale(scale_notes, ms)
 
 def get_modal_scale(scale_notes, mode):
     """Return the scale after applying a musical mode to it
@@ -259,7 +258,7 @@ def get_modal_scale(scale_notes, mode):
     """
     return scale_notes[mode-1:]
 
-def scale_command_processor(root_name, scale_name, octave, mode_name, midi, ms = 200):
+def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
     """Plays single or multiple scales depending on the input
 
     Arguments:
@@ -272,26 +271,26 @@ def scale_command_processor(root_name, scale_name, octave, mode_name, midi, ms =
     print(f'\nPlaying [{scale_name}] scale(s) with [{root_name}] as root note(s) in the [{mode_name}] mode')
     if 'all' not in (root_name, scale_name):
         # Play specific scale at specific root
-        construct_and_play_scale(Note(root_name, octave), scale_name, mode_name, midi)
+        construct_and_play_scale(Note(root_name, octave), scale_name, mode_name)
     elif root_name == 'all' and scale_name !='all':
         # Play specific scale at all roots
         for root_name in basic_notes.keys():
-            construct_and_play_scale(Note(root_name, octave), scale_name, mode_name, midi)
+            construct_and_play_scale(Note(root_name, octave), scale_name, mode_name)
             pygame.time.delay(200)
     elif root_name != 'all' and scale_name =='all':
         # Play all scales for a specific root
         for scale_name in all_scale_info.keys():
-            construct_and_play_scale(Note(root_name, octave), scale_name, mode_name, midi)
+            construct_and_play_scale(Note(root_name, octave), scale_name, mode_name)
             pygame.time.delay(200)
     else:
         # Play all scales at all roots -- very long
         for scale_name in all_scale_info.keys():
             print(f'\n** {scale_name} scales **')
             for note_name in basic_notes.keys():
-                construct_and_play_scale(Note(note_name, octave), scale_name, mode_name, midi)
+                construct_and_play_scale(Note(note_name, octave), scale_name, mode_name)
                 pygame.time.delay(200)
 
-def chord_command_processor(root_name, chord_name, octave, midi):
+def chord_command_processor(root_name, chord_name, octave):
     """Plays a single or multiple chords depending on input
 
     Arguments:
@@ -301,33 +300,61 @@ def chord_command_processor(root_name, chord_name, octave, midi):
     """
     print(f'\nPlaying [{chord_name}] chord(s) with [{root_name}] as root note(s)')
     if 'all' not in (root_name, chord_name):
-        construct_and_play_chord(Note(root_name, octave), chord_name, midi)
+        construct_and_play_chord(Note(root_name, octave), chord_name)
     elif root_name == 'all' and chord_name !='all':
         # Play specific chord at all roots
         for root_name in basic_notes.keys():
-            construct_and_play_chord(Note(root_name, octave), chord_name, midi)
+            construct_and_play_chord(Note(root_name, octave), chord_name)
             pygame.time.delay(200)
     elif root_name != 'all' and chord_name =='all':
         # Play all chords for a specific root
         scale_notes = construct_scale(Note(root_name, octave), all_scale_info['Major']['signature'], 9)
         print_ref_scale(scale_notes)
         for chord_name in all_chord_info.keys():
-            construct_and_play_chord(Note(root_name, octave), chord_name, midi, one_root=True)
+            construct_and_play_chord(Note(root_name, octave), chord_name, one_root=True)
             pygame.time.delay(200)
     else:
         # Play all chords at all roots -- very long
         for chord_name in all_chord_info.keys():
             print(f'\n** {chord_name} chords **')
             for note_name in basic_notes.keys():
-                construct_and_play_chord(Note(note_name, octave), chord_name, midi)
+                construct_and_play_chord(Note(note_name, octave), chord_name)
                 pygame.time.delay(200)
 
-def note_processor(note_name, octave, midi):
+def note_processor(note_name, octave):
     note = Note(note_name, octave)
     print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
-    pb.play_note(note, 700, midi)
+    pb.play_note(note, 700)
 
-def chord_progression_processor(key, progression, midi):
+def command_processor(args):
+    print(header)
+    if(args['keyboard']):
+        print(piano_keys)
+    if(args['midi']):
+        pb.MIDI = True
+    if args['scale']:
+        if args['scale'] != list(all_scale_info.keys())[0] and args['mode'] != list(mode_info)[0]:
+            parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
+        scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
+    elif args['chord']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for chords**")
+        chord_command_processor(args['root'], args['chord'], args['octave'])
+    elif args['note']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for notes**")
+        print_note_info(args['octave'])
+        note_processor(args['note'], args['octave'])
+    elif args['list']:
+        list_supported_values()
+    elif args['progression']:
+        key = args['key']
+        progression = args['progression']
+        chord_progression_processor(key, progression)
+    elif args['tutorial']:
+        import sensei_mode
+
+def chord_progression_processor(key, progression):
     global minor_flag
     if 'm' in key:
         minor_flag = True
@@ -340,7 +367,7 @@ def chord_progression_processor(key, progression, midi):
         chord = get_chord_in_key(key_index, degree)
         print(degree, chord)
         type = degree_info[degree]['type']
-        chord_command_processor(chord, type, 4, midi)
+        chord_command_processor(chord, type, 4)
 
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists

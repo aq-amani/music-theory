@@ -15,6 +15,7 @@ volume   = 100 # 0-127, as per the MIDI standard
 instrument = 0 #27 guitar
 
 midi_filename = "out.mid"
+MIDI = False # Plays as wave if false and using midiutil if True
 ##
 
 sample_rate = 44100
@@ -64,15 +65,14 @@ def play_piece(notes, ms):
 
 ## Notes
 #########
-def play_note(note, ms, midi=False):
+def play_note(note, ms):
     """Play one note for ms milliseconds by passing note name
 
     Arguments:
     note -- Note object
     ms -- length in milliseconds for note to play
-    midi -- flag whether to play note as midi or as a wave
     """
-    if midi:
+    if MIDI:
         create_midi([note], 'note')
         play_midi_file(midi_filename)
     else:
@@ -80,12 +80,11 @@ def play_note(note, ms, midi=False):
 
 ## Chords
 #########
-def play_chord(chord_notes, midi, arpeggiate=False):
+def play_chord(chord_notes, arpeggiate=False):
     """Play a combination of notes simultaneously (chord)
 
     Arguments:
     chord_notes -- List of Note objects respresenting the chord
-    midi -- flag to play as midi
     arpegiate -- whether to also play the chord note by note
     """
     chord_wave = 0
@@ -93,7 +92,7 @@ def play_chord(chord_notes, midi, arpeggiate=False):
         chord_wave = sum([chord_wave, sine_wave(note.frequency, sampling)])
 
     print('Chord is now being played..')
-    if midi:
+    if MIDI:
         create_midi(chord_notes, 'chord')
         play_midi_file(midi_filename)
     else:
@@ -102,7 +101,7 @@ def play_chord(chord_notes, midi, arpeggiate=False):
 
     if arpeggiate:
         print('Single notes of the chord are now being played separately..')
-        if midi:
+        if MIDI:
             create_midi(chord_notes, 'scale', ms = 3)
             play_midi_file(midi_filename)
         else:
@@ -110,7 +109,7 @@ def play_chord(chord_notes, midi, arpeggiate=False):
                 play_wave(sine_wave(note.frequency, sampling), 500)
         pygame.time.delay(100)
         print('Chord is now being played again..')
-        if midi:
+        if MIDI:
             create_midi(chord_notes, 'chord')
             play_midi_file(midi_filename)
         else:
@@ -118,17 +117,16 @@ def play_chord(chord_notes, midi, arpeggiate=False):
 
 ## Scales
 #########
-def play_scale(scale_notes, ms, midi, with_reverse=True):
+def play_scale(scale_notes, ms, with_reverse=True):
     """Plays a scale
 
     Arguments:
     scale_notes -- A list of Note objects of which the scale to play is made
     ms -- length in milliseconds for each note
-    midi -- True to play as midi
     with_reverse -- Plays scale both forward and backwards
     """
     print('Scale is now being played forward..')
-    if midi:
+    if MIDI:
         create_midi(scale_notes, 'scale')
         play_midi_file(midi_filename)
     else:
@@ -140,7 +138,7 @@ def play_scale(scale_notes, ms, midi, with_reverse=True):
         scale_notes.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
         pygame.time.delay(200)
         print('Scale is now being played forward and then backwards..')
-        if midi:
+        if MIDI:
             create_midi(scale_notes, 'scale')
             play_midi_file(midi_filename)
         else:
