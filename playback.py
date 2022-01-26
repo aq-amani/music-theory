@@ -20,7 +20,9 @@ MIDI = False # Plays as wave if false and using midiutil if True
 
 sample_rate = 44100
 sampling = 4096    # or 16384
-
+##
+ARPEGGIATE = False # Whether to arpeggiate chords or not
+REVERSE_SCALE = False # Whether to play scales in reverse as well
 ## Waves
 #########
 def sine_wave(hz, peak, n_samples=sample_rate):
@@ -80,7 +82,7 @@ def play_note(note, ms):
 
 ## Chords
 #########
-def play_chord(chord_notes, arpeggiate=False):
+def play_chord(chord_notes):
     """Play a combination of notes simultaneously (chord)
 
     Arguments:
@@ -99,7 +101,7 @@ def play_chord(chord_notes, arpeggiate=False):
         play_wave(chord_wave, 700)
     pygame.time.delay(100)
 
-    if arpeggiate:
+    if ARPEGGIATE:
         print('Single notes of the chord are now being played separately..')
         if MIDI:
             create_midi(chord_notes, 'scale', ms = 3)
@@ -117,7 +119,7 @@ def play_chord(chord_notes, arpeggiate=False):
 
 ## Scales
 #########
-def play_scale(scale_notes, ms, with_reverse=True):
+def play_scale(scale_notes, ms):
     """Plays a scale
 
     Arguments:
@@ -132,7 +134,7 @@ def play_scale(scale_notes, ms, with_reverse=True):
     else:
         play_piece(scale_notes, ms)
 
-    if with_reverse:
+    if REVERSE_SCALE:
         # Extend scale by the reverse scale
         reverse_scale = scale_notes[::-1]
         scale_notes.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part

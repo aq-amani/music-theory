@@ -231,7 +231,7 @@ def construct_and_play_chord(root_note, chord_name, one_root=False):
     if not one_root:
         print_ref_scale(scale_notes)
     print_chord(chord_name, root_note, all_chord_info[chord_name]['signature'], chord_notes)
-    pb.play_chord(chord_notes, arpeggiate = True)
+    pb.play_chord(chord_notes)
 
 def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     """Constructs a scale and Plays it
@@ -335,10 +335,12 @@ def command_processor(args):
     if args['scale']:
         if args['scale'] != list(all_scale_info.keys())[0] and args['mode'] != list(mode_info)[0]:
             parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
+        pb.REVERSE_SCALE = True
         scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
     elif args['chord']:
         if args['mode'] != list(mode_info)[0]:
             parser.error("**Modes other than the default Ionian are not supported for chords**")
+        pb.ARPEGGIATE = True
         chord_command_processor(args['root'], args['chord'], args['octave'])
     elif args['note']:
         if args['mode'] != list(mode_info)[0]:
