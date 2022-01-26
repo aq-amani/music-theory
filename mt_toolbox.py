@@ -1,18 +1,12 @@
-from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame, pygame.sndarray
-import numpy
-import scipy.signal
 import re
 from note import Note
 from note import basic_notes
+import pygame.time
+import playback as pb
 
-sample_rate = 44100
-sampling = 4096    # or 16384
 
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
-
 # Mode info
 # Modes: Where you start playing at a scale.
 mode_info = {
@@ -57,6 +51,29 @@ all_chord_info = {
     "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
 }
 
+# Circle of fifths and keys for chord progressions
+circle_of_fifths = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F']
+minor_flag = False
+major_key_degree_info = {
+    1  : {"offset" : 0, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    2  : {"offset" : 2, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    3  : {"offset" : 4, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_4"]},
+    4  : {"offset" : -1, "type" : "Major_triad","possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
+    5  : {"offset" : 1, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    6  : {"offset" : 3, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    7  : {"offset" : 5, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
+}
+
+minor_key_degree_info = {
+    1  : {"offset" : 0, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    2  : {"offset" : 2, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
+    3  : {"offset" : -3, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+    4  : {"offset" : -1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
+    5  : {"offset" : 1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2"]},
+    6  : {"offset" : -4, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
+    7  : {"offset" : -2, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
+}
+
 piano_keys = """
 Piano keyboard reference:
 
@@ -89,20 +106,22 @@ https://github.com/aq-amani/music-theory
 |___|___|___|___|___|___|___|
 /////////////////////////////
 """
-def sine_wave(hz, peak, n_samples=sample_rate):
-    """Compute N samples of a sine wave with given frequency and peak amplitude.
-       Defaults to one second.
+
+def get_chord_in_key(key_index, degree):
+    """Obtains a chord from the set of chords in a key based on its degree
 
     Arguments:
-    hz -- sinewave frequency
-    peak -- amplitude of wave
-    n_samples -- sample rate
+    key_index -- index of the key chord within the circle_of_fifths list
+    degree -- degree of chord (1st ~ 7th)
     """
-    length = sample_rate / float(hz)
-    omega = numpy.pi * 2 / length
-    xvalues = numpy.arange(int(length)) * omega
-    onecycle = peak * numpy.sin(xvalues)
-    return numpy.resize(onecycle, (n_samples,)).astype(numpy.int16)
+    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
+    chord_index = key_index + degree_info[degree]['offset']
+
+    if chord_index < 0:
+        chord_index += 12
+    else:
+        chord_index = chord_index % 12
+    return circle_of_fifths[chord_index]
 
 def construct_scale(root_note, scale_signature, scale_length=None):
     """Construct a musical scale from a root note
@@ -154,62 +173,6 @@ def note_modifier(note_index, note):
     else:
         modified_note = note
     return modified_note
-
-def play_chord(chord_notes):
-    """Play a combination of notes simultaneously (chord)
-
-    Arguments:
-    chord_notes -- List of Note objects respresenting the chord
-    """
-    chord_wave = 0
-    for note in chord_notes:
-        chord_wave = sum([chord_wave, sine_wave(note.frequency, sampling)])
-
-    print('Chord is now being played..')
-    play_wave(chord_wave, 700)
-    pygame.time.delay(100)
-
-    print('Single notes of the chord are now being played separately..')
-    for note in chord_notes:
-        play_wave(sine_wave(note.frequency, sampling), 500)
-    pygame.time.delay(100)
-
-    print('Chord is now being played again..')
-    play_wave(chord_wave, 700)
-
-def play_wave(wave, ms):
-    """Play given samples, as a sound, for ms milliseconds.
-
-    Arguments:
-    wave -- wave to play
-    ms -- length in milliseconds to play
-    """
-    # In pygame 1.9.1, we can pass sample_wave directly,
-    # but in 1.9.2 they changed the mixer to only accept ints.
-    sound = pygame.sndarray.make_sound(wave.astype(numpy.int16))
-    sound.play(-1)
-    pygame.time.delay(ms)
-    sound.stop()
-
-def play_piece(notes_f, ms):
-    """Play an array of note frequencies ms milliseconds each
-
-    Arguments:
-    notes_f -- array of frequencies
-    ms -- length in milliseconds for notes to play
-    """
-
-    for n in notes_f:
-        play_note_by_frequency(n, ms)
-
-def play_note_by_frequency(note_f, ms):
-    """Play one note for ms milliseconds by directly passing its frequency in Hz
-
-    Arguments:
-    note_f -- frequency of note in Hz
-    ms -- length in milliseconds for note to play
-    """
-    play_wave(sine_wave(note_f, sampling), ms)
 
 def print_chord(name, root_note, signature, chord_notes):
     """Prints the chord information in a nicely formatted string
@@ -274,7 +237,7 @@ def construct_and_play_chord(root_note, chord_name, one_root=False):
     if not one_root:
         print_ref_scale(scale_notes)
     print_chord(chord_name, root_note, all_chord_info[chord_name]['signature'], chord_notes)
-    play_chord(chord_notes)
+    pb.play_chord(chord_notes)
 
 def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     """Constructs a scale and Plays it
@@ -290,7 +253,7 @@ def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     if scale_name == 'Major' and mode_name != 'Ionian':
         scale_notes = get_modal_scale(scale_notes, mode_info[mode_name])
     print_scale(root_note, scale_name, scale_notes, all_scale_info[scale_name]['signature'], mode_name)
-    play_scale(scale_notes, ms)
+    pb.play_scale(scale_notes, ms)
 
 def get_modal_scale(scale_notes, mode):
     """Return the scale after applying a musical mode to it
@@ -300,37 +263,6 @@ def get_modal_scale(scale_notes, mode):
     mode -- int representing mode value as in mode_info dict
     """
     return scale_notes[mode-1:]
-
-def play_scale(scale_notes, ms, with_reverse=True):
-    """Plays a scale
-
-    Arguments:
-    scale_notes -- A list of Note objects of which the scale to play is made
-    ms -- length in milliseconds for each note
-    with_reverse -- Plays scale both forward and backwards
-    """
-    print('Scale is now being played forward..')
-    scale_frequencies = [n.frequency for n in scale_notes]
-    play_piece(scale_frequencies, ms)
-    if with_reverse:
-        # Extend scale by the reverse scale
-        reverse_scale = scale_frequencies[::-1]
-        scale_frequencies.extend(reverse_scale[1:]) # drop the first element to nicely play the reverse part
-        pygame.time.delay(200)
-        print('Scale is now being played forward and then backwards..')
-        play_piece(scale_frequencies, ms)
-
-def play_note_by_name(note_name, ms, octave):
-    """Play one note for ms milliseconds by passing note name
-
-    Arguments:
-    note_name -- note name as in C, C#, D..etc
-    ms -- length in milliseconds for note to play
-    octave -- octave at which to play the note
-    """
-    note = Note(note_name, octave)
-    print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
-    play_wave(sine_wave(note.frequency, sampling), ms)
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
     """Plays single or multiple scales depending on the input
@@ -395,6 +327,73 @@ def chord_command_processor(root_name, chord_name, octave):
                 construct_and_play_chord(Note(note_name, octave), chord_name)
                 pygame.time.delay(200)
 
+def note_processor(note_name, octave):
+    """Plays a single note
+
+    Arguments:
+    note_name -- name of the note (C, D, F# ..etc )
+    octave -- octave at which to play the note
+    """
+    note = Note(note_name, octave)
+    print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
+    pb.play_note(note, 700)
+
+def command_processor(args):
+    """Main command processor
+
+    Arguments:
+    args -- flags and input passed to the script
+    """
+    print(header)
+    if(args['keyboard']):
+        print(piano_keys)
+    if(args['midi']):
+        pb.MIDI = True
+    if args['scale']:
+        if args['scale'] != list(all_scale_info.keys())[0] and args['mode'] != list(mode_info)[0]:
+            parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
+        pb.REVERSE_SCALE = True
+        scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
+    elif args['chord']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for chords**")
+        pb.ARPEGGIATE = True
+        chord_command_processor(args['root'], args['chord'], args['octave'])
+    elif args['note']:
+        if args['mode'] != list(mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for notes**")
+        print_note_info(args['octave'])
+        note_processor(args['note'], args['octave'])
+    elif args['list']:
+        list_supported_values()
+    elif args['progression']:
+        key = args['key']
+        progression = args['progression']
+        chord_progression_processor(key, progression)
+    elif args['tutorial']:
+        import sensei_mode
+
+def chord_progression_processor(key, progression):
+    """Plays a progression of chords
+
+    Arguments:
+    key -- Key in which to play the progression (C, Dm ..etc)
+    progression -- list of integers(1~7) representing the degree of each chord within the key
+    """
+    global minor_flag
+    if 'm' in key:
+        minor_flag = True
+    key = re.sub('m', '', key)
+    print(f'Playing the following progression in {key} {"minor" if minor_flag else "Major"} : {progression}')
+    key_index = circle_of_fifths.index(key)
+    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
+    for degree in progression:
+        degree = int(degree)
+        chord = get_chord_in_key(key_index, degree)
+        print(degree, chord)
+        type = degree_info[degree]['type']
+        chord_command_processor(chord, type, 4)
+
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists
     Only to be used when printing notes.
@@ -418,11 +417,6 @@ def note_alt_name_converter(note_name):
                 break
     return note_name
 
-def init():
-    """Code to initialize pygame"""
-    ##pygame 1.9.6
-    pygame.mixer.init(sample_rate, -16, 1) # 44.1kHz, 16-bit signed, mono
-
 def list_supported_values():
     """Lists available values for the different options"""
     print('## Supported notes (-n options)')
@@ -438,8 +432,5 @@ def list_supported_values():
     for m in list(mode_info.keys()):
         print('|_',m)
 
-
 if __name__ == '__main__':
     print(header)
-else:
-    init()

@@ -1,17 +1,17 @@
 # Octave 4
 basic_notes = {
-    "C"  : {"alt_name" : "",   "frequency" : 261.63},
-    "C#" : {"alt_name" : "Db", "frequency" : 277.18},
-    "D"  : {"alt_name" : "",   "frequency" : 293.66},
-    "D#" : {"alt_name" : "Eb", "frequency" : 311.13},
-    "E"  : {"alt_name" : "",   "frequency" : 329.63},
-    "F"  : {"alt_name" : "",   "frequency" : 349.23},
-    "F#" : {"alt_name" : "Gb", "frequency" : 369.99},
-    "G"  : {"alt_name" : "",   "frequency" : 392.00},
-    "G#" : {"alt_name" : "Ab", "frequency" : 415.30},
-    "A"  : {"alt_name" : "",   "frequency" : 440.00},
-    "A#" : {"alt_name" : "Bb", "frequency" : 466.16},
-    "B"  : {"alt_name" : "",   "frequency" : 493.88},
+    "C"  : {"alt_name" : "",   "frequency" : 261.63, "midi_id" : 60},
+    "C#" : {"alt_name" : "Db", "frequency" : 277.18, "midi_id" : 61},
+    "D"  : {"alt_name" : "",   "frequency" : 293.66, "midi_id" : 62},
+    "D#" : {"alt_name" : "Eb", "frequency" : 311.13, "midi_id" : 63},
+    "E"  : {"alt_name" : "",   "frequency" : 329.63, "midi_id" : 64},
+    "F"  : {"alt_name" : "",   "frequency" : 349.23, "midi_id" : 65},
+    "F#" : {"alt_name" : "Gb", "frequency" : 369.99, "midi_id" : 66},
+    "G"  : {"alt_name" : "",   "frequency" : 392.00, "midi_id" : 67},
+    "G#" : {"alt_name" : "Ab", "frequency" : 415.30, "midi_id" : 68},
+    "A"  : {"alt_name" : "",   "frequency" : 440.00, "midi_id" : 69},
+    "A#" : {"alt_name" : "Bb", "frequency" : 466.16, "midi_id" : 70},
+    "B"  : {"alt_name" : "",   "frequency" : 493.88, "midi_id" : 71},
 }
 
 class Note:
@@ -21,6 +21,7 @@ class Note:
         name = name[0].upper() + name[1:]
         self.name = name
         self.octave = octave
+        self._midi_id = self.get_midi_id()
         octave_multiplier = self.octave_converter()
         self._frequency = basic_notes[self.name]['frequency'] * octave_multiplier
 
@@ -57,6 +58,10 @@ class Note:
     def octave(self):
         return self._octave
 
+    @property
+    def midi_id(self):
+        return self._midi_id
+
     @octave.setter
     def octave(self, value):
         if value not in range(2,7):
@@ -68,9 +73,18 @@ class Note:
         Octave 4 translates to x1 multiplier since our basic_notes list is based on the 4th octave.
 
         Arguments:
-        octave -- octave at which to play the scale
+        self -- note object that contains the octave
         """
         return round(2 ** (self.octave - 4), 2)
+
+    def get_midi_id(self):
+        """Shifts midi id by multiples of 12 depending on the octave.
+        Octave 4 translates to 0 offset since our basic_notes list is based on the 4th octave.
+
+        Arguments:
+        self -- note object that contains the octave
+        """
+        return  basic_notes[self.name]['midi_id'] + 12 * (self.octave - 4)
 
     def get_consecutive_notes(self, halfstep_count):
         """Get halfstep_count consecutive notes half step apart while updating octave as necessary"""
