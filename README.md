@@ -17,8 +17,12 @@ As a general rule, please make sure the volume is low when experimenting around.
 
 ## :hammer_and_wrench: Setup/ Preparation
 ```bash
-pipenv install --ignore-pipfile --python 3.7
+pipenv install --ignore-pipfile --skip-lock --python 3.7
 pipenv shell
+```
+If faced by "fluidsynth file not found" on some linux environment, try the following.
+```bash
+sudo apt-get install fluid-soundfont-gm
 ```
 
 ## :rocket: Usage examples: music_theory_lab.py
