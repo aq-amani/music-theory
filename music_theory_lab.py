@@ -21,7 +21,7 @@ def main():
     group.add_argument('-t','--tutorial', help='Run the tutorial (sensei) mode!', action ='store_true')
     group.add_argument('-p','--progression', nargs='+', help='Chord progression in terms of degrees separated by space. Ex.: 1 4 1 5', metavar = '')
 
-    parser.add_argument('-o','--octave', choices=[i for i in range(3, 7)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
+    parser.add_argument('-o','--octave', choices=[i for i in range(0, 9)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
     parser.add_argument('-m','--mode', choices=mt.mode_info ,help='Mode to play scale in', default = 'Ionian', metavar = '')
     parser.add_argument('-b','--keyboard', help='Show a reference piano keyboard', action ='store_true')

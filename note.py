@@ -14,6 +14,9 @@ basic_notes = {
     "B"  : {"alt_name" : "",   "frequency" : 493.88, "midi_id" : 71},
 }
 
+MAX_OCTAVE = 8
+MIN_OCTAVE = 0
+
 class Note:
 
     def __init__(self, name, octave):
@@ -64,7 +67,7 @@ class Note:
 
     @octave.setter
     def octave(self, value):
-        if value not in range(2,7):
+        if value not in range(MIN_OCTAVE, MAX_OCTAVE+1):
             raise ValueError("Invalid octave value")
         self._octave = value
 
