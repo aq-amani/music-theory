@@ -20,6 +20,7 @@ mode_info = {
 }
 # Scale signatures
 all_scale_info = {
+    "Chromatic" 	: {"signature" : [S,S,S,S,S,S,S,S,S,S,S,S],     "info" : "All 12 notes in an octave"},
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
     "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : ""},
     "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
