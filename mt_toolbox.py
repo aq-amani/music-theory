@@ -137,7 +137,7 @@ def construct_scale(root_note, scale_signature, scale_length=None):
         scale_length = len(scale_signature)
     scale_notes = [root_note]
     note = root_note
-    for i in range(scale_length):
+    for i in range(scale_length - 1):
         halfstep_count = 1 if scale_signature[i % len(scale_signature)] == S else 2 if scale_signature[i % len(scale_signature)] == T else 3
         note = note.get_next_step_note(halfstep_count)
         scale_notes.append(note)
