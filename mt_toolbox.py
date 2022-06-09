@@ -23,6 +23,7 @@ all_scale_info = {
     "Chromatic" 	: {"signature" : [S,S,S,S,S,S,S,S,S,S,S,S],     "info" : "All 12 notes in an octave"},
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
     "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : ""},
+    "Harmonic_minor"    : {"signature" : [T,S,T,T,S,T*S,S],             "info" : ""},
     "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
     "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S,T*S],	"info" : ""},
     "Major_pentatonic"  : {"signature" : [T,T,T*S,T,T*S],		"info" : ""},
