@@ -76,6 +76,29 @@ minor_key_degree_info = {
     7  : {"offset" : -2, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
 }
 
+# interval name to chromatic position
+interval_to_position_map = {
+    '1'                 : 0,
+    'm2'                : 1,
+    '2'                 : 2,
+    'M2'                : 2,
+    'm3'                : 3,
+    '3'                 : 4,
+    'M3'                : 4,
+    'P4'                : 5,
+    '4'                 : 5,
+    'A4'                : 6,
+    'D5'                : 6,
+    'P5'                : 7,
+    '5'                 : 7,
+    'm6'                : 8,
+    '6'                 : 9,
+    'M6'                : 9,
+    'm7'                : 10,
+    '7'                 : 11,
+    'M7'                : 11,
+}
+
 piano_keys = """
 Piano keyboard reference:
 
@@ -175,6 +198,38 @@ def note_modifier(note_index, note):
     else:
         modified_note = note
     return modified_note
+
+def intervals_to_chrom_positions(intervals):
+    """Returns a list of chromatic positions from a list of musical intervals(m2,P5..)
+
+    Arguments:
+    intervals -- a list of intervals. ex.: ['1','m3','P5']
+    """
+    positions = []
+    for i in intervals:
+        positions.append(interval_to_position_map[i])
+    return positions
+
+def tone_to_chrom_positions(signature):
+    """Returns a list of chromatic positions from a list of tone,semitone (T, S) signatures
+
+    Arguments:
+    signature -- a list of tone/semitone values representing a signatureex.: [T,S,T*S]
+    """
+    pos = 0
+    positions = []
+    positions.append(pos)
+    for i in signature:
+        if i == S:
+            pos += 1
+        elif i == T:
+            pos += 2
+        elif i == T*S:
+            pos += 3
+        else:
+            print('Error. Unexpected signature element.')
+        positions.append(pos)
+    return positions
 
 def print_chord(name, root_note, signature, chord_notes):
     """Prints the chord information in a nicely formatted string
