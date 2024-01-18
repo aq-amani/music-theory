@@ -204,8 +204,7 @@ def print_scale(root_note, scale_name, scale_notes, scale_signature, mode='Ionia
     f'in {mode} mode.. :' if mode != 'Ionian' else '(default Ionian mode).. :',
     f'\n{"":15}+{lines}+\n{"positions":15}|{positions}|\n{"":15}+{lines}+',
     f'\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
-    # Print scale signature only when we are in Ionian (default) as signature becomes irrlevant with other modes
-    f'\n{"Scale Signature":19}|--{signature}--|' if mode == 'Ionian' else '')
+    f'\n{"Scale Signature":19}|--{signature}--|')
 
 def print_ref_scale(scale_notes):
     """Prints the reference scale (an extended major scale) based on which a chord is constructed"""
@@ -250,21 +249,25 @@ def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     ms -- length in milliseconds for each note
     """
-    scale_length = len(all_scale_info[scale_name]['signature']) + mode_info[mode_name] - 1
-    scale_notes = construct_scale(root_note, all_scale_info[scale_name]['signature'], scale_length)
-    if scale_name == 'Major' and mode_name != 'Ionian':
-        scale_notes = get_modal_scale(scale_notes, mode_info[mode_name])
-    print_scale(root_note, scale_name, scale_notes, all_scale_info[scale_name]['signature'], mode_name)
+    scale_length = len(all_scale_info[scale_name]['signature'])
+    scale_signature = all_scale_info[scale_name]['signature']
+    if mode_name != 'Ionian':
+        scale_signature = get_modal_scale_signature(scale_signature, mode_info[mode_name])
+    scale_notes = construct_scale(root_note, scale_signature, scale_length)
+    print_scale(root_note, scale_name, scale_notes, scale_signature, mode_name)
     pb.play_scale(scale_notes, ms)
 
-def get_modal_scale(scale_notes, mode):
-    """Return the scale after applying a musical mode to it
+def get_modal_scale_signature(signature, mode):
+    """Return the modal scale signature by left rotating the signature according to the mode value
+       Ex.: Dorian starts from the second position hence a left rotation by 1
 
     Arguments:
-    scale_notes -- A list of Note objects of which the scale to transform is made
-    mode -- int representing mode value as in mode_info dict
+    signature -- signature of the scale
+    mode -- int representing mode value as in mode_info dict.
     """
-    return scale_notes[mode-1:]
+    # left rotate by mode value-1
+    modal_signature = signature[mode-1:]+signature[:mode-1]
+    return modal_signature
 
 def scale_command_processor(root_name, scale_name, octave, mode_name, ms = 200):
     """Plays single or multiple scales depending on the input
@@ -352,8 +355,6 @@ def command_processor(args):
     if(args['midi']):
         pb.MIDI = True
     if args['scale']:
-        if args['scale'] != list(all_scale_info.keys())[0] and args['mode'] != list(mode_info)[0]:
-            parser.error("**Scales other than the Major scale do not support modes other than Ionian (default scale as is)**")
         pb.REVERSE_SCALE = True
         scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
     elif args['chord']:
