@@ -20,6 +20,11 @@ As a general rule, please make sure the volume is low when experimenting around.
 pipenv install --ignore-pipfile --skip-lock --python 3.7
 pipenv shell
 ```
+To use instrumental midi playback (--midi/-d option), make sure the following packages are installed and edit `timidity.cfg` to use freepats as the default source config.
+```
+sudo apt-get install freepats
+sudo apt-get install timidity
+```
 If faced by "fluidsynth file not found" on some linux environment, try the following.
 ```bash
 sudo apt-get install fluid-soundfont-gm
