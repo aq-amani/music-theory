@@ -19,6 +19,7 @@ mode_info = {
     "Locrian" 		: 7,
 }
 # Scale signatures
+# The last interval is between last note and next octave first note
 all_scale_info = {
     "Chromatic" 	: {"signature" : [S,S,S,S,S,S,S,S,S,S,S,S],     "info" : "All 12 notes in an octave"},
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
@@ -26,7 +27,7 @@ all_scale_info = {
     "Harmonic_minor"    : {"signature" : [T,S,T,T,S,T*S,S],             "info" : ""},
     "Double_harmonic"   : {"signature" : [S,T*S,S,T,S,T,S],             "info" : ""},
     "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
-    "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S,T*S],	"info" : ""},
+    "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S],		"info" : ""},
     "Major_pentatonic"  : {"signature" : [T,T,T*S,T,T*S],		"info" : ""},
     "Minor_pentatonic"  : {"signature" : [T*S,T,T,T*S,T],		"info" : ""},
     "Blues" 		: {"signature" : [T*S,T,S,S,T*S,T],		"info" : ""},
@@ -242,7 +243,8 @@ def tone_to_chrom_positions(signature):
     pos = 0
     positions = []
     positions.append(pos)
-    for i in signature:
+    # exclude the last interval (last note- next octave first note interval)
+    for i in signature[:-1]:
         if i == S:
             pos += 1
         elif i == T:
