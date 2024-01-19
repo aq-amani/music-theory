@@ -36,19 +36,35 @@ all_scale_info = {
 all_chord_info = {
     ##Signatures are respective to the major scale.
     ## Major, minor, dim, aug Triads are all 1,3,5 respective to their own scale.
-    "Major_triad" 	: {"signature" : [1,3,5],		"info" : "Happy (-^o^-)"},
-    "Minor_triad" 	: {"signature" : [1,'b3',5], 		"info" : "Sad (;_;)"},
+    "Major_triad" 	: {"signature" : [1,3,'P5'],		"info" : "Happy (-^o^-)"},
+    "Minor_triad" 	: {"signature" : [1,'m3',5], 		"info" : "Sad (;_;)"},
     "Power" 		: {"signature" : [1,5,8], 		"info" : "Powerful \m/ Used a lot in rock/metal"},
-    "Diminished" 	: {"signature" : [1,'b3','b5'], 	"info" : "Unpleasant dramatic sad (/O;)"},
-    "Augmented" 	: {"signature" : [1,3,'5#'], 		"info" : "Mysterious uneasy reality-altering-like ('O')!?"},
+    "Diminished" 	: {"signature" : [1,'b3','D5'], 	"info" : "Unpleasant dramatic sad (/O;)"},
+    "Augmented" 	: {"signature" : [1,3,'A5'], 		"info" : "Mysterious uneasy reality-altering-like ('O')!?"},
     "Suspended_2" 	: {"signature" : [1,2,5], 		"info" : ""},
     "Suspended_4" 	: {"signature" : [1,4,5], 		"info" : ""},
+    # Add chords
+    "Major_add2"         : {"signature" : [1,2,3,5],            "info" : ""},
+    "Minor_add2"         : {"signature" : [1,2,'b3',5],         "info" : ""},
+    "Major_add9"         : {"signature" : [1,3,5,9],            "info" : "Same as add2 but 2nd degree is an octave higher"},
+    "Minor_add9"         : {"signature" : [1,'b3',5,9],         "info" : "Same as add2 but 2nd degree is an octave higher"},
+    # Power variations
+    "Power_m6"	         : {"signature" : [1,5,'b6'],           "info" : "with a minor 6th"},
+    "Power_m3m6"         : {"signature" : [1,'b3',5,'b6'],      "info" : "with a minor 3rd and minor 6th"},
+    "Power_M2m3"         : {"signature" : [1,2,'b3',5],    	"info" : "with a major 2nd and minor 3rd"},
+    "Power_m2m3"         : {"signature" : [1,'b2','b3',5],  	"info" : "with a minor 2nd and minor 3rd"},
+    "Power_M7"	         : {"signature" : [1,5,7],              "info" : "with a major 7th"},
+    # 6ths
+    "Major_6th"         : {"signature" : [1,3,5,6],             "info" : ""},
+    "Minor_6th"         : {"signature" : [1,'b3',5,6],	        "info" : ""},
+    # 7ths
     "Major_7th" 	: {"signature" : [1,3,5,7], 		"info" : ""},
     "Minor_7th" 	: {"signature" : [1,'b3',5,'b7'], 	"info" : ""},
     "Dominant_7th" 	: {"signature" : [1,3,5,'b7'], 		"info" : ""},
-    "Half_diminished" 	: {"signature" : [1,'b3','b5','b7'], 	"info" : "Kind of Jazzy feel. AKA minor 7th flat 5(m7b5)"},
-    "Whole_diminished" 	: {"signature" : [1,'b3','b5',6], 	"info" : "Kind of Jazzy feel. AKA diminished 7th"},
-    #Last index of diminished 7th usually expressed as 'bb7' but this script doesn't support double flats. 'bb7' is 6 on a major scale.
+    "m7b5"	 	: {"signature" : [1,'b3','b5','b7'], 	"info" : "Kind of Jazzy feel. AKA minor 7th flat 5(m7b5)/ Half_diminished"},
+    "Diminished_7th" 	: {"signature" : [1,'b3','b5',6], 	"info" : "Kind of Jazzy feel. AKA Whole_diminished diminished 7th. Last index usually expressed as 'bb7'"},
+    "7sus4"	        : {"signature" : [1,4,5,'b7'],	        "info" : ""},
+    # 9ths
     "Major_9th" 	: {"signature" : [1,3,5,7,9], 		"info" : "5th note can be ommited without much sound difference"},
     "Minor_9th" 	: {"signature" : [1,'b3',5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
     "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
