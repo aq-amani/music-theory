@@ -1,11 +1,14 @@
 # About this repository
-This repository currently has two main scripts:
+This repository currently has the following scripts:
 
 #### 1. guitar.py
 A script to print a guitar fretboard showing notes, chords and scales on the strings.
 
 #### 2. music_theory_lab.py
 A script to experiment around with music theory concepts while playing actual sounds.
+
+#### 3. chord_visualizer.py
+A script to visualize chords and scales showing interval names and optionally specific note names.
 
 If you have no idea what notes, octaves, chords or scales mean, I highly recommend you run the tutorial mode (sensei mode) as explained in the usage examples below.
 
@@ -65,6 +68,20 @@ python -u music_theory_lab.py --progression 1 4 1 5 --key C
 ```bash
 python -u music_theory_lab.py --help
 ```
+## :rocket: Usage examples: chord_visualizer.py
+To visualize a chord
+```bash
+python chord_visualizer.py -c Major_triad
+```
+To visualize a scale
+```bash
+python chord_visualizer.py -s Chromatic
+```
+Add the -r option to either of the commands above to display specific note names
+```bash
+python chord_visualizer.py -s Chromatic -r C
+```
+
 ## :rocket: Usage examples: guitar.py
 Make sure your CLI screen is zoomed out enough to print a 24 fret guitar fretboard.
 
