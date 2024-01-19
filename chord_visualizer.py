@@ -21,7 +21,7 @@ circle_colors = colors
 positions = []
 notes = []
 angle_degrees = []
-
+name_label = ''
 # Function to update the plot for each frame of the animation
 def update(frame):
     ax.clear()
@@ -69,6 +69,8 @@ def update(frame):
             n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
             n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
             ax.text(n_pos_x, n_pos_y, note_text, ha='center', va='center', color='black', fontsize=12, weight='bold')
+        # Text for object name
+        ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=10)
 
         # Labels at circle centers
         pos_x = np.cos(angle_rad)
@@ -87,6 +89,7 @@ def main():
     global positions
     global notes
     global angle_degrees
+    global name_label
     parser = argparse.ArgumentParser(description='A script to visualize scales and chords in a group-theoric way')
     root_choices = list(mt.basic_notes.keys())
     root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
@@ -102,10 +105,12 @@ def main():
     args = vars(parser.parse_args())
     if args['scale']:
         positions = mt.tone_to_chrom_positions(mt.all_scale_info[args['scale']]['signature'])
+        name_label = args['scale']+'\nscale'
         if args['root']:
             notes= mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info[args['scale']]['signature'])
     elif args['chord']:
         positions = mt.intervals_to_chrom_positions(mt.all_chord_info[args['chord']]['signature'])
+        name_label = args['chord']+'\nchord'
         if args['root']:
             scale = mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info['Major']['signature'], 9)
             notes= mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], scale)
