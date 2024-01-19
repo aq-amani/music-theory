@@ -94,26 +94,15 @@ minor_key_degree_info = {
 }
 
 # interval name to chromatic position
+# modifiers: m,b,D--> -1, A--> +1, M,P-->number as is
 interval_to_position_map = {
-    '1'                 : 0,
-    'm2'                : 1,
-    '2'                 : 2,
-    'M2'                : 2,
-    'm3'                : 3,
-    '3'                 : 4,
-    'M3'                : 4,
-    'P4'                : 5,
-    '4'                 : 5,
-    'A4'                : 6,
-    'D5'                : 6,
-    'P5'                : 7,
-    '5'                 : 7,
-    'm6'                : 8,
-    '6'                 : 9,
-    'M6'                : 9,
-    'm7'                : 10,
-    '7'                 : 11,
-    'M7'                : 11,
+    1                : 0,
+    2                : 2,
+    3                : 4,
+    4                : 5,
+    5                : 7,
+    6                : 9,
+    7                : 11,
 }
 
 piano_keys = """
@@ -201,30 +190,47 @@ def construct_chord(chord_signature, base_scale_notes):
 
 def note_modifier(note_index, note):
     """Returns a modified Note object after sharpening or flattening the note based on # or b modifiers
-
+       modifiers: m(minor),b(flat),D(diminished)--> -1,
+                  A(augmented), # (sharp)--> +1,
+                  M(major),P(Perfect)--> 0 (number as is)
     Arguments:
     note_index -- Note position index on the major scale
     note -- Note object to flatten or to sharpen
     """
+    modifier = 0
     if type(note_index) is str:
         i = int(re.findall(r'\d+', note_index)[0])
-        if 'b' in note_index:
-           modified_note = note.get_next_step_note(-1)
-        elif '#' in note_index:
-           modified_note = note.get_next_step_note(1)
-    else:
-        modified_note = note
+        if 'b' in note_index  or 'm' in note_index or 'D' in note_index:
+           modifier = -1
+        elif '#' in note_index or 'A' in note_index:
+           modifier = 1
+    modified_note = note.get_next_step_note(modifier)
     return modified_note
 
 def intervals_to_chrom_positions(intervals):
     """Returns a list of chromatic positions from a list of musical intervals(m2,P5..)
+       modifiers: m(minor),b(flat),D(diminished)--> -1,
+                  A(augmented), # (sharp)--> +1,
+                  M(major),P(Perfect)--> 0 (number as is)
 
     Arguments:
     intervals -- a list of intervals. ex.: ['1','m3','P5']
     """
     positions = []
     for i in intervals:
-        positions.append(interval_to_position_map[i])
+        modifier = 0
+        if type(i) is str:
+            n = int(re.findall(r'\d+', i)[0])
+            if 'b' in i or 'm' in i or 'D' in i:
+               modifier = -1
+            elif '#' in i or 'A' in i:
+               modifier = 1
+        else:
+            n = i
+        # if intervals exceeding one octave were provided restart counting at 1
+        if n > 7:
+            n = n%7
+        positions.append(interval_to_position_map[n] + modifier)
     return positions
 
 def tone_to_chrom_positions(signature):
