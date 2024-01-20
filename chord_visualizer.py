@@ -3,6 +3,9 @@ import numpy as np
 from matplotlib.animation import FuncAnimation
 import mt_toolbox as mt
 import argparse
+import threading
+import playback as pb
+pb.MIDI = True
 
 # Set up the figure and axis
 fig, ax = plt.subplots(figsize=(8, 8), facecolor='gray')
@@ -128,13 +131,19 @@ def main():
         positions = mt.tone_to_chrom_positions(mt.all_scale_info[args['scale']]['signature'])
         name_label = args['scale']+'\nscale'
         if args['root']:
-            notes= mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info[args['scale']]['signature'])
+            notes= mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info[args['scale']]['signature'], len(mt.all_scale_info[args['scale']]['signature'])+1)
+            pb.create_midi(notes, 'scale', t = 2.05)
+            thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
+            thread.start()
     elif args['chord']:
         positions = mt.intervals_to_chrom_positions(mt.all_chord_info[args['chord']]['signature'])
         name_label = args['chord']+'\nchord'
         if args['root']:
             scale = mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info['Major']['signature'], 9)
             notes= mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], scale)
+            pb.create_arp_chord_midi(notes, t = 2.05)
+            thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
+            thread.start()
 
     num_lines = len(positions)
     angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450 # get all 12 chromatic angle degrees

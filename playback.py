@@ -169,6 +169,31 @@ def create_midi(note_list, type, t = 1.5):
     with open(midi_filename, "wb") as output_file:
         MyMIDI.writeFile(output_file)
 
+def create_arp_chord_midi(note_list, t = 1.5):
+    """writes a midi file of a chord first arpeggiated and then harmonically played
+
+    Arguments:
+    note_list -- list of note objects in chord or scale
+    t -- time in seconds between single notes when playing a scale
+    """
+    time = 0
+    MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
+                     # automatically created)
+    MyMIDI.addProgramChange(track, channel, time, instrument)
+    MyMIDI.addTempo(track,time, tempo)
+    # Melodic
+    for note in note_list:
+        MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
+        time += t
+    # small delay between the two pieces
+    time += 2.5*t
+    # Harmonic
+    for note in note_list:
+        MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
+
+    with open(midi_filename, "wb") as output_file:
+        MyMIDI.writeFile(output_file)
+
 def play_midi_file(midi_filename):
     '''Stream music_file in a blocking manner'''
     try:
