@@ -23,11 +23,12 @@ mode_info = {
 all_scale_info = {
     "Chromatic" 	: {"signature" : [S,S,S,S,S,S,S,S,S,S,S,S],     "info" : "All 12 notes in an octave"},
     "Major"  		: {"signature" : [T,T,S,T,T,T,S], 		"info" : "The Do Re Me sequence that everyone knows"},
-    "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : ""},
+    "Minor" 		: {"signature" : [T,S,T,T,S,T,T], 		"info" : "Aeolian mode of the Major scale"},
     "Harmonic_minor"    : {"signature" : [T,S,T,T,S,T*S,S],             "info" : ""},
-    "Double_harmonic"   : {"signature" : [S,T*S,S,T,S,T,S],             "info" : ""},
-    "Diminished"  	: {"signature" : [T,S,T,S,T,S,T],		"info" : ""},
-    "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S],		"info" : ""},
+    "Phrygian_dominant" : {"signature" : [S,T*S,S,T,S,T,T],             "info" : "Mixolydian mode of the harmonic minor scale"},
+    "Double_harmonic"   : {"signature" : [S,T*S,S,T,S,T*S,S],           "info" : "AKA Byzantine scale"},
+    "Diminished"  	: {"signature" : [T,S,T,S,T,S,T,S],		"info" : "An octatonic scale"},
+    "Augmented" 	: {"signature" : [T*S,S,T*S,S,T*S,S],		"info" : "A hexatonic scale"},
     "Major_pentatonic"  : {"signature" : [T,T,T*S,T,T*S],		"info" : ""},
     "Minor_pentatonic"  : {"signature" : [T*S,T,T,T*S,T],		"info" : ""},
     "Blues" 		: {"signature" : [T*S,T,S,S,T*S,T],		"info" : ""},
@@ -329,7 +330,7 @@ def construct_and_play_scale(root_note, scale_name, mode_name, ms = 300):
     mode_name -- name of the musical mode mode as defined in the mode_info dict, in which to play the chord (Ionian, Dorian..etc)
     ms -- length in milliseconds for each note
     """
-    scale_length = len(all_scale_info[scale_name]['signature'])
+    scale_length = len(all_scale_info[scale_name]['signature']) +1 # +1 to include the next octave first note as the last note
     scale_signature = all_scale_info[scale_name]['signature']
     if mode_name != 'Ionian':
         scale_signature = get_modal_scale_signature(scale_signature, mode_info[mode_name])
