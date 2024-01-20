@@ -11,6 +11,7 @@ pb.MIDI = True
 fig, ax = plt.subplots(figsize=(8, 8), facecolor='gray')
 ax.set_xlim(-1.5, 1.5)
 ax.set_ylim(-1.5, 1.5)
+fig.canvas.manager.set_window_title('Chord visualizer')
 # Remove axes
 ax.axis('off')
 
@@ -100,13 +101,12 @@ def update(frame):
             ax.text(pos_x, pos_y, note_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
 
     # Text for object name
-    ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=12, weight='bold')
+    ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=10, weight='bold')
     # Set aspect ratio to equal
     ax.set_aspect('equal')
 
     # Remove axes
     ax.axis('off')
-
     return ax
 
 def main():
@@ -114,6 +114,7 @@ def main():
     global notes
     global angle_degrees
     global name_label
+
     parser = argparse.ArgumentParser(description='A script to visualize scales and chords in a group-theoric way')
     root_choices = list(mt.basic_notes.keys())
     root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
