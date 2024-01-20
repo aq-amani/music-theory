@@ -34,6 +34,22 @@ def update(frame):
     center_circle = plt.Circle((0, 0), 0.3, color=structure_color, zorder=2)
     ax.add_patch(center_circle)
 
+    # Ticks circle at 30-degree intervals
+    tick_circle_radius = 1.4
+    tick_length = 0.05  # Adjust the length of the ticks
+
+    for angle in range(0, 360, 30):
+        angle_rad = np.deg2rad(angle)
+        x_tick_start = np.cos(angle_rad) * tick_circle_radius
+        y_tick_start = np.sin(angle_rad) * tick_circle_radius
+        x_tick_end = np.cos(angle_rad) * (tick_circle_radius - tick_length)
+        y_tick_end = np.sin(angle_rad) * (tick_circle_radius - tick_length)
+
+        ax.plot([x_tick_start, x_tick_end], [y_tick_start, y_tick_end], color='dimgray', linewidth=4)
+    tick_circle = plt.Circle((0,0), tick_circle_radius, zorder=0, edgecolor='dimgray', lw=4)
+    tick_circle.set_facecolor('grey')
+    ax.add_patch(tick_circle)
+
     prev_i = positions[0]
     octave_flag = False
     for idx, i in enumerate(positions[:frame+1]):
