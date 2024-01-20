@@ -61,7 +61,7 @@ def update(frame):
                 octave_flag = True
             prev_i = i
         current_angle = angle_degrees[i] % 360
-        label_text = interval_list[i]+'\n+Octave' if octave_flag else interval_list[i]
+        interval_label = interval_list[i]+'\n+Octave' if octave_flag else interval_list[i]
 
         # Convert angle from degrees to radians
         angle_rad = np.deg2rad(current_angle)
@@ -79,19 +79,19 @@ def update(frame):
         # Plot the line
         ax.plot(x_line, y_line, color=structure_color, lw=10, zorder=1)
         # Labels at a nice distance outside the circle
-        if notes:
-            note_text = notes[idx].name
-            offset_from_circle_center = 0.1
-            n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
-            n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
-            ax.text(n_pos_x, n_pos_y, note_text, ha='center', va='center', color='black', fontsize=12, weight='bold')
+        offset_from_circle_center = 0.3
+        n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
+        n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
+        ax.text(n_pos_x, n_pos_y, interval_label, ha='center', va='center', color='black', fontsize=12, weight='bold')
         # Text for object name
         ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=10)
 
         # Labels at circle centers
-        pos_x = np.cos(angle_rad)
-        pos_y = np.sin(angle_rad)
-        ax.text(pos_x, pos_y, label_text, ha='center', va='center', color='black', fontsize=10, weight='bold')
+        if notes:
+            note_label = notes[idx].name
+            pos_x = np.cos(angle_rad)
+            pos_y = np.sin(angle_rad)
+            ax.text(pos_x, pos_y, note_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
 
     # Set aspect ratio to equal
     ax.set_aspect('equal')
