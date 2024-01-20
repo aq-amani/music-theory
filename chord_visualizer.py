@@ -22,6 +22,13 @@ positions = []
 notes = []
 angle_degrees = []
 name_label = ''
+
+# length and radius values
+tick_circle_radius = 1.4
+tick_length = 0.05
+offset_from_circle_center = 0.3 # for interval labels
+circle_radius = 0.2 # note circles radius
+
 # Function to update the plot for each frame of the animation
 def update(frame):
     ax.clear()
@@ -35,15 +42,16 @@ def update(frame):
     ax.add_patch(center_circle)
 
     # Ticks circle at 30-degree intervals
-    tick_circle_radius = 1.4
-    tick_length = 0.05  # Adjust the length of the ticks
-
-    for angle in range(0, 360, 30):
+    for i, angle in enumerate(angle_degrees[:-1]):
         angle_rad = np.deg2rad(angle)
         x_tick_start = np.cos(angle_rad) * tick_circle_radius
         y_tick_start = np.sin(angle_rad) * tick_circle_radius
         x_tick_end = np.cos(angle_rad) * (tick_circle_radius - tick_length)
         y_tick_end = np.sin(angle_rad) * (tick_circle_radius - tick_length)
+        # Interval labels at a nice distance outside the circle
+        n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
+        n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
+        ax.text(n_pos_x, n_pos_y, interval_list[i], ha='center', va='center', color='dimgray', fontsize=12, weight='bold')
 
         ax.plot([x_tick_start, x_tick_end], [y_tick_start, y_tick_end], color='dimgray', linewidth=4)
     tick_circle = plt.Circle((0,0), tick_circle_radius, zorder=0, edgecolor='dimgray', lw=4)
@@ -71,20 +79,15 @@ def update(frame):
         y_line = [0, np.sin(angle_rad)]
 
         # Plot a circle at the end of the line with a fixed color
-        circle_radius = 0.2
         circle = plt.Circle((np.cos(angle_rad), np.sin(angle_rad)), circle_radius, zorder=2, edgecolor=structure_color, lw=1)
         circle.set_facecolor(circle_colors[i])
         ax.add_patch(circle)
 
         # Plot the line
         ax.plot(x_line, y_line, color=structure_color, lw=10, zorder=1)
-        # Labels at a nice distance outside the circle
-        offset_from_circle_center = 0.3
         n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
         n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
         ax.text(n_pos_x, n_pos_y, interval_label, ha='center', va='center', color='black', fontsize=12, weight='bold')
-        # Text for object name
-        ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=10)
 
         # Labels at circle centers
         if notes:
@@ -93,6 +96,8 @@ def update(frame):
             pos_y = np.sin(angle_rad)
             ax.text(pos_x, pos_y, note_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
 
+    # Text for object name
+    ax.text(0, 0, name_label, ha='center', va='center', color='white', fontsize=12, weight='bold')
     # Set aspect ratio to equal
     ax.set_aspect('equal')
 
