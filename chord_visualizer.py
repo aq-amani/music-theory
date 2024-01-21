@@ -109,49 +109,89 @@ def update(frame):
     ax.axis('off')
     return ax
 
-def main():
+def process(mode, root, name, playback=True):
+    """Returns num_lines necessary to create the plot
+
+    Arguments:
+    mode -- 's' or 'c' for scale or chord
+    root -- root note (if specified)
+    name -- scale or chord name
+    playback -- whether to play the chord/scale or not
+    """
     global positions
     global notes
     global angle_degrees
     global name_label
 
+    if mode == 's':
+        positions = mt.tone_to_chrom_positions(mt.all_scale_info[name]['signature'])
+        name_label = name+'\nscale'
+        if root:
+            notes= mt.construct_scale(mt.Note(root,4), mt.all_scale_info[name]['signature'], len(mt.all_scale_info[name]['signature'])+1)
+            if playback:
+                pb.create_midi(notes, 'scale', t = 2.05)
+                thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
+                thread.start()
+    elif mode == 'c':
+        positions = mt.intervals_to_chrom_positions(mt.all_chord_info[name]['signature'])
+        name_label = name+'\nchord'
+        if root:
+            scale = mt.construct_scale(mt.Note(root,4), mt.all_scale_info['Major']['signature'], 9)
+            notes= mt.construct_chord(mt.all_chord_info[name]['signature'], scale)
+            if playback:
+                pb.create_arp_chord_midi(notes, t = 2.05)
+                thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
+                thread.start()
+
+    num_lines = len(positions)
+    angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450 # get all 12 chromatic angle degrees
+    return num_lines
+
+def main():
+
     parser = argparse.ArgumentParser(description='A script to visualize scales and chords in a group-theoric way')
     root_choices = list(mt.basic_notes.keys())
     root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
     chord_choices = list(mt.all_chord_info.keys())
+    chord_choices.extend(['all'])
     scale_choices = list(mt.all_scale_info.keys())
+    scale_choices.extend(['all'])
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
     group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
 
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
+    parser.add_argument('-o','--output', help='Save as png image', action ='store_true')
 
     args = vars(parser.parse_args())
-    if args['scale']:
-        positions = mt.tone_to_chrom_positions(mt.all_scale_info[args['scale']]['signature'])
-        name_label = args['scale']+'\nscale'
-        if args['root']:
-            notes= mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info[args['scale']]['signature'], len(mt.all_scale_info[args['scale']]['signature'])+1)
-            pb.create_midi(notes, 'scale', t = 2.05)
-            thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
-            thread.start()
-    elif args['chord']:
-        positions = mt.intervals_to_chrom_positions(mt.all_chord_info[args['chord']]['signature'])
-        name_label = args['chord']+'\nchord'
-        if args['root']:
-            scale = mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info['Major']['signature'], 9)
-            notes= mt.construct_chord(mt.all_chord_info[args['chord']]['signature'], scale)
-            pb.create_arp_chord_midi(notes, t = 2.05)
-            thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
-            thread.start()
+    if args['scale'] != 'all' and args['chord'] != 'all':
+        if args['output']:
+            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], playback=False)
+            update(num_lines - 1)
+            img_name = args['root']+'_'+args['scale']+'_scale.png' if args['scale'] else args['root']+'_'+args['chord']+'_chord.png'
+            plt.savefig(img_name)
+        else:
+            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'])
+            animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
+            plt.show()
 
-    num_lines = len(positions)
-    angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450 # get all 12 chromatic angle degrees
-
-    # Create an animation
-    animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
-    plt.show()
+    if args['scale'] == 'all' or args['chord'] == 'all':
+        loop_list = mt.all_scale_info.keys() if args['scale'] else mt.all_chord_info.keys()
+        for s in loop_list:
+            # Remove axes
+            ax.axis('off')
+            if args['output']:
+                num_lines = process('s' if args['scale'] else 'c', args['root'], s, playback=False)
+                update(num_lines - 1)
+                img_name = args['root']+'_'+s+'_scale.png' if args['scale'] else args['root']+'_'+s+'_chord.png'
+                plt.savefig(img_name)
+            else:
+                num_lines = process('s' if args['scale'] else 'c', args['root'], s)
+                animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
+                plt.show(block=False)
+                plt.pause(4)
+                ax.clear()
 
 if __name__ == '__main__':
     main()
