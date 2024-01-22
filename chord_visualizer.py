@@ -19,7 +19,8 @@ structure_color = 'black'
 
 colors = ['firebrick', 'saddlebrown', 'orange', 'darkkhaki', 'yellow', 'limegreen', 'darkolivegreen', 'dodgerblue', 'slategrey', 'slateblue', 'darkviolet', 'indigo']
 interval_list = ['1', 'm2', '2', 'm3', '3', 'P4', 'A4', 'P5', 'm6', '6', 'm7', '7']
-
+chromatic_note_names = [note.name for note in mt.construct_scale(mt.Note('C',4), mt.all_scale_info['Chromatic']['signature'], len(mt.all_scale_info['Chromatic']['signature']))]
+rotated_chromatic_note_names = [] # chromatic_note_names but rotated left to start from specified root note
 # colors of small circles representing notes
 circle_colors = colors
 # positions of notes to plot (list indexes) with reference to a chromatic scale(0~11)
@@ -28,6 +29,7 @@ positions_to_plot = []
 notes_to_plot = []
 # degrees on the chromatic "clock"
 chromatic_angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450 # get all 12 chromatic angle degrees
+rotated_angle_degrees = [] # chromatic_angle_degrees but rotated left to start at the degree of the specfied root note
 # text representing the chord/scale name to place on center circle
 object_name_label = ''
 
@@ -59,7 +61,7 @@ def update(frame):
         # Interval labels at a nice distance outside the circle
         n_pos_x = np.cos(angle_rad)+np.cos(angle_rad)*(circle_radius+offset_from_circle_center)
         n_pos_y = np.sin(angle_rad)+np.sin(angle_rad)*(circle_radius+offset_from_circle_center)
-        external_reference_label = interval_list[i] # labels outside the circle that are grayed out unless active
+        external_reference_label = chromatic_note_names[i] # labels outside the circle that are grayed out unless active
         ax.text(n_pos_x, n_pos_y, external_reference_label, ha='center', va='center', color='dimgray', fontsize=12, weight='bold')
 
         ax.plot([x_tick_start, x_tick_end], [y_tick_start, y_tick_end], color='dimgray', linewidth=4)
@@ -77,8 +79,8 @@ def update(frame):
             if pos < prev_pos:
                 octave_flag = True
             prev_pos = pos
-        current_angle = chromatic_angle_degrees[pos] % 360
-        active_external_label = interval_list[pos]+'\n+Octave' if octave_flag else interval_list[pos]
+        current_angle = rotated_angle_degrees[pos] % 360
+        active_external_label = rotated_chromatic_note_names[pos]
 
         # Convert angle from degrees to radians
         angle_rad = np.deg2rad(current_angle)
@@ -99,11 +101,10 @@ def update(frame):
         ax.text(n_pos_x, n_pos_y, active_external_label, ha='center', va='center', color='black', fontsize=12, weight='bold')
 
         # Labels at circle centers
-        if notes_to_plot:
-            note_circle_label = notes_to_plot[idx].name
-            pos_x = np.cos(angle_rad)
-            pos_y = np.sin(angle_rad)
-            ax.text(pos_x, pos_y, note_circle_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
+        note_circle_label = interval_list[pos]+'\n+Octave' if octave_flag else interval_list[pos]
+        pos_x = np.cos(angle_rad)
+        pos_y = np.sin(angle_rad)
+        ax.text(pos_x, pos_y, note_circle_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
 
     # Text for object name
     ax.text(0, 0, object_name_label, ha='center', va='center', color='white', fontsize=10, weight='bold')
@@ -126,6 +127,13 @@ def process(mode, root, name, playback=True):
     global positions_to_plot
     global notes_to_plot
     global object_name_label
+    global rotated_chromatic_note_names, rotated_angle_degrees
+    root_pos = chromatic_note_names.index(root) if root else 0
+    rotated_chromatic_note_names = chromatic_note_names[root_pos:]+chromatic_note_names[:root_pos]
+    #rotate excluding the last wrap back angle
+    rotated_angle_degrees = np.concatenate((chromatic_angle_degrees[root_pos:-1], chromatic_angle_degrees[:root_pos]))
+    # include the first angle to wrap back to the first note
+    rotated_angle_degrees = np.append(rotated_angle_degrees, rotated_angle_degrees[0])
 
     if mode == 's':
         positions_to_plot = mt.tone_to_chrom_positions(mt.all_scale_info[name]['signature'])
@@ -146,7 +154,6 @@ def process(mode, root, name, playback=True):
                 pb.create_arp_chord_midi(notes_to_plot, t = 2.05)
                 thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
                 thread.start()
-
     num_lines = len(positions_to_plot)
     return num_lines
 
