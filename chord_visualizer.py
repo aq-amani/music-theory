@@ -118,11 +118,11 @@ def update(frame):
     ax.axis('off')
     return ax
 
-def process(mode, root, name, playback=True):
+def process(type, root, name, mode, playback=True):
     """Returns num_lines necessary to create the plot
 
     Arguments:
-    mode -- 's' or 'c' for scale or chord
+    type -- 's' or 'c' for scale or chord
     root -- root note (if specified)
     name -- scale or chord name
     playback -- whether to play the chord/scale or not
@@ -138,16 +138,23 @@ def process(mode, root, name, playback=True):
     # include the first angle to wrap back to the first note
     rotated_angle_degrees = np.append(rotated_angle_degrees, rotated_angle_degrees[0])
 
-    if mode == 's':
-        positions_to_plot = mt.tone_to_chrom_positions(mt.all_scale_info[name]['signature'])
-        object_name_label = name+'\nscale'
+    if type == 's':
+        if mode != 'Ionian':
+            signature = mt.get_modal_scale_signature(mt.all_scale_info[name]['signature'], mt.mode_info[mode])
+            object_name_label = name+f'\n{mode} scale'
+        else:
+            signature = mt.all_scale_info[name]['signature']
+            object_name_label = name+'\nscale'
+        positions_to_plot = mt.tone_to_chrom_positions(signature)
         if root:
-            notes_to_plot= mt.construct_scale(mt.Note(root,4), mt.all_scale_info[name]['signature'], len(mt.all_scale_info[name]['signature'])+1)
+            notes_to_plot= mt.construct_scale(mt.Note(root,4), signature, len(signature)+1)
+            root_pos = chromatic_note_names.index(notes_to_plot[0].name)
+            rotated_chromatic_note_names = chromatic_note_names[root_pos:]+chromatic_note_names[:root_pos]
             if playback:
                 pb.create_midi(notes_to_plot, 'scale', t = 2.05)
                 thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
                 thread.start()
-    elif mode == 'c':
+    elif type == 'c':
         positions_to_plot = mt.intervals_to_chrom_positions(mt.all_chord_info[name]['signature'])
         object_name_label = name+'\nchord'
         if root:
@@ -170,7 +177,7 @@ def main():
     chord_choices.extend(['all'])
     scale_choices = list(mt.all_scale_info.keys())
     scale_choices.extend(['all'])
-
+    mode_choices = list(mt.mode_info.keys()).extend(['all'])
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
     group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
@@ -178,18 +185,19 @@ def main():
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
     parser.add_argument('-o','--output', help='Save as png image', action ='store_true')
     parser.add_argument('-a','--animate', help='animate notes to show them one by one', action ='store_true')
+    parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
 
     args = vars(parser.parse_args())
     ANIMATE = args['animate']
     # Specific scale or chord and a specific root note
     if args['scale'] != 'all' and args['chord'] != 'all' and args['root']!='all':
         if args['output']:
-            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], playback=False)
+            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], args['mode'], playback=False)
             update(num_lines - 1)
             img_name = args['root']+'_'+args['scale']+'_scale.png' if args['scale'] else args['root']+'_'+args['chord']+'_chord.png'
             plt.savefig(img_name)
         else:
-            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'])
+            num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], args['mode'])
             animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
             plt.show()
     # All chords or all scales
@@ -201,12 +209,12 @@ def main():
             # Remove axes
             ax.axis('off')
             if args['output']:
-                num_lines = process('s' if args['scale'] else 'c', args['root'], s, playback=False)
+                num_lines = process('s' if args['scale'] else 'c', args['root'], s, args['mode'], playback=False)
                 update(num_lines - 1)
                 img_name = args['root']+'_'+s+'_scale.png' if args['scale'] else args['root']+'_'+s+'_chord.png'
                 plt.savefig(img_name)
             else:
-                num_lines = process('s' if args['scale'] else 'c', args['root'], s)
+                num_lines = process('s' if args['scale'] else 'c', args['root'], s, args['mode'])
                 animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
                 plt.show(block=False)
                 plt.pause(4)
@@ -217,12 +225,12 @@ def main():
             # Remove axes
             ax.axis('off')
             if args['output']:
-                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'], playback=False)
+                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'], args['mode'], playback=False)
                 update(num_lines - 1)
                 img_name = s+'_'+args['scale']+'_scale.png' if args['scale'] else s+'_'+args['chord']+'_chord.png'
                 plt.savefig(img_name)
             else:
-                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'])
+                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'], args['mode'])
                 animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
                 plt.show(block=False)
                 plt.pause(4)
