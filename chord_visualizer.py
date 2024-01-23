@@ -32,7 +32,8 @@ chromatic_angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450 # get all 12 
 rotated_angle_degrees = [] # chromatic_angle_degrees but rotated left to start at the degree of the specfied root note
 # text representing the chord/scale name to place on center circle
 object_name_label = ''
-
+# ANIMATE flag
+ANIMATE = False
 # length and radius values
 tick_circle_radius = 1.4
 tick_length = 0.05
@@ -71,7 +72,9 @@ def update(frame):
 
     prev_pos = positions_to_plot[0]
     octave_flag = False
-    for idx, pos in enumerate(positions_to_plot[:frame+1]):
+    # Depending on ANIMATE flag, animate notes one by one or just draw them at once in one frame
+    positions_loop_list = positions_to_plot[:frame+1] if ANIMATE else positions_to_plot
+    for idx, pos in enumerate(positions_loop_list):
         reversed_index = len(positions_to_plot) - pos
         #If the new index is lower, this means we proceeded to the next octave
         # flag is used to add text to the label of notes on next octaves(ex.: 9th is 2+octave)
@@ -158,10 +161,11 @@ def process(mode, root, name, playback=True):
     return num_lines
 
 def main():
-
+    global ANIMATE
     parser = argparse.ArgumentParser(description='A script to visualize scales and chords in a group-theoric way')
     root_choices = list(mt.basic_notes.keys())
     root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
+    root_choices.extend(['all'])
     chord_choices = list(mt.all_chord_info.keys())
     chord_choices.extend(['all'])
     scale_choices = list(mt.all_scale_info.keys())
@@ -173,9 +177,12 @@ def main():
 
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
     parser.add_argument('-o','--output', help='Save as png image', action ='store_true')
+    parser.add_argument('-a','--animate', help='animate notes to show them one by one', action ='store_true')
 
     args = vars(parser.parse_args())
-    if args['scale'] != 'all' and args['chord'] != 'all':
+    ANIMATE = args['animate']
+    # Specific scale or chord and a specific root note
+    if args['scale'] != 'all' and args['chord'] != 'all' and args['root']!='all':
         if args['output']:
             num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], playback=False)
             update(num_lines - 1)
@@ -183,10 +190,12 @@ def main():
             plt.savefig(img_name)
         else:
             num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'])
-            animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
+            animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
             plt.show()
-
+    # All chords or all scales
     if args['scale'] == 'all' or args['chord'] == 'all':
+        if args['root'] == 'all':
+            raise ValueError("Error: Can't specify 'all' for both -r and -c/-s options")
         loop_list = mt.all_scale_info.keys() if args['scale'] else mt.all_chord_info.keys()
         for s in loop_list:
             # Remove axes
@@ -198,7 +207,23 @@ def main():
                 plt.savefig(img_name)
             else:
                 num_lines = process('s' if args['scale'] else 'c', args['root'], s)
-                animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
+                animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
+                plt.show(block=False)
+                plt.pause(4)
+    # All root notes for a single chord/scale
+    if args['root'] == 'all':
+        loop_list = chromatic_note_names
+        for s in loop_list:
+            # Remove axes
+            ax.axis('off')
+            if args['output']:
+                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'], playback=False)
+                update(num_lines - 1)
+                img_name = s+'_'+args['scale']+'_scale.png' if args['scale'] else s+'_'+args['chord']+'_chord.png'
+                plt.savefig(img_name)
+            else:
+                num_lines = process('s' if args['scale'] else 'c', s, args['scale'] if args['scale'] else args['chord'])
+                animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
                 plt.show(block=False)
                 plt.pause(4)
 
