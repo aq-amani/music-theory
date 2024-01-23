@@ -201,7 +201,6 @@ def main():
                 animation = FuncAnimation(fig, update, frames=num_lines, interval=300, blit=False, repeat=False)
                 plt.show(block=False)
                 plt.pause(4)
-                ax.clear()
 
 if __name__ == '__main__':
     main()
