@@ -189,8 +189,26 @@ def main():
 
     args = vars(parser.parse_args())
     ANIMATE = args['animate']
+    if args['mode'] == 'all':
+        base_scale_notes = mt.construct_scale(mt.Note(args['root'],4), mt.all_scale_info[args['scale']]['signature'], len(mt.all_scale_info[args['scale']]['signature']))
+        if len(base_scale_notes) != 7:
+            raise ValueError("Error: Modes not supported for non-heptatonic scales")
+        for m, n in zip(mt.mode_info, base_scale_notes):
+            # Remove axes
+            ax.axis('off')
+            if args['output']:
+                num_lines = process('s' if args['scale'] else 'c', n.name, args['scale'] if args['scale'] else args['chord'], m, playback=False)
+                update(num_lines - 1)
+                img_name = n.name+'_'+m+'_'+args['scale']+'_scale.png' if args['scale'] else n.name+'_'+args['chord']+'_chord.png'
+                plt.savefig(img_name)
+            else:
+                num_lines = process('s' if args['scale'] else 'c', n.name, args['scale'] if args['scale'] else args['chord'], m)
+                animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
+                plt.show(block=False)
+                plt.pause(4)
+
     # Specific scale or chord and a specific root note
-    if args['scale'] != 'all' and args['chord'] != 'all' and args['root']!='all':
+    elif args['scale'] != 'all' and args['chord'] != 'all' and args['root']!='all':
         if args['output']:
             num_lines = process('s' if args['scale'] else 'c', args['root'], args['scale'] if args['scale'] else args['chord'], args['mode'], playback=False)
             update(num_lines - 1)
