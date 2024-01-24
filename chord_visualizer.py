@@ -126,7 +126,7 @@ def update(frame):
     ax.axis('off')
     return ax
 
-def calculate_parameters(type, root, name, mode):
+def calculate_parameters(type, root, name, mode, arp):
     """Returns num_lines necessary to create the plot and populates the necessary global lists
 
     Arguments:
@@ -134,6 +134,7 @@ def calculate_parameters(type, root, name, mode):
     root -- root note (if specified)
     name -- scale or chord name
     mode -- the mode of the scale
+    arp  -- whether to arpeggiate a chord or not
     """
     global positions_to_plot
     global notes_to_plot
@@ -169,7 +170,10 @@ def calculate_parameters(type, root, name, mode):
             scale = mt.construct_scale(mt.Note(root,4), mt.all_scale_info['Major']['signature'], 9)
             notes_to_plot= mt.construct_chord(mt.all_chord_info[name]['signature'], scale)
             if PLAYNOTES:
-                pb.create_arp_chord_midi(notes_to_plot, t = 2.05)
+                if arp:
+                    pb.create_arp_chord_midi(notes_to_plot, t = 2.05)
+                else:
+                    pb.create_midi(notes_to_plot, 'c', t = 1)
                 thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
                 thread.start()
     num_lines = len(positions_to_plot)
@@ -185,19 +189,22 @@ def parse_arguments():
     scale_choices = list(mt.all_scale_info.keys())
     scale_choices.extend(['all'])
     mode_choices = list(mt.mode_info.keys()).extend(['all'])
+    key_choices = list(mt.basic_notes.keys()) + [n+'m' for n in mt.basic_notes.keys()]
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
     group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
+    group.add_argument('-p','--progression', nargs='+', help='Chord progression in terms of degrees separated by space. Ex.: 1 4 1 5', metavar = '')
 
     parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
     parser.add_argument('-o','--output', help='Save as png image', action ='store_true')
     parser.add_argument('-a','--animate', help='animate notes to show them one by one', action ='store_true')
     parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
+    parser.add_argument('-k','--key', choices=key_choices,help='Key name. Example C(C major) or Am(A minor)', default = 'C', metavar = '')
 
     args = vars(parser.parse_args())
     return args
 
-def animate_or_save_image(scale, chord, root, mode, save_png, single=True):
+def animate_or_save_image(scale, chord, root, mode, save_png, arp=True, single=True):
     """Animate the chord/scale or save an image of the plot
 
     Arguments:
@@ -206,8 +213,9 @@ def animate_or_save_image(scale, chord, root, mode, save_png, single=True):
     root -- root note name
     mode -- the mode of the scale
     save_png -- boolean. Saves an image if True, displayes the plot if False
+    arp  -- bool. whether to arpeggiate a chord or not
     """
-    num_lines = calculate_parameters('s' if scale else 'c', root, scale if scale else chord, mode)
+    num_lines = calculate_parameters('s' if scale else 'c', root, scale if scale else chord, mode, arp)
     if save_png:
         update(num_lines - 1)
         img_name = f'{root}_{mode}_{scale}_scale.png' if scale else f'{root}_{chord}_chord.png'
@@ -237,8 +245,14 @@ def process_command(args):
         raise ValueError("Error: Can't specify 'all' for more than one option")
     ANIMATE = args['animate']
     PLAYNOTES= not args['output']
+    # Chord progression
+    if args['progression']:
+        key = args['key']
+        chord_root_list, type_list = mt.get_chord_list_from_progression(key, args['progression'])
+        for r, t in zip(chord_root_list, type_list):
+            animate_or_save_image(scale=args['scale'], chord=t, root=r, mode=args['mode'], save_png=args['output'], arp=False, single=False)
     # Specific scale or chord and a specific root note
-    if 'all' not in (args['scale'], args['chord'], args['root'], args['mode']):
+    elif 'all' not in (args['scale'], args['chord'], args['root'], args['mode']):
         animate_or_save_image(args['scale'], args['chord'], args['root'], args['mode'], args['output'])
     # All chords, all scales or all notes
     elif args['mode'] != 'all':
