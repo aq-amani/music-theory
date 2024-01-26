@@ -72,9 +72,6 @@ all_chord_info = {
     "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
 }
 
-# Circle of fifths and keys for chord progressions
-circle_of_fifths = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F']
-minor_flag = False
 major_key_degree_info = {
     1  : {"offset" : 0, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
     2  : {"offset" : 2, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
@@ -139,22 +136,6 @@ https://github.com/aq-amani/music-theory
 |___|___|___|___|___|___|___|
 /////////////////////////////
 """
-
-def get_chord_in_key(key_index, degree):
-    """Obtains a chord from the set of chords in a key based on its degree
-
-    Arguments:
-    key_index -- index of the key chord within the circle_of_fifths list
-    degree -- degree of chord (1st ~ 7th)
-    """
-    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
-    chord_index = key_index + degree_info[degree]['offset']
-
-    if chord_index < 0:
-        chord_index += 12
-    else:
-        chord_index = chord_index % 12
-    return circle_of_fifths[chord_index]
 
 def construct_scale(root_note, scale_signature, scale_length=None):
     """Construct a musical scale from a root note
@@ -453,30 +434,35 @@ def command_processor(args):
     elif args['progression']:
         key = args['key']
         progression = args['progression']
-        chord_progression_processor(key, progression)
+        chord_list, type_list = get_chord_list_from_progression(key, progression)
+        for r, t in zip(chord_list, type_list):
+            print(r,t)
+            chord_command_processor(r, t, 4)
     elif args['tutorial']:
         import sensei_mode
 
-def chord_progression_processor(key, progression):
-    """Plays a progression of chords
+def get_chord_list_from_progression(key, progression):
+    """Returns a list of chords representing a chord progression
 
     Arguments:
     key -- Key in which to play the progression (C, Dm ..etc)
     progression -- list of integers(1~7) representing the degree of each chord within the key
     """
-    global minor_flag
+    chord_list = []
+    type_list = []
     if 'm' in key:
-        minor_flag = True
-    key = re.sub('m', '', key)
-    print(f'Playing the following progression in {key} {"minor" if minor_flag else "Major"} : {progression}')
-    key_index = circle_of_fifths.index(key)
-    degree_info = minor_key_degree_info if minor_flag else major_key_degree_info
+        base_scale_signature = all_scale_info['Minor']['signature']
+        key = re.sub('m', '', key)
+        degree_info = minor_key_degree_info
+    else:
+        base_scale_signature = all_scale_info['Major']['signature']
+        degree_info = major_key_degree_info
+    base_scale = construct_scale(Note(key,4), base_scale_signature, len(base_scale_signature))
     for degree in progression:
         degree = int(degree)
-        chord = get_chord_in_key(key_index, degree)
-        print(degree, chord)
-        type = degree_info[degree]['type']
-        chord_command_processor(chord, type, 4)
+        chord_list.append(base_scale[degree-1].name)
+        type_list.append(degree_info[degree]['type'])
+    return chord_list, type_list
 
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists
