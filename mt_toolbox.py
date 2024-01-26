@@ -405,42 +405,6 @@ def note_processor(note_name, octave):
     print(f'\n|_Playing {note_alt_name_appender(note.name)} note in octave {note.octave} | Frequency: {note.frequency} Hz\n')
     pb.play_note(note, 700)
 
-def command_processor(args):
-    """Main command processor
-
-    Arguments:
-    args -- flags and input passed to the script
-    """
-    print(header)
-    if(args['keyboard']):
-        print(piano_keys)
-    if(args['midi']):
-        pb.MIDI = True
-    if args['scale']:
-        pb.REVERSE_SCALE = True
-        scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
-    elif args['chord']:
-        if args['mode'] != list(mode_info)[0]:
-            parser.error("**Modes other than the default Ionian are not supported for chords**")
-        pb.ARPEGGIATE = True
-        chord_command_processor(args['root'], args['chord'], args['octave'])
-    elif args['note']:
-        if args['mode'] != list(mode_info)[0]:
-            parser.error("**Modes other than the default Ionian are not supported for notes**")
-        print_note_info(args['octave'])
-        note_processor(args['note'], args['octave'])
-    elif args['list']:
-        list_supported_values()
-    elif args['progression']:
-        key = args['key']
-        progression = args['progression']
-        chord_list, type_list = get_chord_list_from_progression(key, progression)
-        for r, t in zip(chord_list, type_list):
-            print(r,t)
-            chord_command_processor(r, t, 4)
-    elif args['tutorial']:
-        import sensei_mode
-
 def get_chord_list_from_progression(key, progression):
     """Returns a list of chords representing a chord progression
 
@@ -486,21 +450,6 @@ def note_alt_name_converter(note_name):
                 note_name = basic_name
                 break
     return note_name
-
-def list_supported_values():
-    """Lists available values for the different options"""
-    print('## Supported notes (-n options)')
-    for n in basic_notes.keys():
-        print('|_',n, f'({basic_notes[n]["alt_name"]})' if basic_notes[n]["alt_name"] else '')
-    print('\n## Supported scales (-s options)')
-    for s in list(all_scale_info.keys()):
-        print('|_',s)
-    print('\n## Supported chords (-c options)')
-    for c in list(all_chord_info.keys()):
-        print('|_',c)
-    print('\n## Supported musical modes (-m options)')
-    for m in list(mode_info.keys()):
-        print('|_',m)
 
 if __name__ == '__main__':
     print(header)

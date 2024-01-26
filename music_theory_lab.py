@@ -1,7 +1,57 @@
 import mt_toolbox as mt
 import argparse
+import playback as pb
 
-def main():
+def command_processor(args):
+    """Main command processor
+
+    Arguments:
+    args -- flags and input passed to the script
+    """
+    print(mt.header)
+    if(args['keyboard']):
+        print(mt.piano_keys)
+    if(args['midi']):
+        pb.MIDI = True
+    if args['scale']:
+        pb.REVERSE_SCALE = True
+        mt.scale_command_processor(args['root'], args['scale'], args['octave'], args['mode'])
+    elif args['chord']:
+        if args['mode'] != list(mt.mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for chords**")
+        pb.ARPEGGIATE = True
+        mt.chord_command_processor(args['root'], args['chord'], args['octave'])
+    elif args['note']:
+        if args['mode'] != list(mt.mode_info)[0]:
+            parser.error("**Modes other than the default Ionian are not supported for notes**")
+        print_note_info(args['octave'])
+        mt.note_processor(args['note'], args['octave'])
+    elif args['list']:
+        list_supported_values()
+    elif args['progression']:
+        key = args['key']
+        progression = args['progression']
+        chord_list, type_list = mt.get_chord_list_from_progression(key, progression)
+        for r, t in zip(chord_list, type_list):
+            print(r,t)
+            mt.chord_command_processor(r, t, 4)
+    elif args['tutorial']:
+        import sensei_mode
+
+def list_supported_values():
+    """Lists available values for the different options"""
+    print('## Supported notes (-n options)')
+    for n in mt.basic_notes.keys():
+        print('|_',n, f'({mt.basic_notes[n]["alt_name"]})' if mt.basic_notes[n]["alt_name"] else '')
+    print('\n## Supported scales (-s options)')
+    for s in list(mt.all_scale_info.keys()):
+        print('|_',s)
+    print('\n## Supported chords (-c options)')
+    for c in list(mt.all_chord_info.keys()):
+        print('|_',c)
+    print('\n## Supported musical modes (-m options)')
+    for m in list(mt.mode_info.keys()):
+        print('|_',m)
 
     parser = argparse.ArgumentParser(description='music_theory_lab.py: A script to interactively play with music theory concepts')
     root_choices = list(mt.basic_notes.keys())
