@@ -179,31 +179,6 @@ def calculate_parameters(type, root, name, mode, arp):
     num_lines = len(positions_to_plot)
     return num_lines
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='A script to visualize scales and chords in a group-theoric way')
-    root_choices = list(mt.basic_notes.keys())
-    root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
-    root_choices.extend(['all'])
-    chord_choices = list(mt.all_chord_info.keys())
-    chord_choices.extend(['all'])
-    scale_choices = list(mt.all_scale_info.keys())
-    scale_choices.extend(['all'])
-    mode_choices = list(mt.mode_info.keys()).extend(['all'])
-    key_choices = list(mt.basic_notes.keys()) + [n+'m' for n in mt.basic_notes.keys()]
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
-    group.add_argument('-p','--progression', nargs='+', help='Chord progression in terms of degrees separated by space. Ex.: 1 4 1 5', metavar = '')
-
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', metavar = '')
-    parser.add_argument('-o','--output', help='Save as png image', action ='store_true')
-    parser.add_argument('-a','--animate', help='animate notes to show them one by one', action ='store_true')
-    parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
-    parser.add_argument('-k','--key', choices=key_choices,help='Key name. Example C(C major) or Am(A minor)', default = 'C', metavar = '')
-
-    args = vars(parser.parse_args())
-    return args
-
 def animate_or_save_image(scale, chord, root, mode, save_png, arp=True, single=True):
     """Animate the chord/scale or save an image of the plot
 
@@ -279,6 +254,7 @@ def process_command(args):
 
 
 def main():
+    from music_theory_lab import parse_arguments
     args = parse_arguments()
     process_command(args)
 

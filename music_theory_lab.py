@@ -53,6 +53,7 @@ def list_supported_values():
     for m in list(mt.mode_info.keys()):
         print('|_',m)
 
+def parse_arguments():
     parser = argparse.ArgumentParser(description='music_theory_lab.py: A script to interactively play with music theory concepts')
     root_choices = list(mt.basic_notes.keys())
     root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
@@ -77,9 +78,22 @@ def list_supported_values():
     parser.add_argument('-b','--keyboard', help='Show a reference piano keyboard', action ='store_true')
     parser.add_argument('-d','--midi', help='Use the midiutil instead to play notes', action ='store_true')
     parser.add_argument('-k','--key', choices=key_choices ,help='Key name. Example C(C major) or Am(A minor)', default = 'C', metavar = '')
+    # options unique to the graphical backend
+    parser.add_argument('-g','--graphics', help='To use the matplotlib as the graphics backend instead of console print out', action ='store_true')
+    parser.add_argument('-v','--output', help='Save as png image', action ='store_true')
+    parser.add_argument('-a','--animate', help='animate notes to show them one by one', action ='store_true')
 
     args = vars(parser.parse_args())
-    mt.command_processor(args)
+    return args
+
+def main():
+    args = parse_arguments()
+    if args['graphics']:
+        import chord_visualizer as view
+        view.process_command(args)
+    else:
+        command_processor(args)
+
 
 if __name__ == '__main__':
     main()
