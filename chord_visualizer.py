@@ -228,7 +228,10 @@ def animate_or_save_image(scale, chord, root, mode, save_png, arp=True, single=T
             # Remove axes
             ax.axis('off')
             plt.show(block=False)
-            plt.pause(4)
+            # Adjust delay between consecutive plots/playbacks
+            # non arpeggiated chords finish faster
+            pause_length = 1.2 if chord and not arp else 4
+            plt.pause(pause_length)
 
 def process_command(args):
     """Main switch for the script arguments
