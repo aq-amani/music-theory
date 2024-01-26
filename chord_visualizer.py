@@ -208,7 +208,7 @@ def animate_or_save_image(scale, chord, root, mode, save_png, arp=True, single=T
     """Animate the chord/scale or save an image of the plot
 
     Arguments:
-    scale -- scale name's' or 'c' for scale or chord
+    scale -- scale name
     chord -- chord name
     root -- root note name
     mode -- the mode of the scale
