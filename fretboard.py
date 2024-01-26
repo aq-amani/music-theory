@@ -79,7 +79,7 @@ inlay_radius = 0.25  # Radius of the inlay circles
 inlay_color = 'grey'  # Color of the inlay circles
 ax.scatter(*zip(*inlay_positions), color=inlay_color, s=inlay_radius**2 * 1000, edgecolor='black', linewidth=1)
 generate_all_notes()
-scale_notes = mt.construct_scale(Note('A', 4), mt.all_scale_info['Minor']['signature'])
+scale_notes = mt.construct_scale('A', 'Minor', 'Ionian', 4)
 #show_notes(basic_notes.keys())
 show_notes([n.name for n in scale_notes])
 

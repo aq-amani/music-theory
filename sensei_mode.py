@@ -1,6 +1,7 @@
 import time
 import sys
-import mt_toolbox as mt
+from mt_toolbox import header, print_note_info, piano_keys
+from music_theory_lab import note_processor, scale_command_processor, chord_command_processor
 
 def sensei_print(s, play_flag=False, wait_flag=True):
     for c in s:
@@ -38,7 +39,7 @@ def main():
     """
     , play_flag=True)
     # Play C note
-    mt.note_processor('C', 4)
+    note_processor('C', 4)
     time.sleep(1)
 
     sensei_print(
@@ -56,11 +57,11 @@ def main():
     """
     , play_flag=True)
     # play note C -o4 and E-o4 and A -o4
-    mt.note_processor('C', 4)
+    note_processor('C', 4)
     time.sleep(1)
-    mt.note_processor('E', 4)
+    note_processor('E', 4)
     time.sleep(1)
-    mt.note_processor('A', 4)
+    note_processor('A', 4)
     time.sleep(1)
     sensei_print(
     """
@@ -74,9 +75,9 @@ def main():
     """
     , play_flag=True)
     # play note C -o4 and C-o5
-    mt.note_processor('C', 4)
+    note_processor('C', 4)
     time.sleep(1)
-    mt.note_processor('C', 5)
+    note_processor('C', 5)
     time.sleep(1)
 
     sensei_print(
@@ -84,9 +85,9 @@ def main():
     Similarily, we get the same note but on a different LOWER [octave] if we divide the note frequency by 2.
     """
     , play_flag=True)
-    mt.note_processor('C', 4)
+    note_processor('C', 4)
     time.sleep(1)
-    mt.note_processor('C', 3)
+    note_processor('C', 3)
     time.sleep(1)
 
     sensei_print(
@@ -111,7 +112,7 @@ def main():
     Here are the basic 12 notes that have names, along with their frequencies on the 4th octave.
     """
     )
-    mt.print_note_info(octave = 4)
+    print_note_info(octave = 4)
     sensei_print('')
 
     sensei_print(
@@ -119,7 +120,7 @@ def main():
     And here is how these notes exist on one [octave] of a piano keyboard
     """
     )
-    print(mt.piano_keys)
+    print(piano_keys)
     sensei_print('')
 
     sensei_print(
@@ -150,7 +151,7 @@ def main():
     Listen to and examine the notes on the familiar Major scale.
     """
     , play_flag=True)
-    mt.scale_command_processor('C', 'Major', 4, 'Ionian')
+    scale_command_processor('C', 'Major', 4, 'Ionian')
     time.sleep(1)
 
     sensei_print(
@@ -177,7 +178,7 @@ def main():
     """
     , play_flag=True)
     # Play A major scale
-    mt.scale_command_processor('A', 'Major', 4, 'Ionian')
+    scale_command_processor('A', 'Major', 4, 'Ionian')
     time.sleep(1)
 
     sensei_print(
@@ -189,7 +190,7 @@ def main():
     For now, listen to how the different scales sound with a C root note.
     """
     , play_flag=True)
-    mt.scale_command_processor('C', 'all', 4, 'Ionian')
+    scale_command_processor('C', 'all', 4, 'Ionian')
     sensei_print('')
     sensei_print(
     """
@@ -215,7 +216,7 @@ def main():
     If we choose the C note as the root note, then we will get a [C Major chord].
     """
     , play_flag=True)
-    mt.chord_command_processor('C', 'Major_triad', 4)
+    chord_command_processor('C', 'Major_triad', 4)
     time.sleep(1)
 
     sensei_print("""
@@ -229,7 +230,7 @@ def main():
     This is how the resulting [C Minor chord] sounds like.
     """
     , play_flag=True)
-    mt.chord_command_processor('C', 'Minor_triad', 4)
+    chord_command_processor('C', 'Minor_triad', 4)
     time.sleep(1)
 
     sensei_print(
@@ -240,7 +241,7 @@ def main():
     For now, listen to how the different chord types sound with a C root note.
     """
     , play_flag=True)
-    mt.chord_command_processor('C', 'all', 4)
+    chord_command_processor('C', 'all', 4)
 
     sensei_print(
     """
@@ -251,7 +252,7 @@ def main():
     print('\n')
 
 if __name__ == '__main__':
-    print(mt.header)
+    print(header)
     main()
 else:
     main()
