@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-import mt_toolbox as mt
+from mt_toolbox import basic_notes
 
 # Set up the figure and axis
 fig, ax = plt.subplots(figsize=(8, 8), facecolor='gray')
@@ -17,7 +17,7 @@ circle_colors = ['firebrick', 'saddlebrown', 'orange', 'darkkhaki', 'yellow', 'l
 # list of chromatic intervals
 interval_list = ['1', 'm2', '2', 'm3', '3', 'P4', 'A4', 'P5', 'm6', '6', 'm7', '7']
 # list of chromatic note names
-chromatic_note_names = [note.name for note in mt.construct_scale(root_name='C', scale_name='Chromatic', mode_name='Ionian', octave=4)]
+chromatic_note_names = list(basic_notes.keys())
 # degrees on the chromatic "clock" for all 12 chromatic angle degrees
 chromatic_angle_degrees = -1 * np.arange(0, (12+1) * 30, 30) + 450
 # ---------------------------------
@@ -143,8 +143,8 @@ def apply_rotations(root_name, modal_root):
     # Rotations necessary to start at notes other than C
     root_pos = chromatic_note_names.index(root_name)
     modal_root_pos = chromatic_note_names.index(modal_root) # Only affects label list. Angels stay the same
-    #rotate excluding the last wrap back angle
-    rotated_chromatic_note_names = chromatic_note_names[modal_root_pos:-1]+chromatic_note_names[:modal_root_pos]
+    #rotate chromatic note list
+    rotated_chromatic_note_names = chromatic_note_names[modal_root_pos:]+chromatic_note_names[:modal_root_pos]
     #rotate excluding the last wrap back angle
     rotated_angle_degrees = np.concatenate((chromatic_angle_degrees[root_pos:-1], chromatic_angle_degrees[:root_pos]))
     # include the first angle to wrap back to the first note
