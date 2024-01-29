@@ -125,13 +125,13 @@ def progression_command_processor(key, progression, octave):
     progression -- list of integers(1~7) representing the degree of each chord within the key
     octave -- octave
     """
-    chord_list, type_list = mt.get_chord_list_from_progression(key, progression)
+    chord_list, type_list, octave_list = mt.get_chord_list_from_progression(key, progression, octave)
     if GRAPHICAL:
-        for r, t in zip(chord_list, type_list):
-            graphical_construct_and_play_chord(root_name=r, chord_name=t, octave=octave, arp=False, single_run=False)
+        for r, t, o in zip(chord_list, type_list, octave_list):
+            graphical_construct_and_play_chord(root_name=r, chord_name=t, octave=o, arp=False, single_run=False)
     else:
-        for r, t in zip(chord_list, type_list):
-            chord_command_processor(root_name=r, chord_name=t, octave=octave, arp=False)
+        for r, t, o in zip(chord_list, type_list, octave_list):
+            chord_command_processor(root_name=r, chord_name=t, octave=o, arp=False)
 
 def chord_command_processor(root_name, chord_name, octave, arp=True):
     """Plays a single or multiple chords depending on input

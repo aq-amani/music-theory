@@ -310,15 +310,17 @@ def get_modal_scale_signature(scale_name, mode_name):
     modal_signature = signature[mode_index-1:]+signature[:mode_index-1]
     return modal_signature
 
-def get_chord_list_from_progression(key, progression):
+def get_chord_list_from_progression(key, progression, octave):
     """Returns a list of chords representing a chord progression
 
     Arguments:
     key -- Key in which to play the progression (C, Dm ..etc)
     progression -- list of integers(1~7) representing the degree of each chord within the key
+    octave -- octave of the first degree note chord (starting octave)
     """
     chord_list = []
     type_list = []
+    octave_list = []
     if 'm' in key:
         base_scale_name = 'Minor'
         key = re.sub('m', '', key)
@@ -326,12 +328,13 @@ def get_chord_list_from_progression(key, progression):
     else:
         base_scale_name = 'Major'
         degree_info = major_key_degree_info
-    base_scale = construct_scale(root_name=key, scale_name=base_scale_name, mode_name='Ionian', octave=4)
+    base_scale = construct_scale(root_name=key, scale_name=base_scale_name, mode_name='Ionian', octave=octave)
     for degree in progression:
         degree = int(degree)
         chord_list.append(base_scale[degree-1].name)
+        octave_list.append(base_scale[degree-1].octave)
         type_list.append(degree_info[degree]['type'])
-    return chord_list, type_list
+    return chord_list, type_list, octave_list
 
 def note_alt_name_appender(note_name):
     """Returns a string of note_name and its alternative name if one exists
