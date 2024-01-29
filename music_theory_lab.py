@@ -86,9 +86,9 @@ def graphical_construct_and_play_scale(root_name, scale_name, mode_name, octave,
             thread.start()
         # view
         if mode_name != 'Ionian':
-            object_name_label = scale_name+f'\n{mode_name} scale'
+            object_name_label = f'{root_name} {mode_name} of\n{scale_name}\nscale'
         else:
-            object_name_label = scale_name+'\nscale'
+            object_name_label = f'{root_name}\n{scale_name}\nscale'
         VIEW.setup_parameters(scale_notes, root_name, object_name_label)
         if SAVE_PNG:
             img_name = f'{root_name}_{mode_name}_{scale_name}_scale.png'
@@ -109,7 +109,7 @@ def graphical_construct_and_play_chord(root_name, chord_name, octave, arp=True, 
             thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
             thread.start()
         # view
-        object_name_label = chord_name+'\nchord'
+        object_name_label = f'{root_name}\n{chord_name}\nchord'
         VIEW.setup_parameters(chord_notes, root_name, object_name_label)
         if SAVE_PNG:
             img_name = f'{root_name}_{chord_name}_chord.png'
