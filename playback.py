@@ -105,7 +105,7 @@ def play_chord(chord_notes):
     if ARPEGGIATE:
         print('Single notes of the chord are now being played separately..')
         if MIDI:
-            create_midi(chord_notes, 'scale', t = 3)
+            create_midi(chord_notes, 'scale', t = 0.3)
             play_midi_file(midi_filename)
         else:
             for note in chord_notes:
@@ -148,12 +148,12 @@ def play_scale(scale_notes, ms):
 
 ## MIDI files
 #############
-def create_midi(note_list, type, t = 1.5):
+def create_midi(note_list, type, t = 0.3):
     """writes a midi file
 
     Arguments:
     note_list -- list of note objects in chord or scale
-    type -- 'harmonic' or 'melodic': harmonic for chords and single notes / melodic for scales
+    type -- 'scale' or 'chord' to either play harmonically or melodically
     t -- time in seconds between single notes when playing a scale
     """
     time = 0
@@ -165,7 +165,9 @@ def create_midi(note_list, type, t = 1.5):
     for note in note_list:
         MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
         if type == 'scale':
-            time += t
+            # convert t from seconds to beats
+            padding_in_beats = ((t * tempo)/60)+0.1 # +0.1 beats to account for system delay
+            time += padding_in_beats
     with open(midi_filename, "wb") as output_file:
         MyMIDI.writeFile(output_file)
 
@@ -184,9 +186,11 @@ def create_arp_chord_midi(note_list, t = 1.5):
     # Melodic
     for note in note_list:
         MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)
-        time += t
+        # convert t from seconds to beats
+        padding_in_beats = ((t * tempo)/60)+0.1 # +0.1 beats to account for system delay
+        time += padding_in_beats
     # small delay between the two pieces
-    time += 2.5*t
+    time += 2.5*padding_in_beats
     # Harmonic
     for note in note_list:
         MyMIDI.addNote(track, channel, note.midi_id, time, duration, volume)

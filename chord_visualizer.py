@@ -33,6 +33,7 @@ rotated_angle_degrees = []
 # ---------------------------------
 # ANIMATE flag: show notes one by one or all at once in one frame
 ANIMATE = False
+animation_frame_interval = 300 #in milliseconds. Used for FuncAnimate
 # length and radius values
 tick_circle_radius = 1.4
 tick_length = 0.05
@@ -188,7 +189,7 @@ def animate_plot(pause_length=4, single_run=True):
     single_run -- single run or part of a looped run. To control plot closing and delay in case of looped runs
     """
     num_lines = len(positions_to_plot)
-    animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=300, blit=False, repeat=False)
+    animation = FuncAnimation(fig, update, frames=num_lines if ANIMATE else 1, interval=animation_frame_interval, blit=False, repeat=False)
     if single_run:
         plt.show()
     else:

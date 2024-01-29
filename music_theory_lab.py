@@ -78,10 +78,11 @@ def construct_and_play_scale(root_name, scale_name, mode_name, octave, single_ru
 def graphical_construct_and_play_scale(root_name, scale_name, mode_name, octave, single_run=True):
         # logic
         scale_notes = mt.construct_scale(root_name, scale_name, mode_name, octave)
+        animation_frame_interval = (VIEW.animation_frame_interval)/1000 # to seconds from milliseconds
         # playback
         ## Play notes only if non save png mode
         if not SAVE_PNG:
-            pb.create_midi(scale_notes, 'scale', t = 2.05)
+            pb.create_midi(scale_notes, 'scale', t = animation_frame_interval)
             thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
             thread.start()
         # view
@@ -94,18 +95,19 @@ def graphical_construct_and_play_scale(root_name, scale_name, mode_name, octave,
             img_name = f'{root_name}_{mode_name}_{scale_name}_scale.png'
             VIEW.save_plot_image(img_name)
         else:
-            VIEW.animate_plot(pause_length=4, single_run=single_run)
+            VIEW.animate_plot(pause_length=animation_frame_interval*len(scale_notes)+1, single_run=single_run)
 
 def graphical_construct_and_play_chord(root_name, chord_name, octave, arp=True, single_run=True):
         # logic
         chord_notes = mt.construct_chord(root_name, chord_name, octave)
+        animation_frame_interval = (VIEW.animation_frame_interval)/1000 # to seconds from milliseconds
         # playback
         ## play notes only if non save png mode
         if not SAVE_PNG:
             if arp:
-                pb.create_arp_chord_midi(chord_notes, t = 2.05)
+                pb.create_arp_chord_midi(chord_notes, t = animation_frame_interval)
             else:
-                pb.create_midi(chord_notes, 'c', t = 1)
+                pb.create_midi(chord_notes, 'c')
             thread = threading.Thread(target=pb.play_midi_file, args=(pb.midi_filename,))
             thread.start()
         # view
@@ -115,7 +117,7 @@ def graphical_construct_and_play_chord(root_name, chord_name, octave, arp=True, 
             img_name = f'{root_name}_{chord_name}_chord.png'
             VIEW.save_plot_image(img_name)
         else:
-            VIEW.animate_plot(pause_length=1.2 if not arp else 3.2, single_run=single_run)
+            VIEW.animate_plot(pause_length=animation_frame_interval+1 if not arp else (animation_frame_interval*len(chord_notes)+1)+1, single_run=single_run)
 
 def progression_command_processor(key, progression, octave):
     """Plays a chord progression
