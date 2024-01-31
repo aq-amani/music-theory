@@ -1,7 +1,7 @@
 import re
 from note import Note
 from note import basic_notes
-
+import random
 S = 2**(1/12) # Semi-tone frequency multiplier
 T = S ** 2 # Full-tone frequency multiplier
 # Mode info
@@ -69,25 +69,7 @@ all_chord_info = {
     "Dominant_9th" 	: {"signature" : [1,3,5,'b7',9], 	"info" : "5th note can be ommited without much sound difference"},
 }
 
-major_key_degree_info = {
-    1  : {"offset" : 0, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
-    2  : {"offset" : 2, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
-    3  : {"offset" : 4, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_4"]},
-    4  : {"offset" : -1, "type" : "Major_triad","possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
-    5  : {"offset" : 1, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
-    6  : {"offset" : 3, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
-    7  : {"offset" : 5, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
-}
-
-minor_key_degree_info = {
-    1  : {"offset" : 0, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
-    2  : {"offset" : 2, "type" : "Diminished",  "possible_types" : ["Diminished", "Half_diminished"]},
-    3  : {"offset" : -3, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
-    4  : {"offset" : -1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2", "Suspended_4"]},
-    5  : {"offset" : 1, "type" : "Minor_triad", "possible_types" : ["Minor_triad", "Minor_7th", "Suspended_2"]},
-    6  : {"offset" : -4, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2"]},
-    7  : {"offset" : -2, "type" : "Major_triad", "possible_types" : ["Major_triad", "Major_7th", "Suspended_2", "Suspended_4"]},
-}
+INTERVAL_LIST = ['1', 'm2', '2', 'm3', '3', '4', 'A4', '5', 'm6', '6', 'm7', '7']
 
 # interval name to chromatic position
 # modifiers: m,b,D--> -1, A--> +1, M,P-->number as is
@@ -198,6 +180,39 @@ def note_modifier(note_index, note):
     modified_note = note.get_next_step_note(modifier)
     return modified_note
 
+def unify_signature_format(signature):
+    """Unify interval names in signatures to match the INTERVAL_LIST format
+       Maps any interval naming format to that of the INTERVAL_LIST
+       Ex.: D5 becomes A4 | b3 becomes m3 | 5# becomes m6 | int inputs become strings
+    Arguments:
+    signature -- list of interval names representing a signature to unify-format
+    """
+
+    unified_format_signature = []
+    for interval in signature:
+        # First check if the naming already matches the reference list
+        # If it does, add it as is
+        if interval in INTERVAL_LIST:
+            unified_format_signature.append(interval)
+            continue
+        if type(interval) is str:
+            n = re.findall(r'\d+', interval)[0]
+            if 'D' in interval or 'b' in interval:
+                main_index = INTERVAL_LIST.index(n)
+                modified = INTERVAL_LIST[main_index-1]
+            if 'P' in interval:
+                modified = n
+            if '#' in interval or ('A' in interval and interval != 'A4'):
+                main_index = INTERVAL_LIST.index(n)
+                modified = INTERVAL_LIST[(main_index+1)%12]
+        else:
+            # normalize intervals exceeding an octave
+            if interval > 7:
+                interval = interval%7
+            modified = str(interval)
+        unified_format_signature.append(modified)
+    return unified_format_signature
+
 def intervals_to_chrom_positions(intervals):
     """Returns a list of chromatic positions from a list of musical intervals(m2,P5..)
        modifiers: m(minor),b(flat),D(diminished)--> -1,
@@ -245,6 +260,65 @@ def tone_to_chrom_positions(signature):
             print('Error. Unexpected signature element.')
         positions.append(pos)
     return positions
+
+def positions_to_intervals(positions):
+    """Return interval names from chromatic positions
+
+    Arguments:
+    positions -- a list of chromatic positions (0-11)
+    degree -- int representing the degree of the scale
+    """
+
+    intervals = []
+    for p in positions:
+        intervals.append(INTERVAL_LIST[p])
+    return intervals
+
+def get_possible_chords_for_degree(scale_name, degree):
+    """Return possible chord types for a scale degree
+
+    Arguments:
+    scale_name -- name of scale
+    degree -- int representing the degree of the scale
+    """
+    possible_chords = []
+    intervals = get_scale_degree_intervals(scale_name, degree)
+    for chord_name in all_chord_info:
+        chord_sig = all_chord_info[chord_name]['signature']
+        # unify signature format
+        chord_sig = unify_signature_format(chord_sig)
+        if set(chord_sig).issubset(set(intervals)):
+            possible_chords.append(chord_name)
+    return possible_chords
+
+def get_possible_chord_matrix(scale_name):
+    """Return a matrix (list of list)of all possible chords of scale
+       the list at each index i has the possible chords of degree i+1
+
+    Arguments:
+    scale_name -- name of scale
+    """
+
+    signature = all_scale_info[scale_name]['signature']
+    all_degree_possible_chords = []
+    for degree in range(1,len(signature)+1):
+        all_degree_possible_chords.append(get_possible_chords_for_degree(scale_name, degree))
+    return all_degree_possible_chords
+
+def get_scale_degree_intervals(scale_name, degree):
+    """Return a list of intervals with reference to a specific degree
+       1st degree will return intervals equivalent to the scale signature
+
+    Arguments:
+    scale_name -- name of scale
+    degree -- int representing the degree of the scale
+    """
+    original_signature = all_scale_info[scale_name]['signature']
+    degree_rooted_signature = get_rotated_signature(original_signature, degree)
+    positions = tone_to_chrom_positions(degree_rooted_signature)
+    # positions to intervals
+    scale_intervals = positions_to_intervals(positions)
+    return scale_intervals
 
 def print_chord(root_name, chord_name, chord_notes):
     """Prints the chord information in a nicely formatted string
@@ -296,6 +370,18 @@ def print_note_info(octave):
     f'\n{"":15}+{lines}+\n{"Note names":15}|{note_names}|\n{"":15}+{lines}+',
     f'\n{"Frequencies(Hz)":15}|{frequencies}|\n{"":15}+{lines}+\n')
 
+def get_rotated_signature(signature, degree):
+    """Return a left rotated signature list
+       representing the signature starting at that degree
+
+    Arguments:
+    signature -- the original scale signature
+    degree -- int representing the degree of the scale
+    """
+    # left rotate by degree-1
+    rotated_signature = signature[degree-1:]+signature[:degree-1]
+    return rotated_signature
+
 def get_modal_scale_signature(scale_name, mode_name):
     """Return the modal scale signature by left rotating the signature according to the mode value
        Ex.: Dorian starts from the second position hence a left rotation by 1
@@ -306,34 +392,38 @@ def get_modal_scale_signature(scale_name, mode_name):
     """
     signature = all_scale_info[scale_name]['signature']
     mode_index = mode_info[mode_name]
-    # left rotate by mode value-1
-    modal_signature = signature[mode_index-1:]+signature[:mode_index-1]
-    return modal_signature
+    return get_rotated_signature(signature, mode_index)
 
-def get_chord_list_from_progression(key, progression, octave):
+def get_chord_list_from_progression(key, progression, octave, random_type=False):
     """Returns a list of chords representing a chord progression
 
     Arguments:
     key -- Key in which to play the progression (C, Dm ..etc)
     progression -- list of integers(1~7) representing the degree of each chord within the key
     octave -- octave of the first degree note chord (starting octave)
+    random_type -- whether to randomly choose a chord type from the possibe chord types at each degree
     """
     chord_list = []
     type_list = []
     octave_list = []
+    base_scale_name = key
     if 'm' in key:
         base_scale_name = 'Minor'
         key = re.sub('m', '', key)
-        degree_info = minor_key_degree_info
     else:
         base_scale_name = 'Major'
-        degree_info = major_key_degree_info
+
+    chord_matrix = get_possible_chord_matrix(base_scale_name)
     base_scale = construct_scale(root_name=key, scale_name=base_scale_name, mode_name='Ionian', octave=octave)
     for degree in progression:
         degree = int(degree)
+        # skip degrees that has no possible chords
+        if not chord_matrix[degree-1]:
+            continue
+        chord_type = chord_matrix[degree-1][0] if not random_type else random.choice(chord_matrix[degree-1])
         chord_list.append(base_scale[degree-1].name)
         octave_list.append(base_scale[degree-1].octave)
-        type_list.append(degree_info[degree]['type'])
+        type_list.append(chord_type)
     return chord_list, type_list, octave_list
 
 def note_alt_name_appender(note_name):
