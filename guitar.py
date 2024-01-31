@@ -8,7 +8,7 @@ import argparse
 # colors of small circles representing notes
 NOTE_COLORS = ['firebrick', 'saddlebrown', 'orange', 'darkkhaki', 'yellow', 'limegreen', 'darkolivegreen', 'dodgerblue', 'slategrey', 'slateblue', 'darkviolet', 'indigo']
 # list of chromatic intervals
-INTERVAL_LIST = ['1', 'm2', '2', 'm3', '3', 'P4', 'A4', 'P5', 'm6', '6', 'm7', '7']
+INTERVAL_LIST = mt.INTERVAL_LIST
 # list of chromatic note names
 CHROMATIC_NOTE_NAMES = list(mt.basic_notes.keys())
 

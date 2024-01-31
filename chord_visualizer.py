@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-from mt_toolbox import basic_notes
+from mt_toolbox import basic_notes, INTERVAL_LIST
 
 # Set up the figure and axis
 fig, ax = plt.subplots(figsize=(8, 8), facecolor='gray')
@@ -14,8 +14,7 @@ structure_color = 'black'
 ## Reference lists
 # colors of small circles representing notes
 circle_colors = ['firebrick', 'saddlebrown', 'orange', 'darkkhaki', 'yellow', 'limegreen', 'darkolivegreen', 'dodgerblue', 'slategrey', 'slateblue', 'darkviolet', 'indigo']
-# list of chromatic intervals
-interval_list = ['1', 'm2', '2', 'm3', '3', 'P4', 'A4', 'P5', 'm6', '6', 'm7', '7']
+
 # list of chromatic note names
 chromatic_note_names = list(basic_notes.keys())
 # degrees on the chromatic "clock" for all 12 chromatic angle degrees
@@ -118,9 +117,9 @@ def update(frame):
         if positions_to_plot.count(pos) > 1 and octave_flag:
             note_circle_label = '\n\n+Octave'
         elif octave_flag:
-            note_circle_label = interval_list[pos]+'\n+Octave'
+            note_circle_label = INTERVAL_LIST[pos]+'\n+Octave'
         else:
-            note_circle_label = interval_list[pos]
+            note_circle_label = INTERVAL_LIST[pos]
         pos_x = np.cos(angle_rad)
         pos_y = np.sin(angle_rad)
         ax.text(pos_x, pos_y, note_circle_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
