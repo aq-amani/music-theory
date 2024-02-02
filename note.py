@@ -70,6 +70,9 @@ class Note:
         if value not in range(MIN_OCTAVE, MAX_OCTAVE+1):
             raise ValueError("Invalid octave value")
         self._octave = value
+        self._midi_id = self.get_midi_id()
+        octave_multiplier = self.octave_converter()
+        self._frequency = basic_notes[self.name]['frequency'] * octave_multiplier
 
     def octave_converter(self):
         """Converts an octave to a frequency multiplier.
