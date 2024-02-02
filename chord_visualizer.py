@@ -82,8 +82,9 @@ def update(frame):
 
     prev_pos = positions_to_plot[0]
     octave_flag = False
+
     # Depending on ANIMATE flag, animate notes one by one or just draw them at once in one frame
-    positions_loop_list = positions_to_plot[:frame+1] if ANIMATE else positions_to_plot
+    positions_loop_list = positions_to_plot
     for idx, pos in enumerate(positions_loop_list):
         reversed_index = len(positions_to_plot) - pos
         #If the new index is lower, this means we proceeded to the next octave
@@ -104,7 +105,7 @@ def update(frame):
         # Plot the line
         ax.plot(x_line, y_line, color=structure_color, lw=10, zorder=1)
         # Plot a circle at the end of the line with a fixed color
-        circle = plt.Circle((np.cos(angle_rad), np.sin(angle_rad)), circle_radius, zorder=2, edgecolor=structure_color, lw=1)
+        circle = plt.Circle((np.cos(angle_rad), np.sin(angle_rad)), circle_radius, zorder=2, edgecolor=structure_color, lw=3 if idx==frame and ANIMATE else 1)
         circle.set_facecolor(circle_colors[pos])
         ax.add_patch(circle)
 
@@ -114,16 +115,17 @@ def update(frame):
         ax.text(n_pos_x, n_pos_y, active_external_label, ha='center', va='center', color='black', fontsize=12, weight='bold')
 
         # Labels at circle centers
-        if positions_to_plot.count(pos) > 1 and octave_flag:
+        if positions_to_plot.count(pos) > 1 and octave_flag and idx==frame:
             note_circle_label = '\n\n+Octave'
-        elif octave_flag:
+        elif octave_flag and idx==frame:
+            note_circle_label = INTERVAL_LIST[pos]+'\n+Octave'
+        elif octave_flag and positions_to_plot.count(pos) ==1:
             note_circle_label = INTERVAL_LIST[pos]+'\n+Octave'
         else:
             note_circle_label = INTERVAL_LIST[pos]
         pos_x = np.cos(angle_rad)
         pos_y = np.sin(angle_rad)
         ax.text(pos_x, pos_y, note_circle_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
-
     # Text for object name
     ax.text(0, 0, object_name_label, ha='center', va='center', color='white', fontsize=10, weight='bold')
     # Set aspect ratio to equal
