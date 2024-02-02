@@ -128,6 +128,7 @@ def update(frame):
         ax.text(pos_x, pos_y, note_circle_label, ha='center', va='center', color='black', fontsize=10, weight='bold')
     # Text for object name
     ax.text(0, 0, object_name_label, ha='center', va='center', color='white', fontsize=10, weight='bold')
+    ax.set_title(object_name_label.replace('\n', ' ')+'\n', fontsize=18, weight='bold')
     # Set aspect ratio to equal
     ax.set_aspect('equal')
     # Remove axes
