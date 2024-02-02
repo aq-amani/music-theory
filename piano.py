@@ -3,7 +3,7 @@ from matplotlib.patches import Rectangle
 import numpy as np
 import mt_toolbox as mt
 import math
-import argparse
+from basic_parser import basic_parser
 ## Reference lists
 # colors of small circles representing notes
 NOTE_COLORS = ['firebrick', 'saddlebrown', 'orange', 'darkkhaki', 'yellow', 'limegreen', 'darkolivegreen', 'dodgerblue', 'slategrey', 'slateblue', 'darkviolet', 'indigo']
@@ -67,22 +67,9 @@ def show_notes(notes, highlight_key=False):
 
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='guitar.py: A script to show scale/chord/note positions on the guitar fret board')
-    root_choices = list(mt.basic_notes.keys())
-    root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
-    chord_choices = list(mt.all_chord_info.keys())
-    scale_choices = list(mt.all_scale_info.keys())
-    mode_choices= list(mt.mode_info)
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type to show', metavar = '')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale to show', metavar = '')
-    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to show', metavar = '')
+def parse_arguments(parser, group):
+    # Add arguments unique to this script
     group.add_argument('-a','--all', help='Show all notes', action ='store_true')
-
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default='C', metavar = '')
-    parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
 
     args = vars(parser.parse_args())
     return args, parser
@@ -120,7 +107,8 @@ def command_processor(args, parser):
 
 def main():
     build_keyboard()
-    args, parser = parse_arguments()
+    parser, group = basic_parser('piano.py: A script to show positions of notes, chords and scales on a graphical piano keyboard')
+    args, parser = parse_arguments(parser, group)
     notes, title = command_processor(args, parser)
     show_notes(notes)
     # Display the plot

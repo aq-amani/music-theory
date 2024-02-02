@@ -2,7 +2,7 @@ import mt_toolbox as mt
 import matplotlib.pyplot as plt
 from note import Note, basic_notes
 import numpy as np
-import argparse
+from basic_parser import basic_parser
 
 ## Reference lists
 # colors of small circles representing notes
@@ -106,22 +106,9 @@ inlay_positions = inlay_positions + [(12,2),(12,5),(24,2),(24,5)]
 ax.scatter(*zip(*inlay_positions), color=inlay_color, s=inlay_radius**2 * 1000, edgecolor='black', linewidth=1)
 generate_all_notes()
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='guitar.py: A script to show scale/chord/note positions on the guitar fret board')
-    root_choices = list(mt.basic_notes.keys())
-    root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
-    chord_choices = list(mt.all_chord_info.keys())
-    scale_choices = list(mt.all_scale_info.keys())
-    mode_choices= list(mt.mode_info)
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type to show', metavar = '')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale to show', metavar = '')
-    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to show', metavar = '')
+def parse_arguments(parser, group):
+    # Add arguments unique to this script
     group.add_argument('-a','--all', help='Show all notes', action ='store_true')
-
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default='C', metavar = '')
-    parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
 
     args = vars(parser.parse_args())
     return args, parser
@@ -153,7 +140,8 @@ def command_processor(args, parser):
     return notes, title
 
 def main():
-    args, parser = parse_arguments()
+    parser, group = basic_parser('guitar.py: A script to show positions of notes, chords and scales on a graphical guitar fretboard')
+    args, parser = parse_arguments(parser, group)
     notes, title = command_processor(args, parser)
     show_notes(notes)
     # Display the plot

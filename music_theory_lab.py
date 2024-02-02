@@ -1,5 +1,5 @@
 import mt_toolbox as mt
-import argparse
+from basic_parser import basic_parser
 import playback as pb
 import pygame.time
 import threading
@@ -238,29 +238,14 @@ def list_supported_values():
     for m in list(mt.mode_info.keys()):
         print('|_',m)
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='music_theory_lab.py: A script to interactively play with music theory concepts')
-    root_choices = list(mt.basic_notes.keys())
-    root_choices.extend(note_info['alt_name'] for note_info in mt.basic_notes.values() if note_info['alt_name'])
-    root_choices.extend(['all'])
-    chord_choices = list(mt.all_chord_info.keys())
-    chord_choices.extend(['all'])
-    scale_choices = list(mt.all_scale_info.keys())
-    scale_choices.extend(['all'])
+def parse_arguments(parser, group):
     key_choices = list(mt.basic_notes.keys()) + [n+'m' for n in mt.basic_notes.keys()]
-    mode_choices= list(mt.mode_info).extend(['all'])
 
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c','--chord', choices=chord_choices, help=f'Specify the chord type', metavar = '')
-    group.add_argument('-s','--scale', choices=scale_choices, help='Specify the scale type', metavar = '')
-    group.add_argument('-n','--note', choices=root_choices, help='Specify the note to play', metavar = '')
-    group.add_argument('-l','--list', help='List available scales, chords and notes', action ='store_true')
+    # Argument additions (arguments unique to this script)
     group.add_argument('-t','--tutorial', help='Run the tutorial (sensei) mode!', action ='store_true')
     group.add_argument('-p','--progression', nargs='+', help='Chord progression in terms of degrees separated by space. Ex.: 1 4 1 5', metavar = '')
 
     parser.add_argument('-o','--octave', choices=[i for i in range(0, 9)], help='Octave settings. Octave 4 is where A = 440Hz', default = 4, type = int, metavar = '')
-    parser.add_argument('-r','--root', choices=root_choices ,help='Root note name', default = 'C', metavar = '')
-    parser.add_argument('-m','--mode', choices=mode_choices ,help='Mode to play scale in', default = 'Ionian', metavar = '')
     parser.add_argument('-b','--keyboard', help='Show a reference piano keyboard', action ='store_true')
     parser.add_argument('-d','--midi', help='Use the midiutil instead to play notes', action ='store_true')
     parser.add_argument('-k','--key', choices=key_choices ,help='Key name. Example C(C major) or Am(A minor)', default = 'C', metavar = '')
@@ -273,7 +258,8 @@ def parse_arguments():
     return args, parser
 
 def main():
-    args, parser = parse_arguments()
+    parser, group = basic_parser('music_theory_lab.py: A script to interactively play with music theory concepts')
+    args, parser = parse_arguments(parser, group)
     command_processor(args, parser)
 
 
