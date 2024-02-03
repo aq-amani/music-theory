@@ -30,7 +30,7 @@ black_key_y = 0.67
 
 # Create a figure and axis
 fig, ax = plt.subplots()
-#fig.patch.set_facecolor('#001F3F')
+fig.patch.set_facecolor('#001F3F')
 
 # Set ticks on X/Y axis
 ax.set_xticks(np.linspace(0, keyboard_size, keyboard_size+1))
@@ -42,7 +42,7 @@ def build_keyboard():
     global KEYS, CHROMATIC_NOTE_POSITIONS
     for n in range(0,keyboard_size):
         # white keys
-        white_rectangle = Rectangle((n, 0), white_key_width, keyboard_height, edgecolor='black', facecolor='white', zorder=-1)
+        white_rectangle = Rectangle((n, 0), white_key_width, keyboard_height, edgecolor='black', facecolor='darkgrey', zorder=-1)
         ax.add_patch(white_rectangle)
         KEYS.append(white_rectangle)
         CHROMATIC_NOTE_POSITIONS.append(((n+1)-white_key_width/2, white_note_y))
@@ -112,7 +112,7 @@ def main():
     notes, title = command_processor(args, parser)
     show_notes(notes)
     # Display the plot
-    plt.title(title, color='black')
+    plt.title(title, color='white')
     plt.show()
 
 
