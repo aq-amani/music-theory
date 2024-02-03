@@ -24,6 +24,17 @@ python music_theory_lab.py --root C --scale Major --graphics --animate
   <img src="./readme_images/graphical_example.gif" width="500" />
 </p>
 
+#### 3. piano.py
+A script to plot a piano keyboard showing note positions for chords and scales.
+
+Example output:
+```bash
+python piano.py -s Minor -r C
+```
+<p align="center">
+  <img src="./readme_images/piano.png" width="500" />
+</p>
+
 ## :hammer_and_wrench: Setup/ Preparation
 - if you don't have pipenv installed, install it as following then make sure to add it to PATH.
 ```bash
